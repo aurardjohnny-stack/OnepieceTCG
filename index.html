@@ -577,7 +577,7 @@ function renderCards() {
         const safeCode = (card.id||card.code).replace(/'/g,"\\'");
         const safeUrl = url.replace(/'/g,"\\'");
         const safeName2 = card.name.replace(/'/g,"\\'");
-        return `<div class="card-item${isOwned?' owned':''}" onclick="openModal('${safeCode}','${safeUrl}','${safeName2}')" title="${safeName}">
+        return `<div class="card-item${isOwned?' owned':''}" onclick="openModal('${safeId}','${safeUrl}','${safeName2}')" title="${safeName}">
           ${url?`<img src="${url}" alt="${safeName}" loading="lazy" onload="this.classList.add('loaded')" onerror="this.style.display='none'">`:
           `<div class="card-placeholder"><span>🃏</span><small>${card.code}</small></div>`}
           ${isOwned?'<div class="owned-badge">✓</div>':''}
@@ -678,7 +678,7 @@ function renderCollectionTab() {
       const safeCode = (card.id||card.code).replace(/'/g,"\\'");
       const safeUrl = url.replace(/'/g,"\\'");
       const safeName2 = card.name.replace(/'/g,"\\'");
-      html += `<div class="card-item owned" onclick="openModal('${safeCode}','${safeUrl}','${safeName2}')" title="${safeName}">
+      html += `<div class="card-item owned" onclick="openModal('${safeId4}','${safeUrl}','${safeName2}')" title="${safeName}">
         ${url?`<img src="${url}" alt="${safeName}" loading="lazy" onload="this.classList.add('loaded')" onerror="this.style.display='none'">`:
         `<div class="card-placeholder"><span>🃏</span><small>${card.code}</small></div>`}
         <div class="owned-badge">✓</div>
