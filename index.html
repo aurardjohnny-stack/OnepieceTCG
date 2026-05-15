@@ -583,15 +583,22 @@ function normalizeLangValue(v) {
   return x || 'UNK';
 }
 
+function cardSearchBlob(card) {
+  return normText([
+    card.rarity, card.type, card.card_type, card.category, card.set, card.code, card.id,
+    card.name, card.name_en, card.name_jp, card.original_image, card.image, card.img
+  ].filter(Boolean).join(' '));
+}
+
 function normalizeTypeValue(card) {
   const x = normText(card.type || card.card_type || card.category || '');
-  const code = normText(card.code || card.id || '');
+  const blob = cardSearchBlob(card);
   const rar = normalizeRarityValue(card.rarity || '');
+  if (blob.includes('DON!!') || blob.includes('DONCARD') || /(^|-)DON($|-|\d)/.test(blob) || blob.includes('DON')) return 'DON';
   if (rar === 'LEADER' || x.includes('LEADER')) return 'LEADER';
   if (x.includes('CHARACTER') || x.includes('PERSONNAGE') || x === 'CHAR') return 'CHARACTER';
   if (x.includes('EVENT') || x.includes('EVENEMENT')) return 'EVENT';
   if (x.includes('STAGE') || x.includes('LIEU')) return 'STAGE';
-  if (x.includes('DON') || code.includes('DON')) return 'DON';
   return 'OTHER';
 }
 
@@ -599,19 +606,33 @@ function normalizeRarityValue(v) {
   const x = normText(v);
   if (!x) return '';
   if (['L','LEADER'].includes(x)) return 'LEADER';
-  if (['SEC','SECRET','SECRETRARE'].includes(x)) return 'SECRET';
-  if (['SP','SPECIAL','SPECIALCARD','SPECIALRARE'].includes(x)) return 'SPECIAL';
-  if (['TR','TREASURE','TREASURERARE'].includes(x)) return 'TREASURE';
-  if (['MANGA','MANGARARE'].includes(x)) return 'MANGA';
-  if (['ANNIVERSARY','ANNIVERSARYRARE'].includes(x)) return 'ANNIVERSARY';
+  if (['SEC','SECRET','SECRETRARE','SECRET-RARE'].includes(x)) return 'SECRET';
+  if (['SP','SPECIAL','SPECIALCARD','SPECIALRARE','SPECIAL-RARE'].includes(x)) return 'SPECIAL';
+  if (['TR','TREASURE','TREASURERARE','TREASURE-RARE'].includes(x)) return 'TREASURE';
+  if (['MANGA','MANGARARE','MANGA-RARE'].includes(x)) return 'MANGA';
+  if (['ANNIVERSARY','ANNIVERSARYRARE','ANNIVERSARY-RARE','1STANNIVERSARY','2NDANNIVERSARY'].includes(x)) return 'ANNIVERSARY';
   if (['SR','SUPERRARE','SUPER-RARE'].includes(x)) return 'SUPERRARE';
   if (['R','RARE'].includes(x)) return 'RARE';
   if (['UC','UNCOMMON'].includes(x)) return 'UNCOMMON';
   if (['C','COMMON'].includes(x)) return 'COMMON';
   if (['P','PR','PROMO','PROMOTIONAL','PROMOTION'].includes(x)) return 'PROMO';
   if (x.includes('DON')) return 'DON';
+  if (x.includes('TREASURE')) return 'TREASURE';
+  if (x.includes('MANGA')) return 'MANGA';
+  if (x.includes('ANNIVERSARY')) return 'ANNIVERSARY';
   if (x.includes('ALT') || x.includes('PARALLEL')) return 'SPECIAL';
   return x;
+}
+
+function detectSpecialRarity(card) {
+  const base = normalizeRarityValue(card.rarity || '');
+  const blob = cardSearchBlob(card);
+  if (blob.includes('DON!!') || blob.includes('DONCARD') || /(^|-)DON($|-|\d)/.test(blob)) return 'DON';
+  if (blob.includes('TREASURERARE') || blob.includes('TREASURE-RARE') || blob.includes('TREASURE')) return 'TREASURE';
+  if (blob.includes('MANGARARE') || blob.includes('MANGA-RARE') || blob.includes('MANGA')) return 'MANGA';
+  if (blob.includes('ANNIVERSARYRARE') || blob.includes('ANNIVERSARY-RARE') || blob.includes('ANNIVERSARY') || blob.includes('1STANNIV') || blob.includes('2NDANNIV')) return 'ANNIVERSARY';
+  if (blob.includes('SPECIALRARE') || blob.includes('SPECIAL-RARE') || blob.includes('SPECIALCARD') || blob.includes('ALTART') || blob.includes('PARALLEL')) return 'SPECIAL';
+  return base;
 }
 
 function normalizeSetValue(card) {
@@ -633,7 +654,7 @@ function normalizeCard(card) {
   const c = {...card};
   c.set = normalizeSetValue(c);
   c.lang = normalizeLangValue(c.lang);
-  c.rarity = normalizeRarityValue(c.rarity);
+  c.rarity = detectSpecialRarity(c);
   c._type = normalizeTypeValue(c);
   return c;
 }
