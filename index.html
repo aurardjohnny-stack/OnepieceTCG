@@ -522,7 +522,7 @@ function applyFilters() {
     if (ST.lang !== 'ALL' && c.lang !== ST.lang) return false;
     if (ST.filterSet && c.set !== ST.filterSet) return false;
     if (ST.filterRarity && c.rarity !== ST.filterRarity) return false;
-    if (ST.onlyOwned && !owned[c.code]) return false;
+    if (ST.onlyOwned && !owned[c.id]) return false;
     if (ST.search && !c.name.toLowerCase().includes(ST.search) && !c.code.toLowerCase().includes(ST.search)) return false;
     return true;
   });
@@ -559,7 +559,7 @@ function renderCards() {
     const rarities = bySet[key];
     const allCards = Object.values(rarities).flat();
     const total = allCards.length;
-    const ownedN = allCards.filter(c=>owned[c.code]).length;
+    const ownedN = allCards.filter(c=>owned[c.id]).length;
     const pct = total ? Math.round(ownedN/total*100) : 0;
     const isOpen = !ST.collapsed[key];
 
@@ -568,13 +568,13 @@ function renderCards() {
     for (const rar of sortedRar) {
       const rc = rarities[rar];
       const color = RC[rar] || '#7a8a99';
-      const ownedRar = rc.filter(c=>owned[c.code]).length;
+      const ownedRar = rc.filter(c=>owned[c.id]).length;
       const thumbs = rc.map(card => {
-        const isOwned = !!owned[card.code];
-        const info = owned[card.code] || {};
+        const isOwned = !!owned[card.id];
+        const info = owned[card.id] || {};
         const url = imgUrl(card);
         const safeName = card.name.replace(/'/g,"&#39;").replace(/"/g,"&quot;");
-        const safeCode = card.code.replace(/'/g,"\\'");
+        const safeCode = (card.id||card.code).replace(/'/g,"\\'");
         const safeUrl = url.replace(/'/g,"\\'");
         const safeName2 = card.name.replace(/'/g,"\\'");
         return `<div class="card-item${isOwned?' owned':''}" onclick="openModal('${safeCode}','${safeUrl}','${safeName2}')" title="${safeName}">
@@ -628,7 +628,7 @@ function renderStats() {
   const owned = ud().owned || {};
   const ownedSet = new Set(Object.keys(owned));
   const total = cards.length;
-  const ownedN = cards.filter(c=>ownedSet.has(c.code)).length;
+  const ownedN = cards.filter(c=>ownedSet.has(c.id)).length;
   const sets = new Set(cards.map(c=>c.set)).size;
   const value = Object.values(owned).reduce((s,o)=>s+(parseFloat(o.price)||0),0);
   document.getElementById('s-owned').textContent = ownedN;
@@ -657,9 +657,9 @@ function renderCollectionTab() {
     return;
   }
 
-  const ownedCards = codes.map(code => {
-    const card = ST.cards.find(c=>c.code===code) || {code,name:code,set:'?',lang:'?',rarity:''};
-    return {...card, ...owned[code]};
+  const ownedCards = codes.map(id => {
+    const card = ST.cards.find(c=>c.id===id) || {id,code:id,name:id,set:'?',lang:'?',rarity:''};
+    return {...card, ...owned[id]};
   }).sort((a,b)=>a.set.localeCompare(b.set));
 
   const bySet = {};
@@ -673,7 +673,7 @@ function renderCollectionTab() {
     bySet[set].forEach(card => {
       const url = imgUrl(card);
       const safeName = card.name.replace(/'/g,"&#39;");
-      const safeCode = card.code.replace(/'/g,"\\'");
+      const safeCode = (card.id||card.code).replace(/'/g,"\\'");
       const safeUrl = url.replace(/'/g,"\\'");
       const safeName2 = card.name.replace(/'/g,"\\'");
       html += `<div class="card-item owned" onclick="openModal('${safeCode}','${safeUrl}','${safeName2}')" title="${safeName}">
@@ -690,19 +690,19 @@ function renderCollectionTab() {
 }
 
 // ─── MODAL ────────────────────────────────────────────────────────
-function openModal(code, img, name) {
-  ST.selCode = code;
+function openModal(id, img, name) {
+  ST.selCode = id;
   ST.selImg = img;
   const u = ud();
-  const info = (u.owned||{})[code] || {};
+  const info = (u.owned||{})[id] || {};
   const mImg = document.getElementById('m-img');
   mImg.src = img || '';
   mImg.style.opacity = 0;
   mImg.onload = () => { mImg.style.opacity=1; };
   document.getElementById('m-name').textContent = name;
-  document.getElementById('m-meta').textContent = code;
+  const card = ST.cards.find(c=>c.id===id);
+  document.getElementById('m-meta').textContent = card ? card.code + ' · ' + (card.lang||'') + ' · ' + (card.set||'') : id;
 
-  const card = ST.cards.find(c=>c.code===code);
   if (card && card.effect) {
     document.getElementById('m-effect').innerHTML = card.effect.replace(/<br>/gi,'<br>');
     document.getElementById('m-effect').style.display = '';
@@ -715,7 +715,7 @@ function openModal(code, img, name) {
   document.getElementById('m-date').value = info.date || new Date().toISOString().split('T')[0];
   document.getElementById('m-source').value = info.source || 'achat';
 
-  const isOwned = !!(u.owned||{})[code];
+  const isOwned = !!(u.owned||{})[id];
   const btn = document.getElementById('m-btn');
   btn.textContent = isOwned ? '✕ Retirer du classeur' : '✓ Ajouter au classeur';
   btn.className = 'btn-action ' + (isOwned ? 'btn-remove-col' : 'btn-add-col');
@@ -842,7 +842,7 @@ function viewFriendCollection(friend) {
   const codes = Object.keys(fUser.owned||{});
   if (!codes.length) { showToast(friend + ' n\'a pas encore de cartes.'); return; }
 
-  const cards = codes.map(code => ST.cards.find(c=>c.code===code)||{code,name:code,set:'?'});
+  const cards = codes.map(id => ST.cards.find(c=>c.id===id)||{id,code:id,name:id,set:'?'});
   let html = `<div style="padding:16px"><div style="font-family:var(--font-display);font-size:14px;margin-bottom:12px;color:var(--gold2)">Classeur de ${friend} — ${codes.length} cartes</div>`;
   html += '<div class="cards-grid">';
   cards.forEach(card => {
