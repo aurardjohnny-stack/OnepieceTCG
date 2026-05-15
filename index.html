@@ -323,28 +323,32 @@ select.fsel:focus{border-color:var(--gold)}
     <div class="modal-name" id="m-name"></div>
     <div class="modal-meta" id="m-meta"></div>
     <div class="modal-effect" id="m-effect"></div>
-    <div id="m-copies-list" style="margin-bottom:10px"></div>
-    <div style="font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px">Ajouter une copie</div>
     <div class="modal-row">
+      <div class="modal-field">
+        <label>Quantité</label>
+        <input type="number" id="m-qty" value="1" min="1" max="99"/>
+      </div>
       <div class="modal-field">
         <label>Prix payé (€)</label>
         <input type="number" id="m-price" placeholder="0.00" step="0.01" min="0"/>
       </div>
+    </div>
+    <div class="modal-row">
       <div class="modal-field">
         <label>Date d'achat</label>
         <input type="date" id="m-date"/>
       </div>
+      <div class="modal-field">
+        <label>Acquisition</label>
+        <select id="m-source">
+          <option value="achat">Achat</option>
+          <option value="booster">Booster</option>
+          <option value="echange">Échange</option>
+          <option value="cadeau">Cadeau</option>
+        </select>
+      </div>
     </div>
-    <div class="modal-field" style="margin-bottom:10px">
-      <label>Acquisition</label>
-      <select id="m-source">
-        <option value="achat">Achat</option>
-        <option value="booster">Booster</option>
-        <option value="echange">Échange</option>
-        <option value="cadeau">Cadeau</option>
-      </select>
-    </div>
-    <button class="btn-action btn-add-col" onclick="addCopy()">+ Ajouter cette copie</button>
+    <button class="btn-action btn-add-col" id="m-btn" onclick="toggleCard()">✓ Ajouter au classeur</button>
   </div>
 </div>
 
@@ -522,7 +526,7 @@ function applyFilters() {
     if (ST.lang !== 'ALL' && c.lang !== ST.lang) return false;
     if (ST.filterSet && c.set !== ST.filterSet) return false;
     if (ST.filterRarity && c.rarity !== ST.filterRarity) return false;
-    if (ST.onlyOwned && !(owned[c.id] && (Array.isArray(owned[c.id]) ? owned[c.id].length : owned[c.id]))) return false;
+    if (ST.onlyOwned && !owned[c.id]) return false;
     if (ST.search && !c.name.toLowerCase().includes(ST.search) && !c.code.toLowerCase().includes(ST.search)) return false;
     return true;
   });
@@ -570,7 +574,7 @@ function renderCards() {
       const color = RC[rar] || '#7a8a99';
       const ownedRar = rc.filter(c=>owned[c.id]).length;
       const thumbs = rc.map(card => {
-        const isOwned = !!(owned[card.id] && owned[card.id].length > 0);
+        const isOwned = !!owned[card.id];
         const info = owned[card.id] || {};
         const url = imgUrl(card);
         const safeName = card.name.replace(/'/g,"&#39;").replace(/"/g,"&quot;");
@@ -628,7 +632,7 @@ function renderStats() {
   const owned = ud().owned || {};
   const ownedSet = new Set(Object.keys(owned));
   const total = cards.length;
-  const ownedN = [...new Set(cards.filter(c=>owned[c.id]&&(Array.isArray(owned[c.id])?owned[c.id].length:owned[c.id])>0).map(c=>c.id))].length;
+  const ownedN = cards.filter(c=>ownedSet.has(c.id)).length;
   const sets = new Set(cards.map(c=>c.set)).size;
   const value = Object.values(owned).reduce((s,o)=>s+(parseFloat(o.price)||0),0);
   document.getElementById('s-owned').textContent = ownedN;
@@ -642,11 +646,10 @@ function renderStats() {
 function renderCollectionTab() {
   const owned = ud().owned || {};
   const codes = Object.keys(owned);
-  const allCopies = codes.flatMap(c => Array.isArray(owned[c]) ? owned[c] : [owned[c]].filter(Boolean));
-  const total = allCopies.length;
+  const total = codes.reduce((s,c)=>s+(parseInt(owned[c].qty)||1),0);
   const unique = codes.length;
-  const value = allCopies.reduce((s,c)=>s+(parseFloat(c.price)||0),0);
-  const boosters = allCopies.filter(c=>c.source==='booster').length;
+  const value = codes.reduce((s,c)=>s+(parseFloat(owned[c].price)||0)*(parseInt(owned[c].qty)||1),0);
+  const boosters = codes.filter(c=>owned[c].source==='booster').length;
 
   document.getElementById('cs-total').textContent = total;
   document.getElementById('cs-unique').textContent = unique;
@@ -658,10 +661,9 @@ function renderCollectionTab() {
     return;
   }
 
-  const ownedCards = codes.flatMap(id => {
+  const ownedCards = codes.map(id => {
     const card = ST.cards.find(c=>c.id===id) || {id,code:id,name:id,set:'?',lang:'?',rarity:''};
-    const copies = Array.isArray(owned[id]) ? owned[id] : [owned[id]].filter(Boolean);
-    return copies.map((copy,i) => ({...card, ...copy, _copyIdx: i, _totalCopies: copies.length}));
+    return {...card, ...owned[id]};
   }).sort((a,b)=>a.set.localeCompare(b.set));
 
   const bySet = {};
@@ -682,7 +684,7 @@ function renderCollectionTab() {
         ${url?`<img src="${url}" alt="${safeName}" loading="lazy" onload="this.classList.add('loaded')" onerror="this.style.display='none'">`:
         `<div class="card-placeholder"><span>🃏</span><small>${card.code}</small></div>`}
         <div class="owned-badge">✓</div>
-        ${card._totalCopies>1?`<div class="qty-badge">x${card._totalCopies}</div>`:''}
+        ${(card.qty||1)>1?`<div class="qty-badge">x${card.qty}</div>`:''}
         ${card.price?`<div class="price-badge">${parseFloat(card.price).toFixed(2)}€</div>`:''}
       </div>`;
     });
@@ -717,7 +719,10 @@ function openModal(id, img, name) {
   document.getElementById('m-date').value = info.date || new Date().toISOString().split('T')[0];
   document.getElementById('m-source').value = info.source || 'achat';
 
-  renderCopiesList(id);
+  const isOwned = !!(u.owned||{})[id];
+  const btn = document.getElementById('m-btn');
+  btn.textContent = isOwned ? '✕ Retirer du classeur' : '✓ Ajouter au classeur';
+  btn.className = 'btn-action ' + (isOwned ? 'btn-remove-col' : 'btn-add-col');
   document.getElementById('card-modal').classList.add('open');
 }
 
@@ -726,52 +731,27 @@ function closeModal() {
   ST.selCode = null;
 }
 
-function addCopy() {
-  const id = ST.selCode;
-  if (!id) return;
+function toggleCard() {
+  const code = ST.selCode;
+  if (!code) return;
   const u = ud();
   if (!u.owned) u.owned = {};
-  if (!u.owned[id]) u.owned[id] = [];
-  u.owned[id].push({
-    price: document.getElementById('m-price').value,
-    date: document.getElementById('m-date').value,
-    source: document.getElementById('m-source').value,
-    addedAt: Date.now(),
-  });
+  if (u.owned[code]) {
+    delete u.owned[code];
+    showToast('Carte retirée ✕');
+  } else {
+    u.owned[code] = {
+      qty: parseInt(document.getElementById('m-qty').value) || 1,
+      price: document.getElementById('m-price').value,
+      date: document.getElementById('m-date').value,
+      source: document.getElementById('m-source').value,
+    };
+    showToast('Carte ajoutée ✓');
+  }
   setUd(u);
-  showToast('Copie ajoutée ✓');
-  document.getElementById('m-price').value = '';
-  renderCopiesList(id);
+  closeModal();
   applyFilters();
 }
-
-function removeCopy(id, idx) {
-  const u = ud();
-  if (!u.owned[id]) return;
-  u.owned[id].splice(idx, 1);
-  if (u.owned[id].length === 0) delete u.owned[id];
-  setUd(u);
-  showToast('Copie retirée ✕');
-  renderCopiesList(id);
-  applyFilters();
-}
-
-function renderCopiesList(id) {
-  const u = ud();
-  const copies = (u.owned && u.owned[id]) || [];
-  const el = document.getElementById('m-copies-list');
-  if (!copies.length) { el.innerHTML = ''; return; }
-  const sourceLabel = {achat:'Achat', booster:'Booster', echange:'Échange', cadeau:'Cadeau'};
-  el.innerHTML = \`<div style="font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.8px;text-transform:uppercase;margin-bottom:6px">\${copies.length} copie\${copies.length>1?'s':''} dans le classeur</div>\` +
-    copies.map((c,i) => \`<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:var(--surface2);border-radius:6px;margin-bottom:4px;font-size:12px">
-      <span style="color:var(--green)">\${c.price?parseFloat(c.price).toFixed(2)+'€':'—'}</span>
-      <span style="color:var(--muted)">\${c.date||'—'}</span>
-      <span style="color:var(--muted)">\${sourceLabel[c.source]||c.source||'—'}</span>
-      <button onclick="removeCopy('\${id}',\${i})" style="margin-left:auto;background:none;border:none;color:var(--muted2);cursor:pointer;font-size:14px">✕</button>
-    </div>\`).join('');
-}
-
-function toggleCard() {}
 
 function zoomModal() {
   if (ST.selImg) openZoom(ST.selImg, ST.selCode);
