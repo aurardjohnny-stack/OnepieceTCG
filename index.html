@@ -522,7 +522,7 @@ function applyFilters() {
     if (ST.lang !== 'ALL' && c.lang !== ST.lang) return false;
     if (ST.filterSet && c.set !== ST.filterSet) return false;
     if (ST.filterRarity && c.rarity !== ST.filterRarity) return false;
-    if (ST.onlyOwned && !(owned[c.id] && (Array.isArray(owned[c.id]) ? owned[c.id].length : owned[c.id]))) return false;
+    if (ST.onlyOwned && !(owned[c.id] && (Array.isArray(owned[c.id]) ? owned[c.id].length > 0 : true))) return false;
     if (ST.search && !c.name.toLowerCase().includes(ST.search) && !c.code.toLowerCase().includes(ST.search)) return false;
     return true;
   });
@@ -570,7 +570,7 @@ function renderCards() {
       const color = RC[rar] || '#7a8a99';
       const ownedRar = rc.filter(c=>owned[c.id]).length;
       const thumbs = rc.map(card => {
-        const isOwned = !!(owned[card.id] && owned[card.id].length > 0);
+        const isOwned = !!(owned[card.id] && (Array.isArray(owned[card.id]) ? owned[card.id].length > 0 : true));
         const info = owned[card.id] || {};
         const url = imgUrl(card);
         const safeName = card.name.replace(/'/g,"&#39;").replace(/"/g,"&quot;");
@@ -642,11 +642,11 @@ function renderStats() {
 function renderCollectionTab() {
   const owned = ud().owned || {};
   const codes = Object.keys(owned);
-  const allCopies = codes.flatMap(c => Array.isArray(owned[c]) ? owned[c] : [owned[c]].filter(Boolean));
-  const total = allCopies.length;
+  const allCopies = codes.flatMap(c => { const r = owned[c]; return Array.isArray(r) ? r : (r ? [r] : []); });
+  const total = allCopies.length || codes.length;
   const unique = codes.length;
-  const value = allCopies.reduce((s,c)=>s+(parseFloat(c.price)||0),0);
-  const boosters = allCopies.filter(c=>c.source==='booster').length;
+  const value = allCopies.reduce((s,c)=>s+(parseFloat(c && c.price)||0),0);
+  const boosters = allCopies.filter(c=>c && c.source==='booster').length;
 
   document.getElementById('cs-total').textContent = total;
   document.getElementById('cs-unique').textContent = unique;
@@ -660,9 +660,10 @@ function renderCollectionTab() {
 
   const ownedCards = codes.flatMap(id => {
     const card = ST.cards.find(c=>c.id===id) || {id,code:id,name:id,set:'?',lang:'?',rarity:''};
-    const copies = Array.isArray(owned[id]) ? owned[id] : [owned[id]].filter(Boolean);
-    return copies.map((copy,i) => ({...card, ...copy, _copyIdx: i, _totalCopies: copies.length}));
-  }).sort((a,b)=>a.set.localeCompare(b.set));
+    const raw = owned[id];
+    const copies = Array.isArray(raw) ? raw : (raw ? [raw] : [{price:'',date:'',source:'achat'}]);
+    return copies.map((copy,i) => Object.assign({}, card, copy, {_copyIdx: i, _totalCopies: copies.length}));
+  }).sort((a,b) => (a.set||'').localeCompare(b.set||''));
 
   const bySet = {};
   ownedCards.forEach(c => { const s=c.set||'?'; if(!bySet[s])bySet[s]=[]; bySet[s].push(c); });
