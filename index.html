@@ -609,12 +609,24 @@ function cardSearchBlob(card) {
 }
 
 function isRealDonCard(card) {
-  const fields = [card.rarity, card.type, card.card_type, card.category, card.code, card.id, card.name]
+  // IMPORTANT: never detect DON!! from the card name.
+  // Otherwise names like "Don't...", "Donquixote" or "Hildon" become fake DON!! cards.
+  const kindFields = [card.rarity, card.type, card.card_type, card.category]
     .map(normText)
     .filter(Boolean);
-  const exactDon = fields.some(x => ['DON','DON!!','DONCARD','DON!!CARD','DON-CARD'].includes(x));
-  const officialDonCode = fields.some(x => /(^|[^A-Z0-9])DON([^A-Z0-9]|$)/.test(x) || /^DON[-_ ]?\d{0,4}$/.test(x));
-  return exactDon || officialDonCode;
+  const codeFields = [card.code, card.id, card.card_id, card.number]
+    .map(normText)
+    .filter(Boolean);
+
+  const exactDonKind = kindFields.some(x => ['DON','DONCARD','DON-CARD'].includes(x));
+
+  // Real DON!! identifiers usually look like DON, DON-001, DON_001, DON 001.
+  // Do not allow loose words starting with DON, such as DONT or DONQUIXOTE.
+  const officialDonCode = codeFields.some(x =>
+    /^DON$/.test(x) || /^DON[-_ ]\d{1,4}$/.test(x)
+  );
+
+  return exactDonKind || officialDonCode;
 }
 
 function normalizeTypeValue(card) {
@@ -652,12 +664,18 @@ function normalizeRarityValue(v) {
 
 function detectSpecialRarity(card) {
   const base = normalizeRarityValue(card.rarity || '');
-  const blob = cardSearchBlob(card);
+  const codeBlob = normText([card.code, card.id, card.card_id, card.number, card.set].filter(Boolean).join(' '));
+  const kindBlob = normText([card.rarity, card.type, card.card_type, card.category, card.variant].filter(Boolean).join(' '));
+
   if (isRealDonCard(card)) return 'DON';
-  if (blob.includes('TREASURERARE') || blob.includes('TREASURE-RARE') || blob.includes('TREASURE')) return 'TREASURE';
-  if (blob.includes('MANGARARE') || blob.includes('MANGA-RARE') || blob.includes('MANGA')) return 'MANGA';
-  if (blob.includes('ANNIVERSARYRARE') || blob.includes('ANNIVERSARY-RARE') || blob.includes('ANNIVERSARY') || blob.includes('ANNIV') || blob.includes('1STANNIV') || blob.includes('2NDANNIV') || blob.includes('25TH')) return 'ANNIVERSARY';
-  if (blob.includes('SPECIALRARE') || blob.includes('SPECIAL-RARE') || blob.includes('SPECIALCARD') || blob.includes('ALTART') || blob.includes('PARALLEL')) return 'SPECIAL';
+
+  // Special categories must come from rarity/type/code fields, NOT from character names.
+  // This prevents "Mad Treasure" from becoming Treasure Rare.
+  if (base === 'TREASURE' || /(^|[^A-Z0-9])(TR|TREASURERARE|TREASURE-RARE)([^A-Z0-9]|$)/.test(kindBlob)) return 'TREASURE';
+  if (base === 'MANGA' || /(^|[^A-Z0-9])(MANGARARE|MANGA-RARE)([^A-Z0-9]|$)/.test(kindBlob) || /_MANGA|MANGA$/.test(codeBlob)) return 'MANGA';
+  if (base === 'ANNIVERSARY' || /(ANNIVERSARYRARE|ANNIVERSARY-RARE|1STANNIVERSARY|2NDANNIVERSARY|25THANNIVERSARY|ANNIV)/.test(kindBlob + ' ' + codeBlob)) return 'ANNIVERSARY';
+  if (base === 'SPECIAL' || /(SPECIALRARE|SPECIAL-RARE|SPECIALCARD|ALTART|PARALLEL)/.test(kindBlob + ' ' + codeBlob)) return 'SPECIAL';
+
   return base;
 }
 
