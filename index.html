@@ -482,6 +482,10 @@ async function loadCards() {
 function imgUrl(card) {
   const orig = card.original_image || '';
   if (!orig) return '';
+  if (card.lang === 'FR') {
+    const filename = orig.split('/').pop().replace(/\.png$/, '.webp').replace(/\.jpg$/, '.webp');
+    return 'https://cdn.jsdelivr.net/gh/aurardjohnny-stack/op-tcg-images/fr/' + filename;
+  }
   return PROXY + encodeURIComponent(orig);
 }
 
