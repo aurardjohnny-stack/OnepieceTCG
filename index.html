@@ -132,6 +132,10 @@ select.fsel:focus{border-color:var(--gold)}
 .owned-badge{position:absolute;top:4px;right:4px;width:16px;height:16px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff}
 .qty-badge{position:absolute;bottom:18px;right:4px;background:var(--red);color:#fff;font-size:9px;font-weight:700;padding:2px 5px;border-radius:4px}
 .price-badge{position:absolute;bottom:0;left:0;right:0;padding:3px 5px;background:rgba(0,0,0,.75);font-size:9px;color:var(--gold2);text-align:center}
+.copy-list{margin:10px 0 12px;display:flex;flex-direction:column;gap:6px}
+.copy-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 9px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;font-size:11px;color:var(--muted)}
+.copy-row strong{color:var(--gold2);font-weight:700}
+.copy-del{background:transparent;border:1px solid var(--border2);color:var(--muted);border-radius:6px;padding:3px 7px;cursor:pointer;font-size:11px}
 .empty-state{text-align:center;padding:60px 20px;color:var(--muted);font-size:14px;line-height:1.8}
 
 /* MODAL */
@@ -357,6 +361,7 @@ select.fsel:focus{border-color:var(--gold)}
         </select>
       </div>
     </div>
+    <div class="copy-list" id="m-copies"></div>
     <button class="btn-action btn-add-col" id="m-btn" onclick="toggleCard()">✓ Ajouter au classeur</button>
   </div>
 </div>
@@ -401,6 +406,48 @@ function load() {
 function ud() { return ST.users[ST.user] || {}; }
 function setUd(data) { ST.users[ST.user] = data; save(); }
 
+
+// Chaque carte possédée peut maintenant avoir plusieurs exemplaires indépendants.
+// Format récent : owned[cardId] = { copies:[{id, price, date, source}] }
+function makeCopy(data={}) {
+  return {
+    id: data.id || ('cp_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,7)),
+    price: data.price || '',
+    date: data.date || '',
+    source: data.source || 'achat'
+  };
+}
+function getCopies(info) {
+  if (!info) return [];
+  if (Array.isArray(info.copies)) return info.copies;
+  // Compatibilité avec l'ancien système qty/prix/date/source : on transforme sans casser les anciennes données.
+  const qty = Math.max(1, parseInt(info.qty) || 1);
+  return Array.from({length: qty}, () => makeCopy({price: info.price || '', date: info.date || '', source: info.source || 'achat'}));
+}
+function normalizeOwnedEntry(u, code) {
+  if (!u.owned) u.owned = {};
+  const info = u.owned[code];
+  if (!info) return null;
+  if (!Array.isArray(info.copies)) {
+    u.owned[code] = { copies: getCopies(info) };
+    save();
+  }
+  return u.owned[code];
+}
+function ownedQty(info) { return getCopies(info).length; }
+function ownedValue(info) { return getCopies(info).reduce((s,c)=>s+(parseFloat(c.price)||0),0); }
+function ownedSources(info) { return new Set(getCopies(info).map(c=>c.source)).size; }
+function ownedMainPrice(info) {
+  const v = ownedValue(info), q = ownedQty(info);
+  return q ? (v / q) : 0;
+}
+function sourceLabel(v) {
+  return ({achat:'Achat', booster:'Booster', echange:'Échange', cadeau:'Cadeau'}[v] || v || 'Achat');
+}
+function escapeHtml(v) {
+  return String(v ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
 // ─── AUTH ─────────────────────────────────────────────────────────
 function switchAuthTab(tab) {
   ST.authTab = tab;
@@ -413,7 +460,7 @@ function renderUserList() {
   const list = document.getElementById('quick-login-list');
   const users = Object.keys(ST.users);
   list.innerHTML = users.length ? users.map(u => {
-    const count = Object.keys((ST.users[u].owned||{})).length;
+    const count = Object.values(ST.users[u].owned||{}).reduce((sum,o)=>sum+ownedQty(o),0);
     return `<div class="user-row" onclick="quickLogin('${u}')">
       <div class="av">${u.slice(0,2).toUpperCase()}</div>
       <div><div class="user-row-name">${u}</div><div class="user-row-count">${count} carte${count>1?'s':''}</div></div>
@@ -756,7 +803,7 @@ function renderCards() {
   for (const key of sortedSets) {
     const setCards = bySet[key].slice().sort(cardSort);
     const total = setCards.length;
-    const ownedN = setCards.filter(c=>owned[c.id]).length;
+    const ownedN = setCards.reduce((sum,c)=>sum+Math.min(1, ownedQty(owned[c.id])),0);
     const pct = total ? Math.round(ownedN/total*100) : 0;
     const isOpen = !ST.collapsed[key];
     const byLang = groupBy(setCards, c => c.lang || 'UNK');
@@ -778,9 +825,10 @@ function renderCards() {
         for (const rar of sortedRar) {
           const rc = byRarity[rar].slice().sort(cardSort);
           const color = RC[rar] || '#7a8a99';
-          const ownedRar = rc.filter(c=>owned[c.id]).length;
+          const ownedRar = rc.reduce((sum,c)=>sum+Math.min(1, ownedQty(owned[c.id])),0);
           const thumbs = rc.map(card => {
-            const isOwned = !!owned[card.id];
+            const qtyOwned = ownedQty(owned[card.id]);
+            const isOwned = qtyOwned > 0;
             const info = owned[card.id] || {};
             const url = imgUrl(card);
             const safeName = card.name.replace(/'/g,"&#39;").replace(/"/g,"&quot;");
@@ -791,8 +839,8 @@ function renderCards() {
               ${url?`<img src="${url}" alt="${safeName}" loading="lazy" onload="this.classList.add('loaded')" onerror="this.style.display='none'">`:
               `<div class="card-placeholder"><span>🃏</span><small>${card.code}</small></div>`}
               ${isOwned?'<div class="owned-badge">✓</div>':''}
-              ${(info.qty||1)>1?`<div class="qty-badge">x${info.qty}</div>`:''}
-              ${info.price?`<div class="price-badge">${parseFloat(info.price).toFixed(2)}€</div>`:''}
+              ${qtyOwned>1?`<div class="qty-badge">x${qtyOwned}</div>`:''}
+              ${ownedValue(info)>0?`<div class="price-badge">${ownedValue(info).toFixed(2)}€</div>`:''}
             </div>`;
           }).join('');
 
@@ -858,7 +906,7 @@ function renderStats() {
   const total = cards.length;
   const ownedN = cards.filter(c=>ownedSet.has(c.id)).length;
   const sets = new Set(cards.map(c=>c.set)).size;
-  const value = Object.values(owned).reduce((s,o)=>s+(parseFloat(o.price)||0),0);
+  const value = Object.values(owned).reduce((s,o)=>s+ownedValue(o),0);
   document.getElementById('s-owned').textContent = ownedN;
   document.getElementById('s-total').textContent = total.toLocaleString('fr');
   document.getElementById('s-pct').textContent = total ? Math.round(ownedN/total*100)+'%' : '0%';
@@ -869,11 +917,11 @@ function renderStats() {
 // ─── COLLECTION TAB ───────────────────────────────────────────────
 function renderCollectionTab() {
   const owned = ud().owned || {};
-  const codes = Object.keys(owned);
-  const total = codes.reduce((s,c)=>s+(parseInt(owned[c].qty)||1),0);
+  const codes = Object.keys(owned).filter(c => ownedQty(owned[c]) > 0);
+  const total = codes.reduce((s,c)=>s+ownedQty(owned[c]),0);
   const unique = codes.length;
-  const value = codes.reduce((s,c)=>s+(parseFloat(owned[c].price)||0)*(parseInt(owned[c].qty)||1),0);
-  const boosters = codes.filter(c=>owned[c].source==='booster').length;
+  const value = codes.reduce((s,c)=>s+ownedValue(owned[c]),0);
+  const boosters = codes.reduce((s,c)=>s+getCopies(owned[c]).filter(x=>x.source==='booster').length,0);
 
   document.getElementById('cs-total').textContent = total;
   document.getElementById('cs-unique').textContent = unique;
@@ -886,30 +934,31 @@ function renderCollectionTab() {
   }
 
   const ownedCards = codes.map(id => {
+    const entry = normalizeOwnedEntry(ud(), id) || owned[id];
     const card = ST.cards.find(c=>c.id===id) || {id,code:id,name:id,set:'?',lang:'?',rarity:''};
-    return {...card, ...owned[id]};
-  }).sort((a,b)=>a.set.localeCompare(b.set));
+    return {...card, ownedInfo: entry, qty: ownedQty(entry), totalPrice: ownedValue(entry)};
+  }).sort(cardSort);
 
   const bySet = {};
   ownedCards.forEach(c => { const s=c.set||'?'; if(!bySet[s])bySet[s]=[]; bySet[s].push(c); });
 
   let html = '';
-  Object.keys(bySet).sort().forEach(set => {
+  Object.keys(bySet).sort(setSort).forEach(set => {
     html += `<div style="margin-bottom:20px">
       <div style="font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px">${set}</div>
       <div class="cards-grid">`;
     bySet[set].forEach(card => {
       const url = imgUrl(card);
-      const safeName = card.name.replace(/'/g,"&#39;");
+      const safeName = escapeHtml(card.name);
       const safeCode = (card.id||card.code).replace(/'/g,"\\'");
       const safeUrl = url.replace(/'/g,"\\'");
       const safeName2 = card.name.replace(/'/g,"\\'");
       html += `<div class="card-item owned" onclick="openModal('${safeCode}','${safeUrl}','${safeName2}')" title="${safeName}">
         ${url?`<img src="${url}" alt="${safeName}" loading="lazy" onload="this.classList.add('loaded')" onerror="this.style.display='none'">`:
-        `<div class="card-placeholder"><span>🃏</span><small>${card.code}</small></div>`}
+        `<div class="card-placeholder"><span>🃏</span><small>${escapeHtml(card.code)}</small></div>`}
         <div class="owned-badge">✓</div>
-        ${(card.qty||1)>1?`<div class="qty-badge">x${card.qty}</div>`:''}
-        ${card.price?`<div class="price-badge">${parseFloat(card.price).toFixed(2)}€</div>`:''}
+        ${card.qty>1?`<div class="qty-badge">x${card.qty}</div>`:''}
+        ${card.totalPrice>0?`<div class="price-badge">${card.totalPrice.toFixed(2)}€</div>`:''}
       </div>`;
     });
     html += '</div></div>';
@@ -922,7 +971,9 @@ function openModal(id, img, name) {
   ST.selCode = id;
   ST.selImg = img;
   const u = ud();
-  const info = (u.owned||{})[id] || {};
+  const entry = normalizeOwnedEntry(u, id);
+  const info = entry || {};
+  const copies = getCopies(info);
   const mImg = document.getElementById('m-img');
   mImg.src = img || '';
   mImg.style.opacity = 0;
@@ -938,16 +989,31 @@ function openModal(id, img, name) {
     document.getElementById('m-effect').style.display = 'none';
   }
 
-  document.getElementById('m-qty').value = info.qty || 1;
-  document.getElementById('m-price').value = info.price || '';
-  document.getElementById('m-date').value = info.date || new Date().toISOString().split('T')[0];
-  document.getElementById('m-source').value = info.source || 'achat';
+  document.getElementById('m-qty').value = 1;
+  document.getElementById('m-price').value = '';
+  document.getElementById('m-date').value = new Date().toISOString().split('T')[0];
+  document.getElementById('m-source').value = 'achat';
+  renderCopiesList(copies);
 
-  const isOwned = !!(u.owned||{})[id];
   const btn = document.getElementById('m-btn');
-  btn.textContent = isOwned ? '✕ Retirer du classeur' : '✓ Ajouter au classeur';
-  btn.className = 'btn-action ' + (isOwned ? 'btn-remove-col' : 'btn-add-col');
+  btn.textContent = copies.length ? '✓ Ajouter un autre exemplaire' : '✓ Ajouter au classeur';
+  btn.className = 'btn-action btn-add-col';
   document.getElementById('card-modal').classList.add('open');
+}
+
+function renderCopiesList(copies) {
+  const box = document.getElementById('m-copies');
+  if (!box) return;
+  if (!copies.length) {
+    box.innerHTML = '';
+    return;
+  }
+  const total = copies.reduce((s,c)=>s+(parseFloat(c.price)||0),0);
+  box.innerHTML = `<div class="copy-row"><span><strong>${copies.length} exemplaire${copies.length>1?'s':''}</strong> · total ${total.toFixed(2)}€</span></div>` +
+    copies.map((c,i)=>`<div class="copy-row">
+      <span>#${i+1} · <strong>${(parseFloat(c.price)||0).toFixed(2)}€</strong> · ${escapeHtml(c.date||'sans date')} · ${escapeHtml(sourceLabel(c.source))}</span>
+      <button class="copy-del" onclick="removeCopy('${c.id}')">Retirer</button>
+    </div>`).join('');
 }
 
 function closeModal() {
@@ -960,21 +1026,34 @@ function toggleCard() {
   if (!code) return;
   const u = ud();
   if (!u.owned) u.owned = {};
-  if (u.owned[code]) {
-    delete u.owned[code];
-    showToast('Carte retirée ✕');
-  } else {
-    u.owned[code] = {
-      qty: parseInt(document.getElementById('m-qty').value) || 1,
-      price: document.getElementById('m-price').value,
-      date: document.getElementById('m-date').value,
-      source: document.getElementById('m-source').value,
-    };
-    showToast('Carte ajoutée ✓');
-  }
+  const entry = normalizeOwnedEntry(u, code) || { copies: [] };
+  const qty = Math.max(1, parseInt(document.getElementById('m-qty').value) || 1);
+  const price = document.getElementById('m-price').value;
+  const date = document.getElementById('m-date').value;
+  const source = document.getElementById('m-source').value;
+  for (let i=0; i<qty; i++) entry.copies.push(makeCopy({price,date,source}));
+  u.owned[code] = entry;
   setUd(u);
-  closeModal();
+  showToast(qty > 1 ? qty + ' exemplaires ajoutés ✓' : 'Exemplaire ajouté ✓');
+  renderCopiesList(entry.copies);
   applyFilters();
+  if (ST.mainTab === 'collection') renderCollectionTab();
+}
+
+function removeCopy(copyId) {
+  const code = ST.selCode;
+  if (!code || !copyId) return;
+  const u = ud();
+  const entry = normalizeOwnedEntry(u, code);
+  if (!entry) return;
+  entry.copies = entry.copies.filter(c => c.id !== copyId);
+  if (!entry.copies.length) delete u.owned[code];
+  else u.owned[code] = entry;
+  setUd(u);
+  renderCopiesList(entry.copies || []);
+  applyFilters();
+  if (ST.mainTab === 'collection') renderCollectionTab();
+  showToast('Exemplaire retiré ✕');
 }
 
 function zoomModal() {
