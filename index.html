@@ -468,9 +468,9 @@ function enterApp() {
 // ─── CARDS LOADING ────────────────────────────────────────────────
 async function loadCards() {
   try {
-    const res = await fetch('./cards.json');
+    const res = await fetch('./cards.json?v=3');
     const data = await res.json();
-    ST.cards = data.cards || [];
+    ST.cards = (data.cards || []).filter(c => c.set !== 'AUTRE');
     buildSetFilter();
     applyFilters();
   } catch(e) {
