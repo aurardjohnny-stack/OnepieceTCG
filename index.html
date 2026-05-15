@@ -608,11 +608,20 @@ function cardSearchBlob(card) {
   ].filter(Boolean).join(' '));
 }
 
+function isRealDonCard(card) {
+  const fields = [card.rarity, card.type, card.card_type, card.category, card.code, card.id, card.name]
+    .map(normText)
+    .filter(Boolean);
+  const exactDon = fields.some(x => ['DON','DON!!','DONCARD','DON!!CARD','DON-CARD'].includes(x));
+  const officialDonCode = fields.some(x => /(^|[^A-Z0-9])DON([^A-Z0-9]|$)/.test(x) || /^DON[-_ ]?\d{0,4}$/.test(x));
+  return exactDon || officialDonCode;
+}
+
 function normalizeTypeValue(card) {
   const x = normText(card.type || card.card_type || card.category || '');
   const blob = cardSearchBlob(card);
   const rar = normalizeRarityValue(card.rarity || '');
-  if (blob.includes('DON!!') || blob.includes('DONCARD') || /(^|-)DON($|-|\d)/.test(blob) || blob.includes('DON')) return 'DON';
+  if (isRealDonCard(card)) return 'DON';
   if (rar === 'LEADER' || x.includes('LEADER')) return 'LEADER';
   if (x.includes('CHARACTER') || x.includes('PERSONNAGE') || x === 'CHAR') return 'CHARACTER';
   if (x.includes('EVENT') || x.includes('EVENEMENT')) return 'EVENT';
@@ -634,7 +643,6 @@ function normalizeRarityValue(v) {
   if (['UC','UNCOMMON'].includes(x)) return 'UNCOMMON';
   if (['C','COMMON'].includes(x)) return 'COMMON';
   if (['P','PR','PROMO','PROMOTIONAL','PROMOTION'].includes(x)) return 'PROMO';
-  if (x.includes('DON')) return 'DON';
   if (x.includes('TREASURE')) return 'TREASURE';
   if (x.includes('MANGA')) return 'MANGA';
   if (x.includes('ANNIVERSARY')) return 'ANNIVERSARY';
@@ -645,7 +653,7 @@ function normalizeRarityValue(v) {
 function detectSpecialRarity(card) {
   const base = normalizeRarityValue(card.rarity || '');
   const blob = cardSearchBlob(card);
-  if (blob.includes('DON!!') || blob.includes('DONCARD') || /(^|-)DON($|-|\d)/.test(blob)) return 'DON';
+  if (isRealDonCard(card)) return 'DON';
   if (blob.includes('TREASURERARE') || blob.includes('TREASURE-RARE') || blob.includes('TREASURE')) return 'TREASURE';
   if (blob.includes('MANGARARE') || blob.includes('MANGA-RARE') || blob.includes('MANGA')) return 'MANGA';
   if (blob.includes('ANNIVERSARYRARE') || blob.includes('ANNIVERSARY-RARE') || blob.includes('ANNIVERSARY') || blob.includes('ANNIV') || blob.includes('1STANNIV') || blob.includes('2NDANNIV') || blob.includes('25TH')) return 'ANNIVERSARY';
