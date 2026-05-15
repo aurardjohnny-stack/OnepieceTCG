@@ -2,41 +2,26 @@ export default async function handler(req, res) {
   const { url } = req.query;
   if (!url) return res.status(400).send('Missing url param');
 
-  async function tryFetch(target, referer) {
+  async function tryFetch(target) {
+    const targetUrl = new URL(target);
     return await fetch(target, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36',
-        'Referer': referer,
+        'Referer': targetUrl.origin + '/',
+        'Origin': targetUrl.origin,
         'Accept': 'image/avif,image/webp,image/apng,image/*,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.9',
-        'Cache-Control': 'no-cache',
       }
     });
   }
 
   try {
     const target = decodeURIComponent(url);
-    const targetUrl = new URL(target);
+    let response = await tryFetch(target);
 
-    // Liste des referers à essayer selon le domaine
-    const referers = [
-      targetUrl.origin + '/',
-      'https://en.onepiece-cardgame.com/',
-      'https://asia-en.onepiece-cardgame.com/',
-    ];
-
-    let response = null;
-    for (const referer of referers) {
-      response = await tryFetch(target, referer);
-      if (response.ok) break;
-    }
-
-    // Fallback: remplacer asia-en par en
-    if (!response.ok) {
+    // Si asia-en bloque, on essaie en.
+    if (!response.ok && target.includes('asia-en.onepiece-cardgame.com')) {
       const fallback = target.replace('asia-en.onepiece-cardgame.com', 'en.onepiece-cardgame.com');
-      if (fallback !== target) {
-        response = await tryFetch(fallback, 'https://en.onepiece-cardgame.com/');
-      }
+      response = await tryFetch(fallback);
     }
 
     if (!response.ok) return res.status(response.status).send('Image fetch failed');
