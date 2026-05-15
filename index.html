@@ -265,6 +265,15 @@ select.fsel:focus{border-color:var(--gold)}
         <option value="PROMO">Promo</option>
         <option value="SECRET">Secret Rare</option>
       </select>
+      <select class="fsel" id="special-filter" onchange="onFilter()">
+        <option value="">Toutes catégories spéciales</option>
+        <option value="DON">DON!!</option>
+        <option value="ANNIVERSARY">Anniversary</option>
+        <option value="MANGA">Manga Rare</option>
+        <option value="TREASURE">Treasure Rare</option>
+        <option value="SPECIAL">Special / SP / Alt Art</option>
+        <option value="PROMO">Promo</option>
+      </select>
       <button class="ftog" id="toggle-owned" onclick="toggleOwned()">★ Possédées seulement</button>
       <span class="fcount" id="fcount"></span>
     </div>
@@ -372,6 +381,7 @@ const ST = {
   search: '',
   filterSet: '',
   filterRarity: '',
+  filterSpecial: '',
   collapsed: {},
   selCode: null,
   selImg: null,
@@ -525,6 +535,7 @@ function onSearch(v) { ST.search = v.toLowerCase(); applyFilters(); }
 function onFilter() {
   ST.filterSet = document.getElementById('set-filter').value;
   ST.filterRarity = document.getElementById('rarity-filter').value;
+  ST.filterSpecial = document.getElementById('special-filter').value;
   applyFilters();
 }
 function toggleOwned() {
@@ -533,12 +544,19 @@ function toggleOwned() {
   applyFilters();
 }
 
+function matchesSpecialFilter(c, value) {
+  if (!value) return true;
+  if (value === 'DON') return c.rarity === 'DON' || c._type === 'DON';
+  return c.rarity === value;
+}
+
 function applyFilters() {
   const owned = ud().owned || {};
   ST.filtered = ST.cards.filter(c => {
     if (ST.lang !== 'ALL' && c.lang !== ST.lang) return false;
     if (ST.filterSet && c.set !== ST.filterSet) return false;
     if (ST.filterRarity && c.rarity !== ST.filterRarity) return false;
+    if (ST.filterSpecial && !matchesSpecialFilter(c, ST.filterSpecial)) return false;
     if (ST.onlyOwned && !owned[c.id]) return false;
     if (ST.search && !c.name.toLowerCase().includes(ST.search) && !c.code.toLowerCase().includes(ST.search)) return false;
     return true;
@@ -630,7 +648,7 @@ function detectSpecialRarity(card) {
   if (blob.includes('DON!!') || blob.includes('DONCARD') || /(^|-)DON($|-|\d)/.test(blob)) return 'DON';
   if (blob.includes('TREASURERARE') || blob.includes('TREASURE-RARE') || blob.includes('TREASURE')) return 'TREASURE';
   if (blob.includes('MANGARARE') || blob.includes('MANGA-RARE') || blob.includes('MANGA')) return 'MANGA';
-  if (blob.includes('ANNIVERSARYRARE') || blob.includes('ANNIVERSARY-RARE') || blob.includes('ANNIVERSARY') || blob.includes('1STANNIV') || blob.includes('2NDANNIV')) return 'ANNIVERSARY';
+  if (blob.includes('ANNIVERSARYRARE') || blob.includes('ANNIVERSARY-RARE') || blob.includes('ANNIVERSARY') || blob.includes('ANNIV') || blob.includes('1STANNIV') || blob.includes('2NDANNIV') || blob.includes('25TH')) return 'ANNIVERSARY';
   if (blob.includes('SPECIALRARE') || blob.includes('SPECIAL-RARE') || blob.includes('SPECIALCARD') || blob.includes('ALTART') || blob.includes('PARALLEL')) return 'SPECIAL';
   return base;
 }
