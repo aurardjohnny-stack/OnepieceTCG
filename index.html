@@ -470,7 +470,9 @@ async function loadCards() {
   try {
     const res = await fetch('./cards.json?v=3');
     const data = await res.json();
-    ST.cards = (data.cards || []).filter(c => c.set !== 'AUTRE');
+    ST.cards = (data.cards || [])
+      .map(normalizeCard)
+      .filter(c => c.set !== 'AUTRE');
     buildSetFilter();
     applyFilters();
   } catch(e) {
@@ -490,12 +492,23 @@ function imgUrl(card) {
 }
 
 function buildSetFilter() {
-  const sets = [...new Set(ST.cards.map(c => c.set).filter(Boolean))].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
+  const sets = [...new Set(ST.cards.map(c => c.set).filter(Boolean))].sort(setSort);
   const sel = document.getElementById('set-filter');
+  sel.innerHTML = '<option value="">Tous les sets</option>';
   sets.forEach(s => {
     const o = document.createElement('option');
     o.value = s; o.textContent = s;
     sel.appendChild(o);
+  });
+
+  const raritySel = document.getElementById('rarity-filter');
+  const rarities = [...new Set(ST.cards.map(c => c.rarity || '').filter(Boolean))]
+    .sort((a,b)=>orderIndex(RARITY_ORDER,a)-orderIndex(RARITY_ORDER,b) || a.localeCompare(b));
+  raritySel.innerHTML = '<option value="">Toutes raretés</option>';
+  rarities.forEach(r => {
+    const o = document.createElement('option');
+    o.value = r; o.textContent = RL[r] || r;
+    raritySel.appendChild(o);
   });
 }
 
@@ -536,67 +549,213 @@ function applyFilters() {
   renderCollectionTab();
 }
 
-// ─── RENDER CARDS (grouped by set > rarity) ───────────────────────
-const RARITY_ORDER = ['SECRET','LEADER','SUPERRARE','RARE','UNCOMMON','COMMON','PROMO',''];
-const RL = {SECRET:'Secret Rare',LEADER:'Leader',SUPERRARE:'Super Rare',RARE:'Rare',UNCOMMON:'Uncommon',COMMON:'Common',PROMO:'Promo'};
-const RC = {SECRET:'#D4537E',LEADER:'#d4a017',SUPERRARE:'#e74c3c',RARE:'#378ADD',UNCOMMON:'#1D9E75',COMMON:'#7a8a99',PROMO:'#7F77DD'};
+// ─── RENDER CARDS (grouped by set > language > type > rarity) ─────
+const LANG_ORDER = ['FR','EN','JAP','CN-HK','UNK'];
+const LANG_LABEL = {'FR':'🇫🇷 FR','EN':'🇬🇧 EN','JAP':'🇯🇵 JAP','CN-HK':'🇨🇳 CN/HK','UNK':'Autres'};
+
+const TYPE_ORDER = ['LEADER','CHARACTER','EVENT','STAGE','DON','OTHER'];
+const TYPE_LABEL = {LEADER:'Leader',CHARACTER:'Character',EVENT:'Event',STAGE:'Stage',DON:'DON!!',OTHER:'Autres'};
+
+const RARITY_ORDER = [
+  'LEADER','SECRET','SPECIAL','TREASURE','MANGA','ANNIVERSARY','SUPERRARE','RARE','UNCOMMON','COMMON','PROMO','DON','OTHER',''
+];
+const RL = {
+  LEADER:'Leader',SECRET:'Secret Rare',SPECIAL:'Special / SP',TREASURE:'Treasure Rare',MANGA:'Manga',ANNIVERSARY:'Anniversary',
+  SUPERRARE:'Super Rare',RARE:'Rare',UNCOMMON:'Uncommon',COMMON:'Common',PROMO:'Promo',DON:'DON!!',OTHER:'Autres'
+};
+const RC = {
+  SECRET:'#D4537E',LEADER:'#d4a017',SPECIAL:'#b86bff',TREASURE:'#f0c040',MANGA:'#f0c040',ANNIVERSARY:'#f0c040',
+  SUPERRARE:'#e74c3c',RARE:'#378ADD',UNCOMMON:'#1D9E75',COMMON:'#7a8a99',PROMO:'#7F77DD',DON:'#f0c040',OTHER:'#7a8a99'
+};
+
+function normText(v) {
+  return String(v || '').trim().toUpperCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[._]/g,'-').replace(/\s+/g,'');
+}
+
+function normalizeLangValue(v) {
+  const x = normText(v);
+  if (['FR','FRA','FRENCH','FRANCAIS'].includes(x)) return 'FR';
+  if (['EN','ENG','ENGLISH','US'].includes(x)) return 'EN';
+  if (['JP','JAP','JA','JPN','JAPANESE','JAPONAIS'].includes(x)) return 'JAP';
+  if (['CN-HK','CNHK','C-HK','CHINESE','CHINOIS','HK','TC','ZHTW','ZH-HK'].includes(x)) return 'CN-HK';
+  return x || 'UNK';
+}
+
+function normalizeTypeValue(card) {
+  const x = normText(card.type || card.card_type || card.category || '');
+  const code = normText(card.code || card.id || '');
+  const rar = normalizeRarityValue(card.rarity || '');
+  if (rar === 'LEADER' || x.includes('LEADER')) return 'LEADER';
+  if (x.includes('CHARACTER') || x.includes('PERSONNAGE') || x === 'CHAR') return 'CHARACTER';
+  if (x.includes('EVENT') || x.includes('EVENEMENT')) return 'EVENT';
+  if (x.includes('STAGE') || x.includes('LIEU')) return 'STAGE';
+  if (x.includes('DON') || code.includes('DON')) return 'DON';
+  return 'OTHER';
+}
+
+function normalizeRarityValue(v) {
+  const x = normText(v);
+  if (!x) return '';
+  if (['L','LEADER'].includes(x)) return 'LEADER';
+  if (['SEC','SECRET','SECRETRARE'].includes(x)) return 'SECRET';
+  if (['SP','SPECIAL','SPECIALCARD','SPECIALRARE'].includes(x)) return 'SPECIAL';
+  if (['TR','TREASURE','TREASURERARE'].includes(x)) return 'TREASURE';
+  if (['MANGA','MANGARARE'].includes(x)) return 'MANGA';
+  if (['ANNIVERSARY','ANNIVERSARYRARE'].includes(x)) return 'ANNIVERSARY';
+  if (['SR','SUPERRARE','SUPER-RARE'].includes(x)) return 'SUPERRARE';
+  if (['R','RARE'].includes(x)) return 'RARE';
+  if (['UC','UNCOMMON'].includes(x)) return 'UNCOMMON';
+  if (['C','COMMON'].includes(x)) return 'COMMON';
+  if (['P','PR','PROMO','PROMOTIONAL','PROMOTION'].includes(x)) return 'PROMO';
+  if (x.includes('DON')) return 'DON';
+  if (x.includes('ALT') || x.includes('PARALLEL')) return 'SPECIAL';
+  return x;
+}
+
+function normalizeSetValue(card) {
+  const raw = String(card.set || '').trim();
+  const code = String(card.code || card.id || '').toUpperCase();
+  const m = code.match(/\b(OP\d{2}|ST\d{2}|EB\d{2}|PRB\d{2}|P)\b/);
+  return raw || (m ? m[1] : 'AUTRE');
+}
+
+function parseCardNumber(card) {
+  const code = String(card.code || card.id || '').toUpperCase();
+  const m = code.match(/(?:OP|ST|EB|PRB|P)-?(\d{1,3})|(?:OP|ST|EB|PRB)\d{2}[-_ ]?(\d{1,3})/);
+  const n = m ? parseInt(m[1] || m[2],10) : 9999;
+  const variant = /ALT|PARALLEL|_P|\(P\)|AA|MANGA|SP|SPECIAL/.test(code + ' ' + normText(card.rarity || '')) ? 1 : 0;
+  return {n, variant, code};
+}
+
+function normalizeCard(card) {
+  const c = {...card};
+  c.set = normalizeSetValue(c);
+  c.lang = normalizeLangValue(c.lang);
+  c.rarity = normalizeRarityValue(c.rarity);
+  c._type = normalizeTypeValue(c);
+  return c;
+}
+
+function orderIndex(list, value) {
+  const i = list.indexOf(value);
+  return i === -1 ? 999 : i;
+}
+
+function setSort(a,b) {
+  const ax = String(a), bx = String(b);
+  const am = ax.match(/^(OP|ST|EB|PRB)(\d+)/i), bm = bx.match(/^(OP|ST|EB|PRB)(\d+)/i);
+  const family = {OP:0,ST:1,EB:2,PRB:3,P:4,AUTRE:9};
+  if (am || bm) {
+    const af = am ? family[am[1].toUpperCase()] : 8;
+    const bf = bm ? family[bm[1].toUpperCase()] : 8;
+    if (af !== bf) return af - bf;
+    const an = am ? parseInt(am[2],10) : 999;
+    const bn = bm ? parseInt(bm[2],10) : 999;
+    if (an !== bn) return an - bn;
+  }
+  return ax.localeCompare(bx, undefined, {numeric:true});
+}
+
+function cardSort(a,b) {
+  const ta = orderIndex(TYPE_ORDER, a._type), tb = orderIndex(TYPE_ORDER, b._type);
+  if (ta !== tb) return ta - tb;
+  const ra = orderIndex(RARITY_ORDER, a.rarity), rb = orderIndex(RARITY_ORDER, b.rarity);
+  if (ra !== rb) return ra - rb;
+  const pa = parseCardNumber(a), pb = parseCardNumber(b);
+  if (pa.n !== pb.n) return pa.n - pb.n;
+  if (pa.variant !== pb.variant) return pa.variant - pb.variant;
+  return pa.code.localeCompare(pb.code, undefined, {numeric:true});
+}
+
+function groupBy(list, getKey) {
+  return list.reduce((acc, item) => {
+    const key = getKey(item) || 'OTHER';
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(item);
+    return acc;
+  }, {});
+}
 
 function renderCards() {
   const mc = document.getElementById('main-content');
-  const cards = ST.filtered;
+  const cards = ST.filtered.slice().sort(cardSort);
   if (!cards.length) { mc.innerHTML = '<div class="empty-state">Aucune carte trouvée 🏴‍☠️</div>'; return; }
 
   const owned = ud().owned || {};
-  const bySet = {};
-  cards.forEach(c => {
-    const s = c.set || 'AUTRE';
-    if (!bySet[s]) bySet[s] = {};
-    const r = c.rarity || '';
-    if (!bySet[s][r]) bySet[s][r] = [];
-    bySet[s][r].push(c);
-  });
-
-  const sortedSets = Object.keys(bySet).sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
+  const bySet = groupBy(cards, c => c.set || 'AUTRE');
+  const sortedSets = Object.keys(bySet).sort(setSort);
   let html = '';
 
   for (const key of sortedSets) {
-    const rarities = bySet[key];
-    const allCards = Object.values(rarities).flat();
-    const total = allCards.length;
-    const ownedN = allCards.filter(c=>owned[c.id]).length;
+    const setCards = bySet[key].slice().sort(cardSort);
+    const total = setCards.length;
+    const ownedN = setCards.filter(c=>owned[c.id]).length;
     const pct = total ? Math.round(ownedN/total*100) : 0;
     const isOpen = !ST.collapsed[key];
+    const byLang = groupBy(setCards, c => c.lang || 'UNK');
 
-    let rarHtml = '';
-    const sortedRar = RARITY_ORDER.filter(r => rarities[r]);
-    for (const rar of sortedRar) {
-      const rc = rarities[rar];
-      const color = RC[rar] || '#7a8a99';
-      const ownedRar = rc.filter(c=>owned[c.id]).length;
-      const thumbs = rc.map(card => {
-        const isOwned = !!owned[card.id];
-        const info = owned[card.id] || {};
-        const url = imgUrl(card);
-        const safeName = card.name.replace(/'/g,"&#39;").replace(/"/g,"&quot;");
-        const safeCode = (card.id||card.code).replace(/'/g,"\\'");
-        const safeUrl = url.replace(/'/g,"\\'");
-        const safeName2 = card.name.replace(/'/g,"\\'");
-        return `<div class="card-item${isOwned?' owned':''}" onclick="openModal('${safeCode}','${safeUrl}','${safeName2}')" title="${safeName}">
-          ${url?`<img src="${url}" alt="${safeName}" loading="lazy" onload="this.classList.add('loaded')" onerror="this.style.display='none'">`:
-          `<div class="card-placeholder"><span>🃏</span><small>${card.code}</small></div>`}
-          ${isOwned?'<div class="owned-badge">✓</div>':''}
-          ${(info.qty||1)>1?`<div class="qty-badge">x${info.qty}</div>`:''}
-          ${info.price?`<div class="price-badge">${parseFloat(info.price).toFixed(2)}€</div>`:''}
+    let bodyHtml = '';
+    const sortedLangs = Object.keys(byLang).sort((a,b)=>orderIndex(LANG_ORDER,a)-orderIndex(LANG_ORDER,b) || a.localeCompare(b));
+    for (const lang of sortedLangs) {
+      const langCards = byLang[lang].slice().sort(cardSort);
+      const byType = groupBy(langCards, c => c._type || 'OTHER');
+      let langHtml = '';
+
+      const sortedTypes = Object.keys(byType).sort((a,b)=>orderIndex(TYPE_ORDER,a)-orderIndex(TYPE_ORDER,b) || a.localeCompare(b));
+      for (const type of sortedTypes) {
+        const typeCards = byType[type].slice().sort(cardSort);
+        const byRarity = groupBy(typeCards, c => c.rarity || '');
+        let typeHtml = '';
+
+        const sortedRar = Object.keys(byRarity).sort((a,b)=>orderIndex(RARITY_ORDER,a)-orderIndex(RARITY_ORDER,b) || a.localeCompare(b));
+        for (const rar of sortedRar) {
+          const rc = byRarity[rar].slice().sort(cardSort);
+          const color = RC[rar] || '#7a8a99';
+          const ownedRar = rc.filter(c=>owned[c.id]).length;
+          const thumbs = rc.map(card => {
+            const isOwned = !!owned[card.id];
+            const info = owned[card.id] || {};
+            const url = imgUrl(card);
+            const safeName = card.name.replace(/'/g,"&#39;").replace(/"/g,"&quot;");
+            const safeCode = (card.id||card.code).replace(/'/g,"\\'");
+            const safeUrl = url.replace(/'/g,"\\'");
+            const safeName2 = card.name.replace(/'/g,"\\'");
+            return `<div class="card-item${isOwned?' owned':''}" onclick="openModal('${safeCode}','${safeUrl}','${safeName2}')" title="${safeName}">
+              ${url?`<img src="${url}" alt="${safeName}" loading="lazy" onload="this.classList.add('loaded')" onerror="this.style.display='none'">`:
+              `<div class="card-placeholder"><span>🃏</span><small>${card.code}</small></div>`}
+              ${isOwned?'<div class="owned-badge">✓</div>':''}
+              ${(info.qty||1)>1?`<div class="qty-badge">x${info.qty}</div>`:''}
+              ${info.price?`<div class="price-badge">${parseFloat(info.price).toFixed(2)}€</div>`:''}
+            </div>`;
+          }).join('');
+
+          typeHtml += `<div class="rarity-block">
+            <div class="rarity-head">
+              <span class="r-dot" style="background:${color}"></span>
+              <span style="color:${color}">${RL[rar]||rar||'Inconnu'}</span>
+              <span class="rarity-count">${ownedRar}/${rc.length}</span>
+            </div>
+            <div class="cards-grid">${thumbs}</div>
+          </div>`;
+        }
+
+        langHtml += `<div class="rarity-block">
+          <div class="rarity-head">
+            <span>${TYPE_LABEL[type] || type}</span>
+            <span class="rarity-count">${typeCards.length}</span>
+          </div>
+          ${typeHtml}
         </div>`;
-      }).join('');
+      }
 
-      rarHtml += `<div class="rarity-block">
+      bodyHtml += `<div class="rarity-block">
         <div class="rarity-head">
-          <span class="r-dot" style="background:${color}"></span>
-          <span style="color:${color}">${RL[rar]||rar||'Inconnu'}</span>
-          <span class="rarity-count">${ownedRar}/${rc.length}</span>
+          <span>${LANG_LABEL[lang] || lang}</span>
+          <span class="rarity-count">${langCards.length}</span>
         </div>
-        <div class="cards-grid">${thumbs}</div>
+        ${langHtml}
       </div>`;
     }
 
@@ -607,7 +766,7 @@ function renderCards() {
         <div class="set-bar"><div class="set-bar-fill" style="width:${pct}%"></div></div>
         <span class="set-chev${isOpen?' open':''}">▾</span>
       </div>
-      <div class="set-body${isOpen?' open':''}">${rarHtml}</div>
+      <div class="set-body${isOpen?' open':''}">${bodyHtml}</div>
     </div>`;
   }
 
