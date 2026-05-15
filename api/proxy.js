@@ -2,36 +2,40 @@ export default async function handler(req, res) {
   const { url } = req.query;
   if (!url) return res.status(400).send('Missing url param');
 
-  async function tryFetch(target) {
-    const targetUrl = new URL(target);
-    const referer = targetUrl.origin + '/';
-    const response = await fetch(target, {
+  async function tryFetch(target, referer) {
+    return await fetch(target, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36',
         'Referer': referer,
-        'Origin': targetUrl.origin,
         'Accept': 'image/avif,image/webp,image/apng,image/*,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Cache-Control': 'no-cache',
       }
     });
-    return response;
   }
 
   try {
     const target = decodeURIComponent(url);
-    let response = await tryFetch(target);
+    const targetUrl = new URL(target);
 
-    // Si l'image FR/autre langue est bloquée, on fallback vers EN
+    // Liste des referers à essayer selon le domaine
+    const referers = [
+      targetUrl.origin + '/',
+      'https://en.onepiece-cardgame.com/',
+      'https://asia-en.onepiece-cardgame.com/',
+    ];
+
+    let response = null;
+    for (const referer of referers) {
+      response = await tryFetch(target, referer);
+      if (response.ok) break;
+    }
+
+    // Fallback: remplacer asia-en par en
     if (!response.ok) {
-      const fallback = target
-        .replace('fr.onepiece-cardgame.com', 'en.onepiece-cardgame.com')
-        .replace('de.onepiece-cardgame.com', 'en.onepiece-cardgame.com')
-        .replace('es.onepiece-cardgame.com', 'en.onepiece-cardgame.com')
-        .replace('it.onepiece-cardgame.com', 'en.onepiece-cardgame.com')
-        .replace('pt.onepiece-cardgame.com', 'en.onepiece-cardgame.com')
-        .replace('asia-en.onepiece-cardgame.com', 'en.onepiece-cardgame.com');
-
+      const fallback = target.replace('asia-en.onepiece-cardgame.com', 'en.onepiece-cardgame.com');
       if (fallback !== target) {
-        response = await tryFetch(fallback);
+        response = await tryFetch(fallback, 'https://en.onepiece-cardgame.com/');
       }
     }
 
