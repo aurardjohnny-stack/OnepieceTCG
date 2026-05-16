@@ -3138,6 +3138,247 @@ gtag('config', 'G-FMT1J783L7');
 }
 </style>
 
+
+<style id="nakama-v84-supabase-social-css">
+/* V84 - vrai social Supabase */
+
+.messages-wrap{
+  padding:20px 22px 28px;
+  width:100%;
+  max-width:none;
+}
+
+.messages-hero{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:14px;
+  margin-bottom:16px;
+  padding:18px;
+  border-radius:18px;
+  border:1px solid rgba(242,182,62,.22);
+  background:linear-gradient(180deg,rgba(7,17,31,.88),rgba(5,12,22,.96));
+  box-shadow:0 14px 34px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.035);
+}
+
+.messages-hero h2{
+  margin:0;
+  font-size:24px;
+  color:#fff;
+}
+
+.messages-hero p{
+  margin:4px 0 0;
+  color:#8ea0b3;
+  font-size:13px;
+}
+
+.messages-badge{
+  padding:9px 12px;
+  border-radius:999px;
+  background:rgba(242,182,62,.12);
+  border:1px solid rgba(242,182,62,.28);
+  color:#f2b63e;
+  font-weight:900;
+  font-size:12px;
+  white-space:nowrap;
+}
+
+.messages-layout{
+  display:grid;
+  grid-template-columns:280px minmax(0,1fr);
+  gap:14px;
+}
+
+.messages-list,
+.messages-chat{
+  border-radius:18px;
+  border:1px solid rgba(242,182,62,.18);
+  background:linear-gradient(180deg,rgba(7,17,31,.88),rgba(5,12,22,.96));
+  box-shadow:0 14px 34px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.035);
+  overflow:hidden;
+}
+
+.message-thread{
+  display:flex;
+  gap:10px;
+  padding:14px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  cursor:pointer;
+}
+
+.message-thread.active{
+  background:rgba(242,182,62,.08);
+}
+
+.thread-avatar,
+.chat-avatar{
+  width:42px;
+  height:42px;
+  border-radius:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 auto;
+  color:#07111f;
+  font-weight:900;
+  background:linear-gradient(135deg,#f2b63e,#ffd978);
+}
+
+.thread-name,
+.chat-name{
+  color:#fff;
+  font-weight:900;
+  font-size:14px;
+}
+
+.thread-last,
+.chat-status{
+  color:#8ea0b3;
+  font-size:12px;
+  margin-top:3px;
+  line-height:1.35;
+}
+
+.chat-head{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:14px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+
+.chat-body{
+  height:420px;
+  overflow:auto;
+  padding:16px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.chat-msg{
+  max-width:76%;
+  padding:10px 12px;
+  border-radius:14px;
+  font-size:13px;
+  line-height:1.45;
+}
+
+.chat-msg.them{
+  align-self:flex-start;
+  background:rgba(255,255,255,.07);
+  color:#e6edf7;
+  border-bottom-left-radius:4px;
+}
+
+.chat-msg.me{
+  align-self:flex-end;
+  background:linear-gradient(135deg,#f2b63e,#ffd978);
+  color:#07111f;
+  font-weight:800;
+  border-bottom-right-radius:4px;
+}
+
+.chat-input-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 110px;
+  gap:10px;
+  padding:14px;
+  border-top:1px solid rgba(255,255,255,.06);
+}
+
+.chat-input-row input{
+  height:44px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(5,9,16,.72);
+  color:#f4f7fb;
+  padding:0 12px;
+  outline:none;
+}
+
+.chat-input-row button{
+  height:44px;
+  border:0;
+  border-radius:12px;
+  background:linear-gradient(135deg,#f2b63e,#ffd978);
+  color:#07111f;
+  font-weight:900;
+  cursor:pointer;
+}
+
+.cloud-friend-actions{
+  display:flex;
+  gap:8px;
+  margin-top:10px;
+  flex-wrap:wrap;
+}
+
+.cloud-friend-actions button,
+.btn-cloud{
+  height:36px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.07);
+  color:#f4f7fb;
+  font-weight:900;
+  cursor:pointer;
+  padding:0 12px;
+}
+
+.btn-accept-cloud{
+  background:linear-gradient(135deg,#1ddf94,#7dffc9) !important;
+  color:#07111f !important;
+  border:0 !important;
+}
+
+.btn-refuse-cloud{
+  background:rgba(190,38,38,.18) !important;
+  color:#ffb3b3 !important;
+  border-color:rgba(255,90,90,.28) !important;
+}
+
+.nakama-notif-dot{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:18px;
+  height:18px;
+  padding:0 5px;
+  border-radius:999px;
+  background:#e63946;
+  color:#fff;
+  font-size:10px;
+  font-weight:900;
+  margin-left:6px;
+  box-shadow:0 0 14px rgba(230,57,70,.5);
+}
+
+@media(max-width:900px){
+  .messages-wrap{
+    padding:12px !important;
+  }
+
+  .messages-layout{
+    grid-template-columns:1fr !important;
+  }
+
+  .messages-list{
+    max-height:200px;
+    overflow:auto;
+  }
+
+  .chat-body{
+    height:320px;
+  }
+
+  .chat-input-row{
+    grid-template-columns:1fr;
+  }
+}
+</style>
+
 </head>
 <body>
 
@@ -3297,21 +3538,34 @@ gtag('config', 'G-FMT1J783L7');
       <div class="messages-hero">
         <div>
           <h2>Messages</h2>
-          <p>Les vrais messages et demandes d’amis seront branchés avec Supabase.</p>
+          <p>Messages privés entre Nakamas connectés.</p>
         </div>
-        <div class="messages-badge">Bientôt</div>
+        <div class="messages-badge" id="messages-badge">Cloud</div>
       </div>
 
-      <div class="social-clean-box">
-        <h3>Mode social réel à connecter</h3>
-        <p>
-          Pour que RobinHD reçoive vraiment tes demandes, qu’il puisse accepter,
-          et que vous puissiez vous envoyer des messages entre deux comptes différents,
-          il faut créer les tables Supabase du système social.
-        </p>
-        <p>
-          L’ancien test local a été supprimé : RobinHD ne doit plus apparaître ici tout seul.
-        </p>
+      <div class="messages-layout">
+        <div class="messages-list" id="messages-list">
+          <div class="empty-state" style="padding:20px">Sélectionne un ami pour discuter.</div>
+        </div>
+
+        <div class="messages-chat">
+          <div class="chat-head">
+            <div class="chat-avatar" id="chat-avatar">?</div>
+            <div>
+              <div class="chat-name" id="chat-name">Aucun ami sélectionné</div>
+              <div class="chat-status" id="chat-status">Ajoute un ami pour commencer.</div>
+            </div>
+          </div>
+
+          <div class="chat-body" id="chat-body">
+            <div class="empty-state" style="padding:20px">Aucun chat actif.</div>
+          </div>
+
+          <div class="chat-input-row">
+            <input id="chat-input" type="text" placeholder="Écris un message...">
+            <button type="button" onclick="sendCloudMessage()">Envoyer</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -6097,6 +6351,484 @@ document.addEventListener('click', function(e){
       alert('Le vrai système amis doit être connecté à Supabase.');
     }
   };
+})();
+</script>
+
+
+<script id="nakama-v84-supabase-social-js">
+(function(){
+  let currentCloudUser = null;
+  let currentChatFriend = null;
+  let socialChannel = null;
+
+  function toastMsg(msg){
+    if(typeof showToast === 'function') showToast(msg);
+    else alert(msg);
+  }
+
+  async function getCurrentUser(){
+    if(!window.nakamaSupabase) return null;
+    const { data } = await nakamaSupabase.auth.getUser();
+    return data && data.user ? data.user : null;
+  }
+
+  function displayNameFromUser(user){
+    if(!user) return 'Nakama';
+    return (user.user_metadata && user.user_metadata.display_name) ||
+      (user.email || '').split('@')[0] ||
+      'Nakama';
+  }
+
+  function initials(name){
+    return String(name || '?').slice(0,2).toUpperCase();
+  }
+
+  async function ensureCloudProfile(){
+    const user = await getCurrentUser();
+    if(!user) return null;
+
+    currentCloudUser = user;
+
+    const name = displayNameFromUser(user);
+
+    await nakamaSupabase.from('profiles').upsert({
+      id:user.id,
+      email:user.email,
+      display_name:name,
+      avatar:null,
+      updated_at:new Date().toISOString()
+    });
+
+    return user;
+  }
+
+  async function findProfileByNameOrEmail(value){
+    const query = String(value || '').trim();
+    if(!query) return null;
+
+    const { data, error } = await nakamaSupabase
+      .from('profiles')
+      .select('id,email,display_name,avatar')
+      .or(`display_name.ilike.${query},email.ilike.${query}`)
+      .limit(1);
+
+    if(error) throw error;
+    return data && data[0] ? data[0] : null;
+  }
+
+  window.sendFriendReq = async function(){
+    try{
+      const input = document.getElementById('friend-input');
+      const target = input ? input.value.trim() : '';
+
+      if(!target){
+        toastMsg('Entre un pseudo ou un email.');
+        return;
+      }
+
+      const user = await ensureCloudProfile();
+      if(!user){
+        toastMsg('Connecte-toi pour ajouter un ami.');
+        return;
+      }
+
+      const profile = await findProfileByNameOrEmail(target);
+
+      if(!profile){
+        toastMsg('Utilisateur introuvable. Il doit se connecter au moins une fois.');
+        return;
+      }
+
+      if(profile.id === user.id){
+        toastMsg('Tu ne peux pas t’ajouter toi-même.');
+        return;
+      }
+
+      const { error } = await nakamaSupabase.from('friend_requests').insert({
+        requester_id:user.id,
+        addressee_id:profile.id,
+        status:'pending'
+      });
+
+      if(error){
+        if(String(error.message || '').includes('duplicate')){
+          toastMsg('Demande déjà envoyée.');
+        }else{
+          throw error;
+        }
+      }else{
+        toastMsg('Demande envoyée à ' + profile.display_name + ' ⚓');
+      }
+
+      if(input) input.value = '';
+      await renderFriends();
+    }catch(e){
+      console.error(e);
+      toastMsg(e.message || 'Erreur demande ami.');
+    }
+  };
+
+  async function getIncomingRequests(userId){
+    const { data, error } = await nakamaSupabase
+      .from('friend_requests')
+      .select('id,status,created_at,requester:profiles!friend_requests_requester_id_fkey(id,display_name,email)')
+      .eq('addressee_id', userId)
+      .eq('status', 'pending')
+      .order('created_at', { ascending:false });
+
+    if(error) throw error;
+    return data || [];
+  }
+
+  async function getOutgoingRequests(userId){
+    const { data, error } = await nakamaSupabase
+      .from('friend_requests')
+      .select('id,status,created_at,addressee:profiles!friend_requests_addressee_id_fkey(id,display_name,email)')
+      .eq('requester_id', userId)
+      .eq('status', 'pending')
+      .order('created_at', { ascending:false });
+
+    if(error) throw error;
+    return data || [];
+  }
+
+  async function getFriendships(userId){
+    const { data, error } = await nakamaSupabase
+      .from('friendships')
+      .select('friend_id,friend:profiles!friendships_friend_id_fkey(id,display_name,email)')
+      .eq('user_id', userId)
+      .order('created_at', { ascending:false });
+
+    if(error) throw error;
+    return data || [];
+  }
+
+  window.acceptFriendRequest = async function(requestId){
+    try{
+      const { error } = await nakamaSupabase
+        .from('friend_requests')
+        .update({ status:'accepted', responded_at:new Date().toISOString() })
+        .eq('id', requestId);
+
+      if(error) throw error;
+
+      toastMsg('Demande acceptée ✓');
+      await renderFriends();
+      await renderMessages();
+    }catch(e){
+      console.error(e);
+      toastMsg(e.message || 'Erreur acceptation.');
+    }
+  };
+
+  window.refuseFriendRequest = async function(requestId){
+    try{
+      const { error } = await nakamaSupabase
+        .from('friend_requests')
+        .update({ status:'rejected', responded_at:new Date().toISOString() })
+        .eq('id', requestId);
+
+      if(error) throw error;
+
+      toastMsg('Demande refusée.');
+      await renderFriends();
+    }catch(e){
+      console.error(e);
+      toastMsg(e.message || 'Erreur refus.');
+    }
+  };
+
+  window.removeFriendCloud = async function(friendId){
+    try{
+      const user = await ensureCloudProfile();
+      if(!user) return;
+
+      const { error } = await nakamaSupabase
+        .from('friendships')
+        .delete()
+        .or(`and(user_id.eq.${user.id},friend_id.eq.${friendId}),and(user_id.eq.${friendId},friend_id.eq.${user.id})`);
+
+      if(error) throw error;
+
+      toastMsg('Ami retiré.');
+      await renderFriends();
+      await renderMessages();
+    }catch(e){
+      console.error(e);
+      toastMsg(e.message || 'Erreur suppression ami.');
+    }
+  };
+
+  window.renderFriends = async function(){
+    const list = document.getElementById('friends-list');
+    if(!list) return;
+
+    try{
+      const user = await ensureCloudProfile();
+
+      if(!user){
+        list.innerHTML = '<div class="empty-state" style="padding:20px">Connecte-toi pour utiliser les amis.</div>';
+        return;
+      }
+
+      const [incoming, outgoing, friends] = await Promise.all([
+        getIncomingRequests(user.id),
+        getOutgoingRequests(user.id),
+        getFriendships(user.id)
+      ]);
+
+      let html = '';
+
+      if(incoming.length){
+        html += '<div class="empty-state" style="padding:12px;margin-bottom:10px">Demandes reçues</div>';
+        incoming.forEach(req => {
+          const p = req.requester;
+          html += `
+            <div class="friend-card">
+              <div class="friend-av">${initials(p.display_name)}</div>
+              <div>
+                <div class="friend-name">${p.display_name}</div>
+                <div class="friend-status pending">Veut t’ajouter en ami</div>
+              </div>
+              <div class="cloud-friend-actions">
+                <button class="btn-accept-cloud" onclick="acceptFriendRequest('${req.id}')">Accepter</button>
+                <button class="btn-refuse-cloud" onclick="refuseFriendRequest('${req.id}')">Refuser</button>
+              </div>
+            </div>
+          `;
+        });
+      }
+
+      if(outgoing.length){
+        html += '<div class="empty-state" style="padding:12px;margin-bottom:10px">Demandes envoyées</div>';
+        outgoing.forEach(req => {
+          const p = req.addressee;
+          html += `
+            <div class="friend-card">
+              <div class="friend-av">${initials(p.display_name)}</div>
+              <div>
+                <div class="friend-name">${p.display_name}</div>
+                <div class="friend-status pending">En attente d’acceptation...</div>
+              </div>
+            </div>
+          `;
+        });
+      }
+
+      if(friends.length){
+        html += '<div class="empty-state" style="padding:12px;margin-bottom:10px">Amis</div>';
+        friends.forEach(row => {
+          const p = row.friend;
+          html += `
+            <div class="friend-card">
+              <div class="friend-av">${initials(p.display_name)}</div>
+              <div>
+                <div class="friend-name">${p.display_name}</div>
+                <div class="friend-status accepted">✓ Ami</div>
+              </div>
+              <button class="btn-friend-action btn-view-coll" onclick="selectChatFriend('${p.id}','${String(p.display_name).replace(/'/g,"\\'")}')">Message</button>
+              <button class="btn-friend-action btn-remove-friend" onclick="removeFriendCloud('${p.id}')">Retirer</button>
+            </div>
+          `;
+        });
+      }
+
+      if(!html){
+        html = '<div class="empty-state" style="padding:20px">Aucun ami pour l’instant.<br>Ajoute un pseudo ou email Supabase.</div>';
+      }
+
+      list.innerHTML = html;
+      await updateCloudNotifications();
+    }catch(e){
+      console.error(e);
+      list.innerHTML = `<div class="empty-state" style="padding:20px">Erreur amis : ${e.message}</div>`;
+    }
+  };
+
+  window.selectChatFriend = async function(friendId, friendName){
+    currentChatFriend = { id:friendId, name:friendName };
+
+    const nameEl = document.getElementById('chat-name');
+    const statusEl = document.getElementById('chat-status');
+    const avatarEl = document.getElementById('chat-avatar');
+
+    if(nameEl) nameEl.textContent = friendName;
+    if(statusEl) statusEl.textContent = 'Ami • conversation privée';
+    if(avatarEl) avatarEl.textContent = initials(friendName);
+
+    await renderChatMessages();
+  };
+
+  async function renderChatMessages(){
+    const body = document.getElementById('chat-body');
+
+    if(!body) return;
+
+    const user = await ensureCloudProfile();
+
+    if(!currentChatFriend){
+      body.innerHTML = '<div class="empty-state" style="padding:20px">Sélectionne un ami pour discuter.</div>';
+      return;
+    }
+
+    const { data, error } = await nakamaSupabase
+      .from('messages')
+      .select('*')
+      .or(`and(sender_id.eq.${user.id},recipient_id.eq.${currentChatFriend.id}),and(sender_id.eq.${currentChatFriend.id},recipient_id.eq.${user.id})`)
+      .order('created_at', { ascending:true });
+
+    if(error) throw error;
+
+    body.innerHTML = (data || []).map(m => `
+      <div class="chat-msg ${m.sender_id === user.id ? 'me' : 'them'}">${m.content}</div>
+    `).join('');
+
+    body.scrollTop = body.scrollHeight;
+  }
+
+  window.renderMessages = async function(){
+    const user = await ensureCloudProfile();
+
+    const list = document.getElementById('messages-list');
+    const body = document.getElementById('chat-body');
+
+    if(!list || !body) return;
+
+    const friends = await getFriendships(user.id);
+
+    if(!friends.length){
+      list.innerHTML = '<div class="empty-state" style="padding:20px">Aucun ami pour le moment.</div>';
+      body.innerHTML = '<div class="empty-state" style="padding:20px">Ajoute un ami pour débloquer les messages.</div>';
+      return;
+    }
+
+    list.innerHTML = friends.map(row => {
+      const p = row.friend;
+      const active = currentChatFriend && currentChatFriend.id === p.id;
+      return `
+        <div class="message-thread ${active ? 'active' : ''}" onclick="selectChatFriend('${p.id}','${String(p.display_name).replace(/'/g,"\\'")}')">
+          <div class="thread-avatar">${initials(p.display_name)}</div>
+          <div>
+            <div class="thread-name">${p.display_name}</div>
+            <div class="thread-last">Clique pour discuter</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    if(currentChatFriend){
+      await renderChatMessages();
+    }else{
+      body.innerHTML = '<div class="empty-state" style="padding:20px">Sélectionne un ami.</div>';
+    }
+
+    await updateCloudNotifications();
+  };
+
+  window.sendCloudMessage = async function(){
+    try{
+      const input = document.getElementById('chat-input');
+      const text = input ? input.value.trim() : '';
+
+      if(!text) return;
+
+      const user = await ensureCloudProfile();
+
+      if(!currentChatFriend){
+        toastMsg('Sélectionne un ami.');
+        return;
+      }
+
+      const { error } = await nakamaSupabase.from('messages').insert({
+        sender_id:user.id,
+        recipient_id:currentChatFriend.id,
+        content:text
+      });
+
+      if(error) throw error;
+
+      if(input) input.value = '';
+
+      await renderChatMessages();
+    }catch(e){
+      console.error(e);
+      toastMsg(e.message || 'Erreur message.');
+    }
+  };
+
+  window.updateCloudNotifications = async function(){
+    try{
+      const user = await getCurrentUser();
+      if(!user) return;
+
+      const incoming = await getIncomingRequests(user.id);
+      const count = incoming.length;
+
+      const dot = document.getElementById('messages-notif');
+      if(dot){
+        dot.style.display = count > 0 ? 'inline-flex' : 'none';
+        dot.textContent = count > 9 ? '9+' : String(count);
+      }
+    }catch(e){}
+  };
+
+  function bindCloudSocial(){
+    const friendInput = document.getElementById('friend-input');
+    if(friendInput && !friendInput.dataset.cloudBound){
+      friendInput.dataset.cloudBound = '1';
+      friendInput.addEventListener('keydown', e => {
+        if(e.key === 'Enter'){
+          e.preventDefault();
+          sendFriendReq();
+        }
+      });
+    }
+
+    const chatInput = document.getElementById('chat-input');
+    if(chatInput && !chatInput.dataset.cloudBound){
+      chatInput.dataset.cloudBound = '1';
+      chatInput.addEventListener('keydown', e => {
+        if(e.key === 'Enter'){
+          e.preventDefault();
+          sendCloudMessage();
+        }
+      });
+    }
+
+    ensureCloudProfile().then(updateCloudNotifications);
+
+    if(window.nakamaSupabase && !socialChannel){
+      socialChannel = nakamaSupabase
+        .channel('nakama-social')
+        .on('postgres_changes', { event:'*', schema:'public', table:'friend_requests' }, () => {
+          renderFriends();
+          updateCloudNotifications();
+        })
+        .on('postgres_changes', { event:'*', schema:'public', table:'messages' }, () => {
+          renderMessages();
+          updateCloudNotifications();
+        })
+        .subscribe();
+    }
+  }
+
+  const oldSwitchMainTab = window.switchMainTab;
+  window.switchMainTab = function(tab){
+    if(typeof oldSwitchMainTab === 'function'){
+      oldSwitchMainTab(tab);
+    }
+
+    if(tab === 'friends'){
+      setTimeout(renderFriends, 50);
+    }
+
+    if(tab === 'messages'){
+      setTimeout(renderMessages, 50);
+    }
+  };
+
+  document.addEventListener('DOMContentLoaded', bindCloudSocial);
+  window.addEventListener('load', bindCloudSocial);
 })();
 </script>
 
