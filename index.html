@@ -2135,18 +2135,18 @@ gtag('config', 'G-FMT1J783L7');
 </style>
 
 
-
-<style id="nakama-v56-profile-visible">
-/* V56 - Profil vraiment visible */
+<style id="nakama-v57-profile-clean">
+/* V57 - Profil propre, ajouté sans toucher au layout */
 
 .profile-menu-btn{
-  border:1px solid rgba(242,182,62,.28) !important;
-  background:linear-gradient(135deg,rgba(242,182,62,.12),rgba(28,156,255,.06)) !important;
+  border:1px solid rgba(242,182,62,.30) !important;
+  background:linear-gradient(135deg,rgba(242,182,62,.14),rgba(28,156,255,.08)) !important;
   color:#f2b63e !important;
 }
 
-.sidebar-user-avatar{
-  font-size:20px !important;
+.profile-menu-btn:hover{
+  border-color:rgba(242,182,62,.65) !important;
+  box-shadow:0 0 18px rgba(242,182,62,.12) !important;
 }
 
 #profile-overlay{
@@ -2159,6 +2159,7 @@ gtag('config', 'G-FMT1J783L7');
   padding:24px !important;
   background:rgba(2,6,12,.84) !important;
   backdrop-filter:blur(12px) !important;
+  -webkit-backdrop-filter:blur(12px) !important;
 }
 
 #profile-overlay.active{
@@ -2169,11 +2170,15 @@ gtag('config', 'G-FMT1J783L7');
   width:min(760px,96vw) !important;
   max-height:92vh !important;
   overflow:auto !important;
+
   background:linear-gradient(180deg,#0b1727,#07111f) !important;
   border:1px solid rgba(242,182,62,.26) !important;
   border-radius:26px !important;
   padding:26px !important;
-  box-shadow:0 30px 80px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.045) !important;
+
+  box-shadow:
+    0 30px 80px rgba(0,0,0,.48),
+    inset 0 1px 0 rgba(255,255,255,.045) !important;
 }
 
 .profile-head{
@@ -2187,10 +2192,13 @@ gtag('config', 'G-FMT1J783L7');
   width:86px !important;
   height:86px !important;
   border-radius:24px !important;
+
   display:flex !important;
   align-items:center !important;
   justify-content:center !important;
+
   font-size:44px !important;
+
   background:linear-gradient(135deg,rgba(242,182,62,.18),rgba(28,156,255,.10)) !important;
   border:1px solid rgba(242,182,62,.32) !important;
 }
@@ -2265,6 +2273,7 @@ gtag('config', 'G-FMT1J783L7');
   color:#fff !important;
   font-size:28px !important;
   cursor:pointer !important;
+  transition:.18s ease !important;
 }
 
 .avatar-choice:hover,
@@ -2301,7 +2310,9 @@ gtag('config', 'G-FMT1J783L7');
 }
 
 @media(max-width:700px){
-  .profile-grid{grid-template-columns:1fr !important;}
+  .profile-grid{
+    grid-template-columns:1fr !important;
+  }
 }
 </style>
 
@@ -2344,15 +2355,17 @@ gtag('config', 'G-FMT1J783L7');
 <div id="main-screen" class="screen">
   <div class="nb-banner-real" aria-label="Nakama Binder"></div>
   <div class="main-tabs">
+
+    <button class="main-tab profile-menu-btn" type="button" onclick="openProfileModal()">Profil</button>
+
     
     <div class="sidebar-user-box">
       <div class="sidebar-user-avatar">☠</div>
       <div>
         <div class="sidebar-user-label">Connecté</div>
         <div id="topbar-user" class="sidebar-user-name"></div>
-
-    <button class="main-tab profile-menu-btn" type="button" onclick="openProfileModal()">Profil</button>
-
+      </div>
+    </div>
 <button class="main-tab active" onclick="switchMainTab('browse')">Parcourir</button>
     <button class="main-tab" onclick="switchMainTab('collection')">Classeur</button>
     <button class="main-tab" onclick="switchMainTab('friends')">Amis</button>
@@ -4255,6 +4268,7 @@ document.addEventListener('click', function(e){
 });
 </script>
 
+
 <div id="profile-overlay" onclick="closeProfileModal(event)">
   <div class="profile-modal" onclick="event.stopPropagation()">
     <div class="profile-head">
@@ -4302,13 +4316,16 @@ document.addEventListener('click', function(e){
 </div>
 
 
-<script id="nakama-v56-profile-visible-js">
+<script id="nakama-v57-profile-clean-js">
 (function(){
   const PROFILE_KEY = 'nakama_profile_v1';
 
   function readProfile(){
-    try{return JSON.parse(localStorage.getItem(PROFILE_KEY) || '{}');}
-    catch(e){return {};}
+    try{
+      return JSON.parse(localStorage.getItem(PROFILE_KEY) || '{}');
+    }catch(e){
+      return {};
+    }
   }
 
   function writeProfile(profile){
@@ -4332,7 +4349,7 @@ document.addEventListener('click', function(e){
 
   window.openProfileModal = async function(){
     const overlay = document.getElementById('profile-overlay');
-    if(!overlay) return alert('Profil introuvable');
+    if(!overlay) return;
 
     const profile = readProfile();
     let email = profile.email || '';
@@ -4340,10 +4357,11 @@ document.addEventListener('click', function(e){
 
     try{
       if(window.nakamaSupabase){
-        const { data } = await nakamaSupabase.auth.getUser();
-        if(data && data.user){
-          email = data.user.email || email;
-          defaultName = defaultName || ((data.user.email || '').split('@')[0]);
+        const result = await nakamaSupabase.auth.getUser();
+        const user = result && result.data && result.data.user;
+        if(user){
+          email = user.email || email;
+          defaultName = defaultName || ((user.user_metadata && user.user_metadata.display_name) || (user.email || '').split('@')[0]);
         }
       }
     }catch(e){}
@@ -4360,7 +4378,9 @@ document.addEventListener('click', function(e){
   };
 
   window.closeProfileModal = function(e){
-    if(e && e.target && e.target.id === 'profile-overlay') forceCloseProfile();
+    if(e && e.target && e.target.id === 'profile-overlay'){
+      forceCloseProfile();
+    }
   };
 
   window.forceCloseProfile = function(){
@@ -4387,7 +4407,9 @@ document.addEventListener('click', function(e){
     applyProfileUI();
     forceCloseProfile();
 
-    if(typeof toast === 'function') toast('Profil sauvegardé');
+    if(typeof toast === 'function'){
+      toast('Profil sauvegardé');
+    }
   };
 
   document.addEventListener('click', function(e){
@@ -4395,7 +4417,8 @@ document.addEventListener('click', function(e){
     if(avatarBtn){
       document.querySelectorAll('.avatar-choice').forEach(b => b.classList.remove('active'));
       avatarBtn.classList.add('active');
-      document.getElementById('profile-big-avatar').textContent = avatarBtn.dataset.avatar;
+      const big = document.getElementById('profile-big-avatar');
+      if(big) big.textContent = avatarBtn.dataset.avatar;
     }
   });
 
