@@ -7124,5 +7124,202 @@ document.addEventListener('click', function(e){
 })();
 </script>
 
+
+<script id="nakama-v87-cloud-profile-name-sync">
+(function(){
+  function getClient(){
+    try{
+      if(window.nakamaSupabase) return window.nakamaSupabase;
+      if(typeof nakamaSupabase !== 'undefined'){
+        window.nakamaSupabase = nakamaSupabase;
+        return nakamaSupabase;
+      }
+    }catch(e){}
+    return null;
+  }
+
+  function readLocalProfile(){
+    try{
+      return JSON.parse(localStorage.getItem('nakama_profile_v1') || '{}');
+    }catch(e){
+      return {};
+    }
+  }
+
+  async function getUser(){
+    const client = getClient();
+    if(!client) return null;
+    const { data } = await client.auth.getUser();
+    return data && data.user ? data.user : null;
+  }
+
+  function bestDisplayName(user){
+    const local = readLocalProfile();
+
+    return (
+      local.name ||
+      (user && user.user_metadata && user.user_metadata.display_name) ||
+      (user && user.email ? user.email.split('@')[0] : '') ||
+      'Nakama'
+    ).trim();
+  }
+
+  window.syncCloudProfileName = async function(){
+    const client = getClient();
+    const user = await getUser();
+
+    if(!client || !user) return null;
+
+    const name = bestDisplayName(user);
+
+    const { error } = await client.from('profiles').upsert({
+      id:user.id,
+      email:user.email,
+      display_name:name,
+      avatar:null,
+      updated_at:new Date().toISOString()
+    }, {
+      onConflict:'id'
+    });
+
+    if(error){
+      console.error('Erreur sync profil cloud:', error);
+      if(typeof showToast === 'function'){
+        showToast('Erreur profil cloud : ' + error.message);
+      }
+      return null;
+    }
+
+    try{
+      await client.auth.updateUser({
+        data:{ display_name:name }
+      });
+    }catch(e){}
+
+    return {
+      id:user.id,
+      email:user.email,
+      display_name:name
+    };
+  };
+
+  // Remplace ensureCloudProfileHard par une version qui utilise le pseudo local
+  window.ensureCloudProfileHard = window.syncCloudProfileName;
+
+  // Améliore la recherche : email exact, pseudo exact, puis partiel
+  window.findProfileByNameOrEmail = async function(value){
+    const client = getClient();
+    const query = String(value || '').trim();
+
+    if(!client || !query) return null;
+
+    const q = query.toLowerCase();
+
+    const { data, error } = await client
+      .from('profiles')
+      .select('id,email,display_name,avatar')
+      .or(
+        'display_name.ilike.%' + query + '%,' +
+        'email.ilike.%' + query + '%'
+      )
+      .limit(50);
+
+    if(error) throw error;
+
+    if(!data || !data.length) return null;
+
+    return data.find(p => String(p.display_name || '').toLowerCase() === q)
+      || data.find(p => String(p.email || '').toLowerCase() === q)
+      || data.find(p => String(p.display_name || '').toLowerCase().includes(q))
+      || data.find(p => String(p.email || '').toLowerCase().includes(q))
+      || data[0];
+  };
+
+  // Remplace l'ajout d'ami avec la sync profil avant recherche
+  window.sendFriendReq = async function(){
+    try{
+      const client = getClient();
+      const input = document.getElementById('friend-input');
+      const target = input ? input.value.trim() : '';
+
+      if(!target){
+        if(typeof showToast === 'function') showToast('Entre son pseudo ou son email.');
+        return;
+      }
+
+      const me = await window.syncCloudProfileName();
+
+      if(!client || !me){
+        if(typeof showToast === 'function') showToast('Connecte-toi pour ajouter un ami.');
+        return;
+      }
+
+      const profile = await window.findProfileByNameOrEmail(target);
+
+      if(!profile){
+        if(typeof showToast === 'function'){
+          showToast('Introuvable. Essaie avec son email, ou demande-lui de sauvegarder son profil avec le pseudo RobinHD.');
+        }
+        return;
+      }
+
+      if(profile.id === me.id){
+        if(typeof showToast === 'function') showToast('Tu ne peux pas t’ajouter toi-même.');
+        return;
+      }
+
+      const { error } = await client.from('friend_requests').insert({
+        requester_id:me.id,
+        addressee_id:profile.id,
+        status:'pending'
+      });
+
+      if(error){
+        const msg = String(error.message || '');
+        if(msg.includes('duplicate') || msg.includes('unique')){
+          if(typeof showToast === 'function') showToast('Demande déjà envoyée.');
+        }else{
+          throw error;
+        }
+      }else{
+        if(typeof showToast === 'function') showToast('Demande envoyée à ' + profile.display_name + ' ⚓');
+      }
+
+      if(input) input.value = '';
+
+      if(typeof renderFriends === 'function') await renderFriends();
+      if(typeof updateCloudNotifications === 'function') await updateCloudNotifications();
+
+    }catch(e){
+      console.error(e);
+      if(typeof showToast === 'function') showToast(e.message || 'Erreur demande ami.');
+    }
+  };
+
+  // On enveloppe saveProfile pour que le bouton Profil sauvegarde aussi dans Supabase
+  const oldSaveProfile = window.saveProfile;
+  window.saveProfile = async function(){
+    if(typeof oldSaveProfile === 'function'){
+      await oldSaveProfile();
+    }
+
+    await window.syncCloudProfileName();
+
+    if(typeof showToast === 'function'){
+      showToast('Profil synchronisé cloud ✓');
+    }
+  };
+
+  // Sync auto au chargement
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(window.syncCloudProfileName, 800);
+  });
+
+  window.addEventListener('load', () => {
+    setTimeout(window.syncCloudProfileName, 1200);
+  });
+})();
+</script>
+
 </body>
 </html>
