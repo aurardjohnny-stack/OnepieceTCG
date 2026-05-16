@@ -2135,190 +2135,173 @@ gtag('config', 'G-FMT1J783L7');
 </style>
 
 
-<style id="nakama-v55-profile-avatar-ui">
-/* V55 - Profil utilisateur + avatars */
 
-.sidebar-user-box{
-  cursor:pointer !important;
-  transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease !important;
-}
+<style id="nakama-v56-profile-visible">
+/* V56 - Profil vraiment visible */
 
-.sidebar-user-box:hover{
-  transform:translateY(-2px) !important;
-  border-color:rgba(242,182,62,.45) !important;
-  box-shadow:0 0 22px rgba(242,182,62,.10) !important;
+.profile-menu-btn{
+  border:1px solid rgba(242,182,62,.28) !important;
+  background:linear-gradient(135deg,rgba(242,182,62,.12),rgba(28,156,255,.06)) !important;
+  color:#f2b63e !important;
 }
 
 .sidebar-user-avatar{
-  overflow:hidden !important;
   font-size:20px !important;
-  background:linear-gradient(135deg,rgba(242,182,62,.20),rgba(28,156,255,.12)) !important;
 }
 
 #profile-overlay{
-  position:fixed;
-  inset:0;
-  z-index:100000;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  padding:24px;
-  background:rgba(2,6,12,.82);
-  backdrop-filter:blur(12px);
+  position:fixed !important;
+  inset:0 !important;
+  z-index:999999 !important;
+  display:none !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:24px !important;
+  background:rgba(2,6,12,.84) !important;
+  backdrop-filter:blur(12px) !important;
 }
 
 #profile-overlay.active{
-  display:flex;
+  display:flex !important;
 }
 
 .profile-modal{
-  width:min(760px,96vw);
-  max-height:92vh;
-  overflow:auto;
-
-  background:linear-gradient(180deg,#0b1727,#07111f);
-  border:1px solid rgba(242,182,62,.24);
-  border-radius:26px;
-  padding:26px;
-
-  box-shadow:
-    0 30px 80px rgba(0,0,0,.45),
-    inset 0 1px 0 rgba(255,255,255,.045);
+  width:min(760px,96vw) !important;
+  max-height:92vh !important;
+  overflow:auto !important;
+  background:linear-gradient(180deg,#0b1727,#07111f) !important;
+  border:1px solid rgba(242,182,62,.26) !important;
+  border-radius:26px !important;
+  padding:26px !important;
+  box-shadow:0 30px 80px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.045) !important;
 }
 
 .profile-head{
-  display:flex;
-  align-items:center;
-  gap:18px;
-  margin-bottom:24px;
+  display:flex !important;
+  align-items:center !important;
+  gap:18px !important;
+  margin-bottom:22px !important;
 }
 
 .profile-big-avatar{
-  width:82px;
-  height:82px;
-  border-radius:24px;
-
-  display:flex;
-  align-items:center;
-  justify-content:center;
-
-  font-size:42px;
-
-  background:linear-gradient(135deg,rgba(242,182,62,.18),rgba(28,156,255,.10));
-  border:1px solid rgba(242,182,62,.30);
-  box-shadow:0 18px 42px rgba(0,0,0,.25);
+  width:86px !important;
+  height:86px !important;
+  border-radius:24px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  font-size:44px !important;
+  background:linear-gradient(135deg,rgba(242,182,62,.18),rgba(28,156,255,.10)) !important;
+  border:1px solid rgba(242,182,62,.32) !important;
 }
 
 .profile-title{
-  font-size:28px;
-  font-weight:900;
-  color:#fff;
+  font-size:28px !important;
+  font-weight:900 !important;
+  color:#fff !important;
 }
 
 .profile-sub{
-  color:#8ea0b3;
-  font-size:13px;
-  margin-top:4px;
+  color:#8ea0b3 !important;
+  font-size:13px !important;
+  margin-top:4px !important;
 }
 
 .profile-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:14px;
-  margin-bottom:22px;
+  display:grid !important;
+  grid-template-columns:1fr 1fr !important;
+  gap:14px !important;
+  margin-bottom:20px !important;
 }
 
 .profile-field{
-  background:rgba(255,255,255,.035);
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:16px;
-  padding:14px;
+  background:rgba(255,255,255,.035) !important;
+  border:1px solid rgba(255,255,255,.08) !important;
+  border-radius:16px !important;
+  padding:14px !important;
 }
 
 .profile-field label{
-  display:block;
-  color:#8ea0b3;
-  font-size:11px;
-  font-weight:900;
-  letter-spacing:.8px;
-  text-transform:uppercase;
-  margin-bottom:8px;
+  display:block !important;
+  color:#8ea0b3 !important;
+  font-size:11px !important;
+  font-weight:900 !important;
+  letter-spacing:.8px !important;
+  text-transform:uppercase !important;
+  margin-bottom:8px !important;
 }
 
 .profile-field input{
-  width:100%;
-  height:42px;
-  border:1px solid rgba(255,255,255,.12);
-  border-radius:12px;
-  background:rgba(5,9,16,.72);
-  color:#f4f7fb;
-  padding:0 12px;
-  outline:none;
+  width:100% !important;
+  height:42px !important;
+  border:1px solid rgba(255,255,255,.12) !important;
+  border-radius:12px !important;
+  background:rgba(5,9,16,.72) !important;
+  color:#f4f7fb !important;
+  padding:0 12px !important;
+  outline:none !important;
 }
 
 .profile-section-title{
-  color:#f2b63e;
-  font-size:12px;
-  font-weight:900;
-  letter-spacing:1px;
-  text-transform:uppercase;
-  margin:18px 0 12px;
+  color:#f2b63e !important;
+  font-size:12px !important;
+  font-weight:900 !important;
+  letter-spacing:1px !important;
+  text-transform:uppercase !important;
+  margin:18px 0 12px !important;
 }
 
 .avatar-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(58px,1fr));
-  gap:10px;
+  display:grid !important;
+  grid-template-columns:repeat(auto-fill,minmax(58px,1fr)) !important;
+  gap:10px !important;
 }
 
 .avatar-choice{
-  height:58px;
-  border-radius:16px;
-  border:1px solid rgba(255,255,255,.10);
-  background:rgba(255,255,255,.045);
-  color:#fff;
-  font-size:28px;
-  cursor:pointer;
-  transition:.18s ease;
+  height:58px !important;
+  border-radius:16px !important;
+  border:1px solid rgba(255,255,255,.10) !important;
+  background:rgba(255,255,255,.045) !important;
+  color:#fff !important;
+  font-size:28px !important;
+  cursor:pointer !important;
 }
 
 .avatar-choice:hover,
 .avatar-choice.active{
-  transform:translateY(-2px);
-  border-color:rgba(242,182,62,.65);
-  background:rgba(242,182,62,.12);
-  box-shadow:0 0 18px rgba(242,182,62,.14);
+  transform:translateY(-2px) !important;
+  border-color:rgba(242,182,62,.65) !important;
+  background:rgba(242,182,62,.12) !important;
+  box-shadow:0 0 18px rgba(242,182,62,.14) !important;
 }
 
 .profile-actions{
-  display:flex;
-  gap:12px;
-  margin-top:24px;
+  display:flex !important;
+  gap:12px !important;
+  margin-top:24px !important;
 }
 
 .profile-actions button{
-  flex:1;
-  height:48px;
-  border:0;
-  border-radius:14px;
-  font-weight:900;
-  cursor:pointer;
+  flex:1 !important;
+  height:48px !important;
+  border:0 !important;
+  border-radius:14px !important;
+  font-weight:900 !important;
+  cursor:pointer !important;
 }
 
 .profile-save{
-  background:linear-gradient(135deg,#f2b63e,#ffd978);
-  color:#07111f;
+  background:linear-gradient(135deg,#f2b63e,#ffd978) !important;
+  color:#07111f !important;
 }
 
 .profile-close{
-  background:rgba(255,255,255,.08);
-  color:#f4f7fb;
+  background:rgba(255,255,255,.08) !important;
+  color:#f4f7fb !important;
 }
 
 @media(max-width:700px){
-  .profile-grid{
-    grid-template-columns:1fr;
-  }
+  .profile-grid{grid-template-columns:1fr !important;}
 }
 </style>
 
@@ -2367,8 +2350,9 @@ gtag('config', 'G-FMT1J783L7');
       <div>
         <div class="sidebar-user-label">Connecté</div>
         <div id="topbar-user" class="sidebar-user-name"></div>
-      </div>
-    </div>
+
+    <button class="main-tab profile-menu-btn" type="button" onclick="openProfileModal()">Profil</button>
+
 <button class="main-tab active" onclick="switchMainTab('browse')">Parcourir</button>
     <button class="main-tab" onclick="switchMainTab('collection')">Classeur</button>
     <button class="main-tab" onclick="switchMainTab('friends')">Amis</button>
@@ -4271,14 +4255,13 @@ document.addEventListener('click', function(e){
 });
 </script>
 
-
 <div id="profile-overlay" onclick="closeProfileModal(event)">
-  <div class="profile-modal">
+  <div class="profile-modal" onclick="event.stopPropagation()">
     <div class="profile-head">
       <div class="profile-big-avatar" id="profile-big-avatar">☠️</div>
       <div>
         <div class="profile-title">Profil Nakama</div>
-        <div class="profile-sub">Personnalise ton pseudo et ton avatar.</div>
+        <div class="profile-sub">Pseudo, avatar et identité de ton équipage.</div>
       </div>
     </div>
 
@@ -4319,28 +4302,17 @@ document.addEventListener('click', function(e){
 </div>
 
 
-<script id="nakama-v55-profile-avatar-js">
+<script id="nakama-v56-profile-visible-js">
 (function(){
   const PROFILE_KEY = 'nakama_profile_v1';
 
   function readProfile(){
-    try{
-      return JSON.parse(localStorage.getItem(PROFILE_KEY) || '{}');
-    }catch(e){
-      return {};
-    }
+    try{return JSON.parse(localStorage.getItem(PROFILE_KEY) || '{}');}
+    catch(e){return {};}
   }
 
   function writeProfile(profile){
     localStorage.setItem(PROFILE_KEY, JSON.stringify(profile || {}));
-  }
-
-  function getSessionEmail(){
-    if(window.nakamaSupabase && nakamaSupabase.auth){
-      // affichage rempli au moment de l'ouverture si session dispo
-      return '';
-    }
-    return '';
   }
 
   window.applyProfileUI = function(){
@@ -4348,19 +4320,21 @@ document.addEventListener('click', function(e){
     const avatar = profile.avatar || '☠️';
     const name = profile.name || '';
 
-    const sideAvatar = document.querySelector('.sidebar-user-avatar');
-    if(sideAvatar) sideAvatar.textContent = avatar;
+    document.querySelectorAll('.sidebar-user-avatar').forEach(el => {
+      el.textContent = avatar;
+    });
 
-    const topUser = document.getElementById('topbar-user');
-    if(topUser && name) topUser.textContent = avatar + ' ' + name;
+    const userEl = document.getElementById('topbar-user');
+    if(userEl && name){
+      userEl.textContent = avatar + ' ' + name;
+    }
   };
 
   window.openProfileModal = async function(){
     const overlay = document.getElementById('profile-overlay');
-    if(!overlay) return;
+    if(!overlay) return alert('Profil introuvable');
 
     const profile = readProfile();
-
     let email = profile.email || '';
     let defaultName = profile.name || '';
 
@@ -4386,7 +4360,7 @@ document.addEventListener('click', function(e){
   };
 
   window.closeProfileModal = function(e){
-    if(e.target.id === 'profile-overlay') forceCloseProfile();
+    if(e && e.target && e.target.id === 'profile-overlay') forceCloseProfile();
   };
 
   window.forceCloseProfile = function(){
@@ -4400,13 +4374,12 @@ document.addEventListener('click', function(e){
     const active = document.querySelector('.avatar-choice.active');
     const avatar = active ? active.dataset.avatar : '☠️';
 
-    const profile = { name, email, avatar };
-    writeProfile(profile);
+    writeProfile({ name, email, avatar });
 
     try{
       if(window.nakamaSupabase){
         await nakamaSupabase.auth.updateUser({
-          data: { display_name: name, avatar }
+          data:{ display_name:name, avatar:avatar }
         });
       }
     }catch(e){}
@@ -4418,31 +4391,25 @@ document.addEventListener('click', function(e){
   };
 
   document.addEventListener('click', function(e){
-    const btn = e.target.closest('.avatar-choice');
-    if(btn){
+    const avatarBtn = e.target.closest('.avatar-choice');
+    if(avatarBtn){
       document.querySelectorAll('.avatar-choice').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById('profile-big-avatar').textContent = btn.dataset.avatar;
-      return;
+      avatarBtn.classList.add('active');
+      document.getElementById('profile-big-avatar').textContent = avatarBtn.dataset.avatar;
     }
+  });
 
-    const userBox = e.target.closest('.sidebar-user-box');
-    if(userBox){
-      openProfileModal();
-    }
+  window.addEventListener('load', function(){
+    setTimeout(applyProfileUI, 500);
   });
 
   const oldEnterAppSupabase = window.enterAppSupabase;
   if(typeof oldEnterAppSupabase === 'function'){
     window.enterAppSupabase = function(user){
       oldEnterAppSupabase(user);
-      setTimeout(applyProfileUI, 50);
+      setTimeout(applyProfileUI, 100);
     };
   }
-
-  window.addEventListener('load', function(){
-    setTimeout(applyProfileUI, 300);
-  });
 })();
 </script>
 
