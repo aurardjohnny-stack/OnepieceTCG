@@ -3037,6 +3037,290 @@ gtag('config', 'G-FMT1J783L7');
 }
 </style>
 
+
+<style id="nakama-v78-social-local-css">
+/* V78 - Social local : notifications + messages */
+
+.nakama-notif-dot{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:18px;
+  height:18px;
+  padding:0 5px;
+  border-radius:999px;
+  background:#e63946;
+  color:#fff;
+  font-size:10px;
+  font-weight:900;
+  margin-left:6px;
+  box-shadow:0 0 14px rgba(230,57,70,.5);
+}
+
+.friend-status.accepted.auto{
+  color:#1ddf94 !important;
+}
+
+.messages-wrap{
+  padding:20px 22px 28px;
+  width:100%;
+  max-width:none;
+}
+
+.messages-hero{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:14px;
+  margin-bottom:16px;
+  padding:18px;
+  border-radius:18px;
+  border:1px solid rgba(242,182,62,.22);
+  background:linear-gradient(180deg,rgba(7,17,31,.88),rgba(5,12,22,.96));
+  box-shadow:0 14px 34px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.035);
+}
+
+.messages-hero h2{
+  margin:0;
+  font-size:24px;
+  color:#fff;
+}
+
+.messages-hero p{
+  margin:4px 0 0;
+  color:#8ea0b3;
+  font-size:13px;
+}
+
+.messages-badge{
+  padding:9px 12px;
+  border-radius:999px;
+  background:rgba(230,57,70,.14);
+  border:1px solid rgba(230,57,70,.28);
+  color:#ffb3ba;
+  font-weight:900;
+  font-size:12px;
+  white-space:nowrap;
+}
+
+.messages-layout{
+  display:grid;
+  grid-template-columns:280px minmax(0,1fr);
+  gap:14px;
+}
+
+.messages-list,
+.messages-chat{
+  border-radius:18px;
+  border:1px solid rgba(242,182,62,.18);
+  background:linear-gradient(180deg,rgba(7,17,31,.88),rgba(5,12,22,.96));
+  box-shadow:0 14px 34px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.035);
+  overflow:hidden;
+}
+
+.message-thread{
+  display:flex;
+  gap:10px;
+  padding:14px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  cursor:pointer;
+}
+
+.message-thread.active{
+  background:rgba(242,182,62,.08);
+}
+
+.thread-avatar,
+.chat-avatar{
+  width:42px;
+  height:42px;
+  border-radius:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 auto;
+  color:#07111f;
+  font-weight:900;
+  background:linear-gradient(135deg,#f2b63e,#ffd978);
+}
+
+.thread-name{
+  color:#fff;
+  font-weight:900;
+  font-size:14px;
+}
+
+.thread-last{
+  color:#8ea0b3;
+  font-size:12px;
+  margin-top:3px;
+  line-height:1.35;
+}
+
+.chat-head{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:14px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+
+.chat-name{
+  color:#fff;
+  font-weight:900;
+}
+
+.chat-status{
+  color:#8ea0b3;
+  font-size:12px;
+  margin-top:2px;
+}
+
+.chat-body{
+  height:420px;
+  overflow:auto;
+  padding:16px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.chat-msg{
+  max-width:76%;
+  padding:10px 12px;
+  border-radius:14px;
+  font-size:13px;
+  line-height:1.45;
+}
+
+.chat-msg.them{
+  align-self:flex-start;
+  background:rgba(255,255,255,.07);
+  color:#e6edf7;
+  border-bottom-left-radius:4px;
+}
+
+.chat-msg.me{
+  align-self:flex-end;
+  background:linear-gradient(135deg,#f2b63e,#ffd978);
+  color:#07111f;
+  font-weight:800;
+  border-bottom-right-radius:4px;
+}
+
+.chat-input-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 110px;
+  gap:10px;
+  padding:14px;
+  border-top:1px solid rgba(255,255,255,.06);
+}
+
+.chat-input-row input{
+  height:44px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(5,9,16,.72);
+  color:#f4f7fb;
+  padding:0 12px;
+  outline:none;
+}
+
+.chat-input-row button{
+  height:44px;
+  border:0;
+  border-radius:12px;
+  background:linear-gradient(135deg,#f2b63e,#ffd978);
+  color:#07111f;
+  font-weight:900;
+  cursor:pointer;
+}
+
+@media(max-width:900px){
+  .messages-wrap{
+    padding:12px !important;
+  }
+
+  .messages-layout{
+    grid-template-columns:1fr !important;
+  }
+
+  .messages-list{
+    max-height:160px;
+    overflow:auto;
+  }
+
+  .chat-body{
+    height:320px;
+  }
+
+  .chat-input-row{
+    grid-template-columns:1fr;
+  }
+}
+</style>
+
+
+<style id="nakama-v79-notifications-css">
+#social-notifications{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-bottom:14px;
+}
+
+.social-notif{
+  padding:14px;
+  border-radius:16px;
+  border:1px solid rgba(242,182,62,.18);
+  background:linear-gradient(180deg,rgba(7,17,31,.88),rgba(5,12,22,.96));
+  color:#f4f7fb;
+}
+
+.social-notif-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  margin-bottom:8px;
+}
+
+.social-notif-title{
+  font-weight:900;
+}
+
+.social-notif-text{
+  color:#c9d4e5;
+  font-size:13px;
+  line-height:1.45;
+}
+
+.social-notif-actions{
+  display:flex;
+  gap:8px;
+  margin-top:12px;
+}
+
+.social-notif-actions button{
+  height:38px;
+  border:0;
+  border-radius:12px;
+  padding:0 14px;
+  cursor:pointer;
+  font-weight:900;
+}
+
+.social-accept{
+  background:linear-gradient(135deg,#1ddf94,#7dffc9);
+  color:#07111f;
+}
+
+.social-refuse{
+  background:rgba(255,255,255,.08);
+  color:#fff;
+}
+</style>
+
 </head>
 <body>
 
@@ -3093,6 +3377,7 @@ gtag('config', 'G-FMT1J783L7');
 <button class="main-tab active" onclick="switchMainTab('browse')">Parcourir</button>
     <button class="main-tab" onclick="switchMainTab('collection')">Classeur</button>
     <button class="main-tab" onclick="switchMainTab('friends')">Amis</button>
+    <button class="main-tab" onclick="switchMainTab('messages')">Messages <span id="messages-notif" class="nakama-notif-dot" style="display:none">0</span></button>
     <button class="main-tab" onclick="switchMainTab('wishlist')">Wishlist</button>
     <button class="main-tab" onclick="switchMainTab('decks')">Decks</button>
   </div>
@@ -3189,6 +3474,42 @@ gtag('config', 'G-FMT1J783L7');
 
   
   <!-- WISHLIST TAB -->
+
+  <div id="tab-messages" class="tab-pane">
+    <div class="messages-wrap">
+      <div class="messages-hero">
+        <div>
+          <h2>Messages</h2>
+          <p>Den Den Mushi privé pour tes amis et futurs échanges.</p>
+        </div>
+        <div class="messages-badge" id="messages-badge">0 nouveau</div>
+      </div>
+
+      
+<div id="social-notifications"></div>
+      <div class="messages-layout">
+        <div class="messages-list" id="messages-list"></div>
+
+        <div class="messages-chat">
+          <div class="chat-head">
+            <div class="chat-avatar">RH</div>
+            <div>
+              <div class="chat-name" id="chat-name">RobinHD</div>
+              <div class="chat-status">Ami • prêt pour les échanges</div>
+            </div>
+          </div>
+
+          <div class="chat-body" id="chat-body"></div>
+
+          <div class="chat-input-row">
+            <input id="chat-input" type="text" placeholder="Écris un message à RobinHD...">
+            <button type="button" onclick="sendLocalMessage()">Envoyer</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div id="tab-wishlist" class="tab-pane">
     <div style="padding:24px;max-width:1200px;margin:auto">
       <div style="background:linear-gradient(135deg,#141e2a,#0e141c);border:1px solid rgba(212,160,23,.18);border-radius:20px;padding:26px;margin-bottom:24px;box-shadow:0 10px 40px rgba(0,0,0,.25)">
@@ -5872,6 +6193,484 @@ document.addEventListener('click', function(e){
 
   document.addEventListener('DOMContentLoaded', bindMobileTabs);
   window.addEventListener('load', bindMobileTabs);
+})();
+</script>
+
+
+<script id="nakama-v78-social-local-js">
+(function(){
+  const SOCIAL_KEY = 'nakama_social_v1';
+
+  function readSocial(){
+    try{
+      return JSON.parse(localStorage.getItem(SOCIAL_KEY) || '{}');
+    }catch(e){
+      return {};
+    }
+  }
+
+  function writeSocial(data){
+    localStorage.setItem(SOCIAL_KEY, JSON.stringify(data || {}));
+  }
+
+  function ensureSocial(){
+    const data = readSocial();
+    if(!Array.isArray(data.notifications)) data.notifications = [];
+    if(!Array.isArray(data.messages)) data.messages = [];
+    return data;
+  }
+
+  function saveSocial(data){
+    writeSocial(data);
+    updateNotifications();
+  }
+
+  function safeToast(msg){
+    if(typeof showToast === 'function') showToast(msg);
+    else alert(msg);
+  }
+
+  function currentUserData(){
+    if(typeof ud === 'function') return ud();
+    if(!window.ST) return {};
+    if(!ST.user) ST.user = 'local';
+    if(!ST.users) ST.users = {};
+    if(!ST.users[ST.user]) ST.users[ST.user] = { owned:{}, friends:[] };
+    return ST.users[ST.user];
+  }
+
+  function addFriendLocal(name, autoAccepted){
+    const u = currentUserData();
+    if(!Array.isArray(u.friends)) u.friends = [];
+
+    const exists = u.friends.some(f =>
+      String(typeof f === 'string' ? f : (f.name || '')).toLowerCase() === name.toLowerCase()
+    );
+
+    if(!exists){
+      u.friends.push(name);
+      if(typeof setUd === 'function') setUd(u);
+      else if(typeof save === 'function') save();
+    }
+
+    if(autoAccepted){
+      const social = ensureSocial();
+      social.notifications.unshift({
+        type:'friend',
+        from:name,
+        text:name + ' a accepté ta demande d’ami.',
+        read:false,
+        at:Date.now()
+      });
+
+      if(!social.messages.some(m => m.from === name && m.system)){
+        social.messages.push({
+          from:name,
+          text:'Salut, demande acceptée ⚓ On pourra bientôt comparer nos collections.',
+          mine:false,
+          system:true,
+          at:Date.now()
+        });
+      }
+
+      saveSocial(social);
+    }
+  }
+
+  window.updateNotifications = function(){
+    const social = ensureSocial();
+    const unread = social.notifications.filter(n => !n.read).length + social.messages.filter(m => !m.read && !m.mine).length;
+
+    const msgDot = document.getElementById('messages-notif');
+    if(msgDot){
+      msgDot.style.display = unread > 0 ? 'inline-flex' : 'none';
+      msgDot.textContent = unread > 9 ? '9+' : String(unread);
+    }
+
+    const badge = document.getElementById('messages-badge');
+    if(badge){
+      badge.textContent = unread + ' nouveau' + (unread > 1 ? 'x' : '');
+    }
+  };
+
+  const oldSendFriendReq = window.sendFriendReq;
+  window.sendFriendReq = function(){
+    const input = document.getElementById('friend-input');
+    if(!input) return;
+
+    const target = input.value.trim();
+    if(!target){
+      safeToast('Entre un pseudo ou un email.');
+      return;
+    }
+
+    
+if(target.toLowerCase() === 'robinhd'){
+      const social = ensureSocial();
+
+      social.notifications.unshift({
+        type:'friend_request',
+        from:'RobinHD',
+        text:'RobinHD a reçu ta demande et attend une réponse.',
+        read:false,
+        pending:true,
+        at:Date.now()
+      });
+
+      saveSocial(social);
+
+      input.value = '';
+      safeToast('Demande envoyée à RobinHD ⚓');
+
+      setTimeout(() => {
+        const s = ensureSocial();
+
+        s.notifications.unshift({
+          type:'friend_accept_prompt',
+          from:'RobinHD',
+          text:'RobinHD veut accepter ta demande d’ami.',
+          read:false,
+          actionable:true,
+          at:Date.now()
+        });
+
+        saveSocial(s);
+
+        if(typeof renderMessages === 'function') renderMessages();
+      }, 1200);
+
+      return;
+    }
+
+
+    if(typeof oldSendFriendReq === 'function'){
+      oldSendFriendReq();
+      return;
+    }
+
+    addFriendLocal(target, false);
+    input.value = '';
+    safeToast(target + ' ajouté à tes amis ✓');
+    if(typeof renderFriends === 'function') renderFriends();
+  };
+
+  const oldRenderFriends = window.renderFriends;
+  window.renderFriends = function(){
+    const u = currentUserData();
+    if(!Array.isArray(u.friends)) u.friends = [];
+
+    const list = document.getElementById('friends-list');
+    if(!list){
+      if(typeof oldRenderFriends === 'function') oldRenderFriends();
+      return;
+    }
+
+    if(!u.friends.length){
+      list.innerHTML = '<div class="empty-state" style="padding:20px">Aucun ami pour l’instant.<br>Ajoute RobinHD pour tester l’acceptation automatique.</div>';
+      return;
+    }
+
+    let html = '';
+
+    u.friends.forEach(f => {
+      const name = typeof f === 'string' ? f : (f.name || 'Nakama');
+      const initials = name.slice(0,2).toUpperCase();
+      const auto = name.toLowerCase() === 'robinhd';
+
+      html += `
+        <div class="friend-card">
+          <div class="friend-av">${initials}</div>
+          <div>
+            <div class="friend-name">${name}</div>
+            <div class="friend-meta">${auto ? 'Ami validé' : 'Ami local'}</div>
+            <div class="friend-status accepted ${auto ? 'auto' : ''}">✓ Ami</div>
+          </div>
+          <button class="btn-friend-action btn-view-coll" onclick="viewFriendCollectionSafe('${name.replace(/'/g,"\\'")}')">Voir classeur</button>
+        </div>
+      `;
+    });
+
+    list.innerHTML = html;
+  };
+
+  window.renderMessages = function(){
+    const social = ensureSocial();
+    const list = document.getElementById('messages-list');
+    const body = document.getElementById('chat-body');
+
+    if(!list || !body) return;
+
+    if(!social.messages.length){
+      social.messages.push({
+        from:'RobinHD',
+        text:'Ajoute RobinHD en ami pour simuler une acceptation et recevoir un message.',
+        mine:false,
+        read:true,
+        system:true,
+        at:Date.now()
+      });
+      saveSocial(social);
+    }
+
+    const threads = ['RobinHD'];
+
+    list.innerHTML = threads.map(name => {
+      const last = [...social.messages].reverse().find(m => m.from === name || m.to === name);
+      return `
+        <div class="message-thread active" onclick="renderMessages()">
+          <div class="thread-avatar">RH</div>
+          <div>
+            <div class="thread-name">${name}</div>
+            <div class="thread-last">${last ? last.text : 'Aucun message'}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    body.innerHTML = social.messages
+      .filter(m => m.from === 'RobinHD' || m.to === 'RobinHD')
+      .map(m => `<div class="chat-msg ${m.mine ? 'me' : 'them'}">${m.text}</div>`)
+      .join('');
+
+    body.scrollTop = body.scrollHeight;
+
+    social.messages.forEach(m => {
+      if(!m.mine) m.read = true;
+    });
+    social.notifications.forEach(n => n.read = true);
+    saveSocial(social);
+  };
+
+  window.sendLocalMessage = function(){
+    const input = document.getElementById('chat-input');
+    if(!input) return;
+
+    const text = input.value.trim();
+    if(!text) return;
+
+    const social = ensureSocial();
+    social.messages.push({
+      to:'RobinHD',
+      text,
+      mine:true,
+      read:true,
+      at:Date.now()
+    });
+
+    input.value = '';
+
+    setTimeout(() => {
+      const s = ensureSocial();
+      s.messages.push({
+        from:'RobinHD',
+        text:'Bien reçu ⚓ Quand les échanges seront branchés, on pourra proposer des trades ici.',
+        mine:false,
+        read:false,
+        at:Date.now()
+      });
+      saveSocial(s);
+      if(typeof renderMessages === 'function') renderMessages();
+    }, 500);
+
+    saveSocial(social);
+    renderMessages();
+  };
+
+  const oldSwitchMainTab = window.switchMainTab;
+  window.switchMainTab = function(tab){
+    if(typeof oldSwitchMainTab === 'function'){
+      oldSwitchMainTab(tab);
+    }
+
+    if(tab === 'messages'){
+      setTimeout(renderMessages, 50);
+    }
+  };
+
+  function bindMessages(){
+    const input = document.getElementById('chat-input');
+    if(input && !input.dataset.v78Bound){
+      input.dataset.v78Bound = '1';
+      input.addEventListener('keydown', e => {
+        if(e.key === 'Enter'){
+          e.preventDefault();
+          sendLocalMessage();
+        }
+      });
+    }
+
+    updateNotifications();
+  }
+
+  document.addEventListener('DOMContentLoaded', bindMessages);
+  window.addEventListener('load', bindMessages);
+})();
+</script>
+
+
+<script id="nakama-v79-friend-request-flow">
+(function(){
+  const oldRenderMessages = window.renderMessages;
+
+  window.acceptRobinRequest = function(){
+    const social = JSON.parse(localStorage.getItem('nakama_social_v1') || '{}');
+
+    if(!Array.isArray(social.notifications)) social.notifications = [];
+
+    social.notifications = social.notifications.filter(n => !n.actionable);
+
+    localStorage.setItem('nakama_social_v1', JSON.stringify(social));
+
+    if(typeof addFriendLocal === 'function'){
+      addFriendLocal('RobinHD', true);
+    }else{
+      try{
+        const u = typeof ud === 'function' ? ud() : null;
+        if(u){
+          if(!Array.isArray(u.friends)) u.friends = [];
+          if(!u.friends.includes('RobinHD')) u.friends.push('RobinHD');
+          if(typeof setUd === 'function') setUd(u);
+        }
+      }catch(e){}
+    }
+
+    const s = JSON.parse(localStorage.getItem('nakama_social_v1') || '{}');
+    if(!Array.isArray(s.messages)) s.messages = [];
+
+    s.messages.push({
+      from:'RobinHD',
+      text:'Demande acceptée ⚓ Hâte de voir ton binder.',
+      mine:false,
+      read:false,
+      at:Date.now()
+    });
+
+    localStorage.setItem('nakama_social_v1', JSON.stringify(s));
+
+    if(typeof renderFriends === 'function') renderFriends();
+    if(typeof renderMessages === 'function') renderMessages();
+  };
+
+  window.refuseRobinRequest = function(){
+    const social = JSON.parse(localStorage.getItem('nakama_social_v1') || '{}');
+    if(!Array.isArray(social.notifications)) social.notifications = [];
+
+    social.notifications = social.notifications.filter(n => !n.actionable);
+
+    localStorage.setItem('nakama_social_v1', JSON.stringify(social));
+
+    if(typeof renderMessages === 'function') renderMessages();
+  };
+
+  window.renderMessages = function(){
+    if(typeof oldRenderMessages === 'function'){
+      oldRenderMessages();
+    }
+
+    try{
+      const social = JSON.parse(localStorage.getItem('nakama_social_v1') || '{}');
+      const wrap = document.getElementById('social-notifications');
+      if(!wrap) return;
+
+      const actionable = (social.notifications || []).filter(n => n.actionable);
+
+      if(!actionable.length){
+        wrap.innerHTML = '';
+        return;
+      }
+
+      wrap.innerHTML = actionable.map(n => `
+        <div class="social-notif">
+          <div class="social-notif-top">
+            <div class="social-notif-title">Demande d’ami</div>
+            <div class="nakama-notif-dot">!</div>
+          </div>
+
+          <div class="social-notif-text">
+            ${n.from} veut accepter ta demande d’ami.
+          </div>
+
+          <div class="social-notif-actions">
+            <button class="social-accept" onclick="acceptRobinRequest()">Accepter</button>
+            <button class="social-refuse" onclick="refuseRobinRequest()">Refuser</button>
+          </div>
+        </div>
+      `).join('');
+    }catch(e){}
+  };
+
+})();
+</script>
+
+
+<script id="nakama-v80-hide-robin-before-friend">
+(function(){
+  const oldRenderMessagesV79 = window.renderMessages;
+
+  function isRobinFriend(){
+    try{
+      if(typeof ud === 'function'){
+        const u = ud();
+        return Array.isArray(u.friends) &&
+          u.friends.some(f =>
+            String(typeof f === 'string' ? f : (f.name || '')).toLowerCase() === 'robinhd'
+          );
+      }
+
+      if(window.ST && ST.users && ST.user && ST.users[ST.user]){
+        const friends = ST.users[ST.user].friends || [];
+        return friends.some(f => String(f).toLowerCase() === 'robinhd');
+      }
+    }catch(e){}
+
+    return false;
+  }
+
+  window.renderMessages = function(){
+    if(typeof oldRenderMessagesV79 === 'function'){
+      oldRenderMessagesV79();
+    }
+
+    const list = document.getElementById('messages-list');
+    const body = document.getElementById('chat-body');
+    const notif = document.getElementById('social-notifications');
+
+    if(!isRobinFriend()){
+      if(list){
+        list.innerHTML = `
+          <div class="empty-state" style="padding:20px">
+            Aucun message pour le moment.<br>
+            Ajoute un ami pour débloquer les conversations ⚓
+          </div>
+        `;
+      }
+
+      if(body){
+        body.innerHTML = `
+          <div class="empty-state" style="padding:20px">
+            Aucun chat actif.
+          </div>
+        `;
+      }
+
+      // On garde uniquement les notifications de demandes
+      if(notif){
+        const hasNotif = notif.innerHTML.trim().length > 0;
+        if(!hasNotif){
+          notif.innerHTML = '';
+        }
+      }
+    }
+  };
+
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+      if(typeof renderMessages === 'function'){
+        renderMessages();
+      }
+    }, 150);
+  });
+
 })();
 </script>
 
