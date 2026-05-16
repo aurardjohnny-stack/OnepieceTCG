@@ -2650,58 +2650,76 @@ gtag('config', 'G-FMT1J783L7');
 </style>
 
 
-<style id="nakama-v75-mobile-responsive">
-/* V75 - Responsive mobile propre sans casser desktop */
+<style id="nakama-v76-friends-fix-css">
+.btn-remove-friend{
+  background:rgba(190,38,38,.16) !important;
+  border:1px solid rgba(255,90,90,.30) !important;
+  color:#ffaaaa !important;
+}
+
+.btn-remove-friend:hover{
+  background:rgba(190,38,38,.28) !important;
+  color:#fff !important;
+}
+</style>
+
+
+<style id="nakama-v77-mobile-safe-fix">
+/* V77 - Mobile safe fix : pas d'overlay bloquant, cartes visibles, clics OK */
 
 @media(max-width:900px){
 
   html, body{
     width:100% !important;
+    max-width:100% !important;
     overflow-x:hidden !important;
   }
 
   body{
-    -webkit-text-size-adjust:100% !important;
+    padding-bottom:82px !important;
+    touch-action:manipulation !important;
   }
 
-  /* Layout principal en colonne */
+  /* Layout mobile simple */
   #main-screen.active{
-    display:flex !important;
-    flex-direction:column !important;
+    display:block !important;
     min-height:100vh !important;
+    width:100% !important;
   }
 
-  /* Sidebar devient barre de navigation horizontale */
+  /* Menu mobile horizontal, cliquable */
   #main-screen .main-tabs{
     position:sticky !important;
     top:0 !important;
-    z-index:9000 !important;
+    z-index:1000 !important;
 
     width:100% !important;
-    min-height:auto !important;
     height:auto !important;
+    min-height:0 !important;
 
     display:flex !important;
     flex-direction:row !important;
     align-items:center !important;
     gap:8px !important;
 
-    padding:10px 10px !important;
+    padding:10px !important;
     overflow-x:auto !important;
     overflow-y:hidden !important;
 
-    background:rgba(7,17,31,.96) !important;
-    backdrop-filter:blur(12px) !important;
-    -webkit-backdrop-filter:blur(12px) !important;
-
+    background:rgba(7,17,31,.98) !important;
     border-right:0 !important;
     border-bottom:1px solid rgba(242,182,62,.18) !important;
+    box-shadow:0 8px 24px rgba(0,0,0,.22) !important;
 
-    box-shadow:0 10px 28px rgba(0,0,0,.22) !important;
+    pointer-events:auto !important;
+  }
+
+  #main-screen .main-tabs *{
+    pointer-events:auto !important;
   }
 
   #main-screen .main-tabs::-webkit-scrollbar{
-    height:0 !important;
+    display:none !important;
   }
 
   #main-screen .main-tabs::before,
@@ -2710,13 +2728,11 @@ gtag('config', 'G-FMT1J783L7');
     content:none !important;
   }
 
-  /* Bloc user plus compact */
   .sidebar-user-box{
-    flex:0 0 auto !important;
-    min-width:54px !important;
-    width:54px !important;
-    height:46px !important;
-
+    flex:0 0 48px !important;
+    width:48px !important;
+    height:44px !important;
+    min-width:48px !important;
     padding:4px !important;
     border-radius:14px !important;
   }
@@ -2726,49 +2742,61 @@ gtag('config', 'G-FMT1J783L7');
   }
 
   .sidebar-user-avatar{
-    width:38px !important;
-    height:38px !important;
-    min-width:38px !important;
+    width:36px !important;
+    height:36px !important;
+    min-width:36px !important;
     border-radius:12px !important;
   }
 
-  /* Boutons nav mobile */
   #main-screen .main-tab,
   #main-screen .profile-menu-btn{
     flex:0 0 auto !important;
     width:auto !important;
     min-width:auto !important;
-    min-height:44px !important;
-    height:44px !important;
-
-    padding:0 14px !important;
+    height:42px !important;
+    min-height:42px !important;
+    padding:0 12px !important;
     border-radius:13px !important;
-
     font-size:12px !important;
     white-space:nowrap !important;
+    position:relative !important;
+    z-index:1002 !important;
   }
 
-  /* Contenu principal */
-  .tab-pane,
-  #tab-browse.tab-pane.active,
-  #tab-collection,
-  #tab-friends,
-  #tab-wishlist,
-  #tab-decks{
+  /* Onglets : seul l'actif s'affiche */
+  #main-screen .tab-pane{
+    display:none !important;
     width:100% !important;
     max-width:none !important;
-    padding:12px !important;
+    min-height:auto !important;
     margin:0 !important;
-    grid-column:auto !important;
-    grid-row:auto !important;
+    padding:12px !important;
+    position:relative !important;
+    z-index:1 !important;
   }
 
-  /* Stats en une colonne ou deux petites colonnes */
+  #main-screen .tab-pane.active{
+    display:block !important;
+  }
+
+  #tab-browse.tab-pane.active,
+  #tab-collection.active,
+  #tab-friends.active,
+  #tab-wishlist.active,
+  #tab-decks.active{
+    display:block !important;
+    width:100% !important;
+    padding:12px !important;
+    margin:0 !important;
+  }
+
+  /* Stats visibles */
   #tab-browse .coll-stats-grid{
     display:grid !important;
     grid-template-columns:repeat(2,minmax(0,1fr)) !important;
     gap:10px !important;
     width:100% !important;
+    margin-bottom:12px !important;
   }
 
   #tab-browse .coll-stat{
@@ -2777,21 +2805,25 @@ gtag('config', 'G-FMT1J783L7');
     border-radius:14px !important;
   }
 
-  /* Filtres mobile */
+  /* Filtres mobiles */
   #tab-browse .filters-final-clean,
   #tab-browse .filters-bar{
+    display:block !important;
     width:100% !important;
+    max-width:none !important;
     padding:12px !important;
-    border-radius:14px !important;
     margin:0 0 12px 0 !important;
+    border-radius:14px !important;
   }
 
-  #tab-browse .filters-final-clean .fsearch,
-  #tab-browse .filters-bar .fsearch,
-  #search-input{
+  #tab-browse .fsearch,
+  #tab-browse input[type="search"],
+  #tab-browse input[type="text"]{
+    width:100% !important;
+    max-width:none !important;
     height:46px !important;
-    font-size:14px !important;
     margin-bottom:10px !important;
+    font-size:14px !important;
   }
 
   #tab-browse .filters-line-final{
@@ -2801,28 +2833,20 @@ gtag('config', 'G-FMT1J783L7');
     width:100% !important;
   }
 
-  #tab-browse #set-filter,
-  #tab-browse #rarity-filter,
-  #tab-browse #special-filter,
-  #tab-browse #category-filter,
+  #tab-browse select,
+  #tab-browse .fsel,
   #tab-browse .ftog,
   #tab-browse .manual-btn{
     width:100% !important;
     min-width:0 !important;
     max-width:none !important;
-    flex:auto !important;
     height:42px !important;
-    margin-left:0 !important;
+    margin:0 !important;
     font-size:12px !important;
   }
 
-  #tab-browse #special-filter,
-  #tab-browse #category-filter,
   #tab-browse .filter-lang-inline{
     grid-column:1 / -1 !important;
-  }
-
-  #tab-browse .filter-lang-inline{
     display:grid !important;
     grid-template-columns:repeat(3,minmax(0,1fr)) !important;
     gap:6px !important;
@@ -2831,54 +2855,72 @@ gtag('config', 'G-FMT1J783L7');
 
   #tab-browse .filter-lang-inline button{
     width:100% !important;
-    min-width:0 !important;
     height:38px !important;
-    font-size:11px !important;
-  }
-
-  /* Cartes : grille téléphone */
-  .cards-grid{
-    display:grid !important;
-    grid-template-columns:repeat(auto-fill,minmax(92px,1fr)) !important;
-    gap:8px !important;
-    justify-content:stretch !important;
-    width:100% !important;
-  }
-
-  .card-item{
-    width:100% !important;
     min-width:0 !important;
-    max-width:none !important;
   }
 
-  .set-block,
-  .set-body,
-  .rarity-block,
+  /* Contenus cartes */
   #main-content,
   #browse-content,
-  .content{
+  .content,
+  .main-content,
+  .set-block,
+  .set-body,
+  .rarity-block{
     width:100% !important;
     max-width:none !important;
     margin-left:0 !important;
     margin-right:0 !important;
   }
 
+  /* Cartes visibles et cliquables */
+  .cards-grid{
+    display:grid !important;
+    grid-template-columns:repeat(auto-fill,minmax(86px,1fr)) !important;
+    gap:8px !important;
+    width:100% !important;
+    max-width:none !important;
+    justify-content:stretch !important;
+    align-items:start !important;
+    pointer-events:auto !important;
+  }
+
+  .card-item{
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    pointer-events:auto !important;
+    cursor:pointer !important;
+  }
+
+  .card-item img{
+    width:100% !important;
+    height:auto !important;
+    display:block !important;
+    pointer-events:none !important;
+  }
+
   .set-header,
   .rarity-header{
+    width:100% !important;
     padding:10px 12px !important;
     border-radius:12px !important;
   }
 
   /* Dock bas mobile */
   #nakama-bottom-dock{
+    position:fixed !important;
     left:10px !important;
     right:10px !important;
     bottom:10px !important;
     width:auto !important;
+    z-index:2000 !important;
 
     display:grid !important;
     grid-template-columns:1fr 1fr !important;
     gap:8px !important;
+
+    pointer-events:auto !important;
   }
 
   #nakama-bottom-dock button{
@@ -2886,20 +2928,18 @@ gtag('config', 'G-FMT1J783L7');
     text-align:center !important;
     padding:0 8px !important;
     font-size:12px !important;
+    pointer-events:auto !important;
   }
 
-  body{
-    padding-bottom:74px !important;
-  }
-
-  /* Modales plein écran mobile */
+  /* Modales mobile */
   #profile-overlay,
   #premium-card-overlay,
   #nakama-settings-modal-overlay,
   #password-overlay{
+    z-index:5000 !important;
+    padding:10px !important;
     align-items:stretch !important;
     justify-content:center !important;
-    padding:10px !important;
   }
 
   .profile-modal,
@@ -2926,9 +2966,8 @@ gtag('config', 'G-FMT1J783L7');
   }
 
   .premium-card-image{
-    max-width:300px !important;
+    max-width:260px !important;
     margin:0 auto !important;
-    border-radius:18px !important;
   }
 
   .premium-title{
@@ -2956,18 +2995,22 @@ gtag('config', 'G-FMT1J783L7');
     height:64px !important;
   }
 
-  /* Auth mobile */
-  #auth-screen{
-    padding:16px !important;
+  /* Friends mobile */
+  #tab-friends .friends-wrap{
+    width:100% !important;
+    max-width:none !important;
+    padding:0 !important;
   }
 
-  .auth-wrap{
-    max-width:100% !important;
+  .friend-card{
+    flex-wrap:wrap !important;
+    gap:10px !important;
   }
 
-  .auth-card{
-    border-radius:18px !important;
-    padding:18px !important;
+  .btn-friend-action{
+    margin-left:0 !important;
+    width:100% !important;
+    height:38px !important;
   }
 }
 
@@ -2981,19 +3024,15 @@ gtag('config', 'G-FMT1J783L7');
   }
 
   .cards-grid{
-    grid-template-columns:repeat(auto-fill,minmax(82px,1fr)) !important;
+    grid-template-columns:repeat(auto-fill,minmax(78px,1fr)) !important;
     gap:7px !important;
   }
 
   #main-screen .main-tab,
   #main-screen .profile-menu-btn{
-    height:42px !important;
-    padding:0 12px !important;
+    height:40px !important;
     font-size:11px !important;
-  }
-
-  .premium-card-image{
-    max-width:250px !important;
+    padding:0 10px !important;
   }
 }
 </style>
@@ -5636,6 +5675,203 @@ document.addEventListener('click', function(e){
   document.addEventListener('DOMContentLoaded', bind);
   window.addEventListener('load', bind);
   setTimeout(bind, 800);
+})();
+</script>
+
+
+<script id="nakama-v76-friends-fix">
+/* V76 - Fix amis V1
+   L'ancien système cherchait l'ami dans ST.users local.
+   Avec Supabase, les autres utilisateurs ne sont pas dans le navigateur.
+   Ici on permet d'ajouter un ami par pseudo/email localement.
+*/
+(function(){
+  function safeToast(msg){
+    if(typeof showToast === 'function') showToast(msg);
+    else alert(msg);
+  }
+
+  function currentUserData(){
+    if(typeof ud === 'function') return ud();
+    if(!window.ST) return {};
+    if(!ST.user) ST.user = 'local';
+    if(!ST.users) ST.users = {};
+    if(!ST.users[ST.user]) ST.users[ST.user] = { owned:{}, friends:[] };
+    return ST.users[ST.user];
+  }
+
+  window.renderFriends = function(){
+    const u = currentUserData();
+    if(!Array.isArray(u.friends)) u.friends = [];
+
+    const list = document.getElementById('friends-list');
+    if(!list) return;
+
+    const friends = u.friends;
+
+    if(!friends.length){
+      list.innerHTML = `
+        <div class="empty-state" style="padding:20px">
+          Aucun ami pour l'instant.<br>
+          Ajoute un pseudo ou un email pour préparer ta liste d'échange.
+        </div>
+      `;
+      return;
+    }
+
+    let html = '';
+
+    friends.forEach(f => {
+      const name = typeof f === 'string' ? f : (f.name || f.email || 'Nakama');
+      const key = String(name).replace(/'/g, "\\'");
+      const initials = String(name).slice(0,2).toUpperCase();
+
+      html += `
+        <div class="friend-card">
+          <div class="friend-av">${initials}</div>
+          <div>
+            <div class="friend-name">${name}</div>
+            <div class="friend-meta">Profil ami local</div>
+            <div class="friend-status accepted">✓ Ami ajouté</div>
+          </div>
+          <button class="btn-friend-action btn-view-coll" onclick="viewFriendCollectionSafe('${key}')">Voir classeur</button>
+          <button class="btn-friend-action btn-remove-friend" onclick="removeFriendSafe('${key}')">Retirer</button>
+        </div>
+      `;
+    });
+
+    list.innerHTML = html;
+  };
+
+  window.sendFriendReq = function(){
+    const input = document.getElementById('friend-input');
+    if(!input) return;
+
+    const target = input.value.trim();
+
+    if(!target){
+      safeToast('Entre un pseudo ou un email.');
+      return;
+    }
+
+    const me =
+      (window.ST && ST.user ? String(ST.user).toLowerCase() : '');
+
+    if(target.toLowerCase() === me){
+      safeToast('Tu ne peux pas t’ajouter toi-même.');
+      return;
+    }
+
+    const u = currentUserData();
+    if(!Array.isArray(u.friends)) u.friends = [];
+
+    const exists = u.friends.some(f =>
+      String(typeof f === 'string' ? f : (f.name || f.email || '')).toLowerCase() === target.toLowerCase()
+    );
+
+    if(exists){
+      safeToast('Cet ami est déjà dans ta liste.');
+      return;
+    }
+
+    u.friends.push(target);
+
+    if(typeof setUd === 'function') setUd(u);
+    else if(typeof save === 'function') save();
+
+    input.value = '';
+    safeToast(target + ' ajouté à tes amis ✓');
+    renderFriends();
+  };
+
+  window.removeFriendSafe = function(name){
+    const u = currentUserData();
+    if(!Array.isArray(u.friends)) u.friends = [];
+
+    u.friends = u.friends.filter(f =>
+      String(typeof f === 'string' ? f : (f.name || f.email || '')).toLowerCase() !== String(name).toLowerCase()
+    );
+
+    if(typeof setUd === 'function') setUd(u);
+    else if(typeof save === 'function') save();
+
+    safeToast('Ami retiré.');
+    renderFriends();
+  };
+
+  window.viewFriendCollectionSafe = function(name){
+    safeToast('Le classeur public de ' + name + ' sera disponible quand les collections cloud seront activées.');
+  };
+
+  // Bind du bouton au cas où l'ancien onclick ne part pas
+  function bindFriendUI(){
+    const input = document.getElementById('friend-input');
+    if(input && !input.dataset.v76Bound){
+      input.dataset.v76Bound = '1';
+      input.addEventListener('keydown', function(e){
+        if(e.key === 'Enter'){
+          e.preventDefault();
+          sendFriendReq();
+        }
+      });
+    }
+
+    const btns = Array.from(document.querySelectorAll('button'));
+    btns.forEach(btn => {
+      const txt = (btn.textContent || '').toLowerCase();
+      if(txt.includes('ami') && !btn.dataset.v76FriendBtn && !btn.closest('#nakama-bottom-dock')){
+        btn.dataset.v76FriendBtn = '1';
+        btn.addEventListener('click', function(){
+          const activeTab = document.getElementById('tab-friends');
+          if(activeTab && activeTab.classList.contains('active')){
+            sendFriendReq();
+          }
+        });
+      }
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', bindFriendUI);
+  window.addEventListener('load', bindFriendUI);
+})();
+</script>
+
+
+<script id="nakama-v77-mobile-tab-click-fix">
+(function(){
+  function bindMobileTabs(){
+    document.querySelectorAll('#main-screen .main-tab').forEach(btn => {
+      const attr = btn.getAttribute('onclick') || '';
+      const m = attr.match(/switchMainTab\('([^']+)'\)/);
+      if(!m || btn.dataset.mobileBound) return;
+
+      btn.dataset.mobileBound = '1';
+      btn.addEventListener('click', function(e){
+        if(window.innerWidth > 900) return;
+        e.preventDefault();
+        e.stopPropagation();
+
+        const tab = m[1];
+        if(window.ST) ST.mainTab = tab;
+
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('#main-screen .main-tab').forEach(t => t.classList.remove('active'));
+
+        const pane = document.getElementById('tab-' + tab);
+        if(pane) pane.classList.add('active');
+        btn.classList.add('active');
+
+        if(tab === 'collection' && typeof renderCollectionTab === 'function') renderCollectionTab();
+        if(tab === 'friends' && typeof renderFriends === 'function') renderFriends();
+        if(tab === 'wishlist' && typeof renderWishlist === 'function') renderWishlist();
+        if(tab === 'decks' && typeof renderDecks === 'function') renderDecks();
+        if(typeof renderDashboardStats === 'function') renderDashboardStats();
+      }, true);
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', bindMobileTabs);
+  window.addEventListener('load', bindMobileTabs);
 })();
 </script>
 
