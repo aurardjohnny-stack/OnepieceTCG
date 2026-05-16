@@ -6959,5 +6959,170 @@ document.addEventListener('click', function(e){
 })();
 </script>
 
+
+<script id="nakama-v86-profile-search-fix">
+(function(){
+  function getClient(){
+    try{
+      if(window.nakamaSupabase) return window.nakamaSupabase;
+      if(typeof nakamaSupabase !== 'undefined'){
+        window.nakamaSupabase = nakamaSupabase;
+        return nakamaSupabase;
+      }
+    }catch(e){}
+    return null;
+  }
+
+  async function getUser(){
+    const client = getClient();
+    if(!client) return null;
+    const { data } = await client.auth.getUser();
+    return data && data.user ? data.user : null;
+  }
+
+  function profileName(user){
+    return (
+      (user && user.user_metadata && user.user_metadata.display_name) ||
+      (user && user.email ? user.email.split('@')[0] : '') ||
+      'Nakama'
+    );
+  }
+
+  window.ensureCloudProfileHard = async function(){
+    const client = getClient();
+    const user = await getUser();
+
+    if(!client || !user) return null;
+
+    const name = profileName(user);
+
+    const { error } = await client.from('profiles').upsert({
+      id:user.id,
+      email:user.email,
+      display_name:name,
+      avatar:null,
+      updated_at:new Date().toISOString()
+    }, {
+      onConflict:'id'
+    });
+
+    if(error){
+      console.warn('Profile upsert error', error);
+    }
+
+    return {
+      id:user.id,
+      email:user.email,
+      display_name:name
+    };
+  };
+
+  window.findProfileByNameOrEmail = async function(value){
+    const client = getClient();
+    const query = String(value || '').trim();
+
+    if(!client || !query) return null;
+
+    const clean = query.replace(/[%_]/g, '').trim();
+
+    // Recherche souple : pseudo exact, pseudo partiel, email exact, email partiel.
+    const { data, error } = await client
+      .from('profiles')
+      .select('id,email,display_name,avatar')
+      .or(
+        'display_name.ilike.%' + clean + '%,' +
+        'email.ilike.%' + clean + '%'
+      )
+      .limit(10);
+
+    if(error) throw error;
+
+    if(!data || !data.length) return null;
+
+    // Priorité aux résultats exacts
+    const lower = clean.toLowerCase();
+    return data.find(p =>
+      String(p.display_name || '').toLowerCase() === lower ||
+      String(p.email || '').toLowerCase() === lower
+    ) || data[0];
+  };
+
+  // Remplace l'ajout ami pour utiliser la recherche corrigée
+  window.sendFriendReq = async function(){
+    try{
+      const client = getClient();
+      const input = document.getElementById('friend-input');
+      const target = input ? input.value.trim() : '';
+
+      if(!target){
+        if(typeof showToast === 'function') showToast('Entre un pseudo ou un email.');
+        return;
+      }
+
+      const me = await window.ensureCloudProfileHard();
+
+      if(!client || !me){
+        if(typeof showToast === 'function') showToast('Connecte-toi pour ajouter un ami.');
+        return;
+      }
+
+      const profile = await window.findProfileByNameOrEmail(target);
+
+      if(!profile){
+        if(typeof showToast === 'function'){
+          showToast('Utilisateur introuvable : demande-lui d’ouvrir le site une fois avec la dernière version.');
+        }
+        return;
+      }
+
+      if(profile.id === me.id){
+        if(typeof showToast === 'function') showToast('Tu ne peux pas t’ajouter toi-même.');
+        return;
+      }
+
+      const { error } = await client.from('friend_requests').insert({
+        requester_id:me.id,
+        addressee_id:profile.id,
+        status:'pending'
+      });
+
+      if(error){
+        const msg = String(error.message || '');
+        if(msg.includes('duplicate') || msg.includes('unique')){
+          if(typeof showToast === 'function') showToast('Demande déjà envoyée.');
+        }else{
+          throw error;
+        }
+      }else{
+        if(typeof showToast === 'function') showToast('Demande envoyée à ' + profile.display_name + ' ⚓');
+      }
+
+      if(input) input.value = '';
+
+      if(typeof renderFriends === 'function') await renderFriends();
+      if(typeof updateCloudNotifications === 'function') await updateCloudNotifications();
+
+    }catch(e){
+      console.error(e);
+      if(typeof showToast === 'function') showToast(e.message || 'Erreur demande ami.');
+    }
+  };
+
+  // Force la création du profil quand la page s’ouvre
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+      window.ensureCloudProfileHard();
+    }, 700);
+  });
+
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      window.ensureCloudProfileHard();
+    }, 1200);
+  });
+
+})();
+</script>
+
 </body>
 </html>
