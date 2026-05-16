@@ -3526,6 +3526,100 @@ gtag('config', 'G-FMT1J783L7');
 }
 </style>
 
+
+<style id="nakama-v95-visitor-mode-css">
+.auth-visitor-btn{
+  width:100% !important;
+  min-height:46px !important;
+  margin-top:12px !important;
+  border-radius:14px !important;
+  border:1px solid rgba(242,182,62,.30) !important;
+  background:rgba(242,182,62,.10) !important;
+  color:#f2b63e !important;
+  font-weight:900 !important;
+  cursor:pointer !important;
+  transition:.16s ease !important;
+}
+
+.auth-visitor-btn:hover{
+  background:rgba(242,182,62,.18) !important;
+  box-shadow:0 0 18px rgba(242,182,62,.14) !important;
+}
+
+body.visitor-mode .visitor-locked{
+  opacity:.55 !important;
+  filter:saturate(.7) !important;
+}
+
+.visitor-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:8px 10px;
+  border-radius:999px;
+  background:rgba(242,182,62,.10);
+  border:1px solid rgba(242,182,62,.24);
+  color:#f2b63e;
+  font-size:12px;
+  font-weight:900;
+}
+
+#visitor-signup-banner{
+  position:fixed;
+  left:50%;
+  bottom:18px;
+  transform:translateX(-50%);
+  z-index:2147483000;
+  display:none;
+  align-items:center;
+  gap:12px;
+  max-width:min(680px,calc(100vw - 24px));
+  padding:12px 14px;
+  border-radius:16px;
+  border:1px solid rgba(242,182,62,.26);
+  background:rgba(7,17,31,.96);
+  color:#f4f7fb;
+  box-shadow:0 20px 60px rgba(0,0,0,.35);
+  backdrop-filter:blur(10px);
+}
+
+body.visitor-mode #visitor-signup-banner{
+  display:flex;
+}
+
+#visitor-signup-banner span{
+  color:#cfd8e6;
+  font-size:13px;
+}
+
+#visitor-signup-banner button{
+  height:38px;
+  white-space:nowrap;
+  border:0;
+  border-radius:12px;
+  background:linear-gradient(135deg,#f2b63e,#ffd978);
+  color:#07111f;
+  font-weight:900;
+  cursor:pointer;
+  padding:0 14px;
+}
+
+@media(max-width:700px){
+  #visitor-signup-banner{
+    left:10px;
+    right:10px;
+    bottom:74px;
+    transform:none;
+    flex-direction:column;
+    align-items:stretch;
+  }
+
+  #visitor-signup-banner button{
+    width:100%;
+  }
+}
+</style>
+
 </head>
 <body>
 
@@ -3547,6 +3641,9 @@ gtag('config', 'G-FMT1J783L7');
         <div class="field"><label>Mot de passe</label><input id="login-pass" type="password" placeholder="••••••••" autocomplete="current-password"/></div>
         <button class="btn-submit" onclick="doLogin()">Se connecter</button>
         <div class="auth-err" id="login-err"></div>
+
+        <button class="auth-visitor-btn" type="button" onclick="enterVisitorMode()">👀 Visiter sans compte</button>
+
 
         <button class="auth-link-btn" type="button" onclick="openForgotPasswordModal()">Mot de passe oublié ?</button>
 
@@ -9092,6 +9189,181 @@ document.addEventListener('click', function(e){
       if(status) status.textContent = 'Erreur : ' + (e.message || 'synchro impossible');
     }
   };
+})();
+</script>
+
+
+<div id="visitor-signup-banner">
+  <span>Mode visiteur : tu peux parcourir les cartes et les prix. Crée un compte pour sauvegarder ton classeur.</span>
+  <button type="button" onclick="exitVisitorMode()">Créer / connecter un compte</button>
+</div>
+
+
+<script id="nakama-v95-visitor-mode-js">
+(function(){
+  const VISITOR_KEY = 'nakama_visitor_mode';
+
+  function toast(msg){
+    if(typeof showToast === 'function') showToast(msg);
+    else alert(msg);
+  }
+
+  window.enterVisitorMode = async function(){
+    try{
+      localStorage.setItem(VISITOR_KEY, '1');
+
+      if(window.ST){
+        ST.user = '__visitor__';
+        if(!ST.users) ST.users = {};
+        if(!ST.users.__visitor__){
+          ST.users.__visitor__ = {
+            owned:{},
+            wishlist:[],
+            decks:[],
+            friends:[]
+          };
+        }
+      }
+
+      document.body.classList.add('visitor-mode');
+
+      const auth = document.getElementById('auth-screen');
+      const main = document.getElementById('main-screen');
+
+      if(auth) auth.classList.remove('active');
+      if(main) main.classList.add('active');
+
+      const topUser = document.getElementById('topbar-user');
+      if(topUser) topUser.textContent = '👀 Visiteur';
+
+      // Badge si topbar existe
+      if(topUser && !document.getElementById('visitor-badge-inline')){
+        const badge = document.createElement('span');
+        badge.id = 'visitor-badge-inline';
+        badge.className = 'visitor-badge';
+        badge.textContent = 'Mode visiteur';
+        topUser.insertAdjacentElement('afterend', badge);
+      }
+
+      if(typeof loadCards === 'function'){
+        await loadCards();
+      }
+
+      if(typeof renderDashboardStats === 'function'){
+        try{ renderDashboardStats(); }catch(e){}
+      }
+
+      // Onglets cloud/social non utiles en visiteur
+      document.querySelectorAll(
+        '#tab-friends, #tab-messages, #tab-collection, #tab-wishlist, #tab-decks'
+      ).forEach(el => el.classList.add('visitor-locked'));
+
+      toast('Mode visiteur activé ⚓');
+    }catch(e){
+      console.error(e);
+      toast('Impossible d’ouvrir le mode visiteur.');
+    }
+  };
+
+  window.exitVisitorMode = function(){
+    localStorage.removeItem(VISITOR_KEY);
+
+    document.body.classList.remove('visitor-mode');
+
+    const main = document.getElementById('main-screen');
+    const auth = document.getElementById('auth-screen');
+
+    if(main) main.classList.remove('active');
+    if(auth) auth.classList.add('active');
+
+    const badge = document.getElementById('visitor-badge-inline');
+    if(badge) badge.remove();
+
+    try{
+      if(window.ST && ST.user === '__visitor__'){
+        ST.user = null;
+      }
+    }catch(e){}
+  };
+
+  function guardVisitorActions(){
+    document.addEventListener('click', function(e){
+      if(!document.body.classList.contains('visitor-mode')) return;
+
+      const blocked = e.target.closest(
+        '#tab-friends, #tab-messages, #tab-collection, #tab-wishlist, #tab-decks, .owned-badge, .wishlist, .trade, .profile-menu-btn'
+      );
+
+      if(blocked){
+        const browse = e.target.closest('#tab-browse');
+        const premium = e.target.closest('#premium-card-overlay');
+
+        // Dans la modal carte, on laisse zoom/prix/infos, on bloque juste actions wishlist/trade.
+        const action = e.target.closest('.wishlist, .trade');
+        if(premium && !action) return;
+
+        // Parcourir reste autorisé.
+        if(browse) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+        toast('Crée un compte pour utiliser cette fonction.');
+      }
+    }, true);
+  }
+
+  // Si l'utilisateur était en visiteur et recharge
+  window.addEventListener('load', function(){
+    guardVisitorActions();
+
+    if(localStorage.getItem(VISITOR_KEY) === '1'){
+      setTimeout(() => {
+        if(!document.getElementById('main-screen')?.classList.contains('active')){
+          enterVisitorMode();
+        }
+      }, 300);
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', guardVisitorActions);
+})();
+</script>
+
+
+<script id="nakama-v96-auto-visitor-boot">
+(function(){
+  async function bootVisitorInstant(){
+    try{
+      // si déjà connecté, ne force pas visiteur
+      let logged = false;
+
+      try{
+        if(window.nakamaSupabase){
+          const { data } = await window.nakamaSupabase.auth.getUser();
+          logged = !!(data && data.user);
+        }
+      }catch(e){}
+
+      if(logged) return;
+
+      // saute directement l'écran login
+      if(typeof enterVisitorMode === 'function'){
+        enterVisitorMode();
+      }else{
+        const auth = document.getElementById('auth-screen');
+        const main = document.getElementById('main-screen');
+
+        if(auth) auth.classList.remove('active');
+        if(main) main.classList.add('active');
+      }
+    }catch(e){
+      console.warn(e);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(bootVisitorInstant, 120);
+  });
 })();
 </script>
 
