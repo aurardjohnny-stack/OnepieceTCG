@@ -915,6 +915,801 @@ body::before{
 }
 
 </style>
+
+<style id="nakama-banner-v17-real-layout-clean">
+/* V17 - layout réel propre : plus de topbar, recherche/langues dans les filtres */
+
+/* Fond général */
+html,
+body,
+#main-screen,
+.screen,
+.tab-pane,
+.content,
+.main-content{
+  background:#050910 !important;
+}
+
+/* Nouvelle grille sans topbar */
+#main-screen.active{
+  display:grid !important;
+  grid-template-columns:244px minmax(0,1fr) 0px !important;
+  grid-template-rows:390px auto !important;
+  gap:0 20px !important;
+  min-height:100vh !important;
+}
+
+/* Bannière seule, non perturbée */
+.nb-banner-real{
+  grid-column:1 / -1 !important;
+  grid-row:1 !important;
+  height:390px !important;
+  min-height:390px !important;
+  background-size:cover !important;
+  background-repeat:no-repeat !important;
+  background-position:center 12% !important;
+  border:0 !important;
+  box-shadow:none !important;
+  -webkit-mask-image:linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 64%,
+    rgba(0,0,0,.72) 84%,
+    transparent 100%
+  ) !important;
+  mask-image:linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 64%,
+    rgba(0,0,0,.72) 84%,
+    transparent 100%
+  ) !important;
+}
+
+.nb-banner-real::before,
+.nb-banner-real::after{
+  display:none !important;
+  content:none !important;
+}
+
+/* La topbar est supprimée du HTML, sécurité si jamais */
+.topbar{
+  display:none !important;
+}
+
+/* Sidebar */
+#main-screen .main-tabs{
+  grid-column:1 !important;
+  grid-row:2 !important;
+  position:sticky !important;
+  top:0 !important;
+  align-self:start !important;
+  height:calc(100vh - 0px) !important;
+  padding:18px 14px !important;
+  background:linear-gradient(180deg,rgba(7,17,31,.96),rgba(5,9,16,.98)) !important;
+  border-right:1px solid rgba(242,182,62,.18) !important;
+  display:flex !important;
+  flex-direction:column !important;
+  gap:10px !important;
+}
+
+/* Pseudo dans sidebar */
+.sidebar-user-box{
+  display:flex !important;
+  align-items:center !important;
+  gap:10px !important;
+  padding:12px 10px !important;
+  margin-bottom:10px !important;
+  border:1px solid rgba(242,182,62,.22) !important;
+  border-radius:13px !important;
+  background:rgba(255,255,255,.035) !important;
+}
+
+.sidebar-user-avatar{
+  width:34px !important;
+  height:34px !important;
+  border-radius:999px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  background:rgba(242,182,62,.12) !important;
+  border:1px solid rgba(242,182,62,.24) !important;
+  color:#f2b63e !important;
+  font-size:16px !important;
+}
+
+.sidebar-user-label{
+  font-size:9px !important;
+  color:#7d8b99 !important;
+  text-transform:uppercase !important;
+  letter-spacing:.8px !important;
+  font-weight:900 !important;
+}
+
+.sidebar-user-name{
+  color:#f8f0dc !important;
+  font-weight:900 !important;
+  font-size:13px !important;
+  margin-top:2px !important;
+}
+
+/* Contenu principal sous bannière */
+#tab-browse,
+.tab-pane.active,
+.content,
+.main-content{
+  grid-column:2 !important;
+  grid-row:2 !important;
+  margin-top:0 !important;
+}
+
+/* Supprimer toutes les anciennes langues */
+#lang-tabs,
+.lang-tabs{
+  display:none !important;
+}
+
+/* Bloc filtres propre */
+.filters-bar{
+  display:grid !important;
+  grid-template-columns:repeat(12,minmax(0,1fr)) !important;
+  gap:12px !important;
+  align-items:center !important;
+
+  padding:18px !important;
+  margin:0 0 14px 0 !important;
+
+  background:linear-gradient(180deg,rgba(7,17,31,.88),rgba(5,12,22,.92)) !important;
+  border:1px solid rgba(242,182,62,.22) !important;
+  border-radius:16px !important;
+
+  box-shadow:
+    0 16px 40px rgba(0,0,0,.20),
+    inset 0 1px 0 rgba(255,255,255,.035) !important;
+}
+
+/* Recherche au-dessus des filtres */
+.filters-bar .fsearch{
+  grid-column:1 / span 6 !important;
+  grid-row:1 !important;
+  width:100% !important;
+  min-width:0 !important;
+  height:48px !important;
+  padding:0 16px !important;
+
+  background:rgba(5,9,16,.76) !important;
+  border:1px solid rgba(255,255,255,.16) !important;
+  border-radius:13px !important;
+
+  color:#eef5fb !important;
+  font-size:14px !important;
+}
+
+/* Ligne filtre */
+.filters-bar #set-filter{
+  grid-column:1 / span 2 !important;
+  grid-row:2 !important;
+}
+
+.filters-bar #rarity-filter{
+  grid-column:3 / span 2 !important;
+  grid-row:2 !important;
+}
+
+.filters-bar #category-filter{
+  grid-column:5 / span 3 !important;
+  grid-row:2 !important;
+}
+
+.filters-bar select.fsel{
+  height:44px !important;
+  border-radius:11px !important;
+  background:rgba(5,9,16,.72) !important;
+  border:1px solid rgba(255,255,255,.14) !important;
+  color:#f2f5f7 !important;
+}
+
+/* Possédées */
+.filters-bar .ftog{
+  grid-column:8 / span 2 !important;
+  grid-row:2 !important;
+  min-height:44px !important;
+  justify-content:center !important;
+  border-radius:999px !important;
+}
+
+/* Carte manuelle */
+.filters-bar .manual-btn{
+  grid-column:10 / span 1 !important;
+  grid-row:2 !important;
+  height:44px !important;
+  white-space:nowrap !important;
+  border-radius:11px !important;
+}
+
+/* Langues à droite de carte manuelle, propres */
+.filter-lang-inline{
+  grid-column:11 / span 2 !important;
+  grid-row:2 !important;
+  display:flex !important;
+  justify-content:flex-end !important;
+  align-items:center !important;
+  gap:7px !important;
+  flex-wrap:wrap !important;
+}
+
+.filter-lang-inline button{
+  height:36px !important;
+  min-width:46px !important;
+  padding:0 10px !important;
+
+  border-radius:10px !important;
+  border:1px solid rgba(255,255,255,.14) !important;
+  background:rgba(255,255,255,.055) !important;
+
+  color:#e8edf2 !important;
+  font-weight:900 !important;
+  font-size:11px !important;
+  font-family:var(--font-body) !important;
+  cursor:pointer !important;
+}
+
+.filter-lang-inline button:first-child{
+  border-color:rgba(242,182,62,.55) !important;
+  color:#f2b63e !important;
+  background:rgba(242,182,62,.10) !important;
+}
+
+.filter-lang-inline button:hover{
+  border-color:rgba(242,182,62,.75) !important;
+  color:#f2b63e !important;
+  background:rgba(242,182,62,.12) !important;
+}
+
+/* Stats sous filtres */
+.coll-stats-grid,
+.stats-row{
+  margin-top:0 !important;
+}
+
+/* Responsive */
+@media(max-width:1200px){
+  .filters-bar{
+    grid-template-columns:repeat(6,minmax(0,1fr)) !important;
+  }
+
+  .filters-bar .fsearch{
+    grid-column:1 / -1 !important;
+    grid-row:1 !important;
+  }
+
+  .filters-bar #set-filter{grid-column:1 / span 2 !important;grid-row:2 !important;}
+  .filters-bar #rarity-filter{grid-column:3 / span 2 !important;grid-row:2 !important;}
+  .filters-bar #category-filter{grid-column:5 / span 2 !important;grid-row:2 !important;}
+  .filters-bar .ftog{grid-column:1 / span 2 !important;grid-row:3 !important;}
+  .filters-bar .manual-btn{grid-column:3 / span 2 !important;grid-row:3 !important;}
+  .filter-lang-inline{grid-column:5 / span 2 !important;grid-row:3 !important;}
+}
+
+@media(max-width:760px){
+  #main-screen.active{
+    grid-template-columns:1fr !important;
+    grid-template-rows:300px auto auto !important;
+  }
+
+  .nb-banner-real{
+    height:300px !important;
+    min-height:300px !important;
+    background-position:center 10% !important;
+  }
+
+  #main-screen .main-tabs{
+    grid-column:1 !important;
+    grid-row:2 !important;
+    position:relative !important;
+    height:auto !important;
+  }
+
+  #tab-browse,
+  .tab-pane.active,
+  .content,
+  .main-content{
+    grid-column:1 !important;
+    grid-row:3 !important;
+  }
+
+  .filters-bar{
+    grid-template-columns:1fr !important;
+  }
+
+  .filters-bar .fsearch,
+  .filters-bar #set-filter,
+  .filters-bar #rarity-filter,
+  .filters-bar #category-filter,
+  .filters-bar .ftog,
+  .filters-bar .manual-btn,
+  .filter-lang-inline{
+    grid-column:1 / -1 !important;
+    grid-row:auto !important;
+  }
+
+  .filter-lang-inline{
+    justify-content:flex-start !important;
+  }
+}
+</style>
+
+
+<style id="nakama-v23-final-real-filters-stats">
+/* V23 - vraie correction : recherche au-dessus de Tous les sets + stats à droite */
+
+/* Browse en deux colonnes : gauche contenu, droite stats */
+#tab-browse.tab-pane.active{
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) 285px !important;
+  gap:18px !important;
+  align-items:start !important;
+}
+
+/* Colonne gauche */
+#tab-browse .filters-final-clean,
+#tab-browse #main-content{
+  grid-column:1 !important;
+}
+
+/* Ancienne rangée stats masquée pour éviter doublon */
+#tab-browse .stats-row{
+  display:none !important;
+}
+
+/* Stats premium à droite */
+#tab-browse .nb-quick-stats-real{
+  grid-column:2 !important;
+  grid-row:1 / span 3 !important;
+
+  display:flex !important;
+  flex-direction:column !important;
+  gap:12px !important;
+
+  width:100% !important;
+  margin:0 !important;
+  padding:0 !important;
+
+  background:transparent !important;
+  border:0 !important;
+}
+
+/* Cartes stats épurées */
+#tab-browse .nb-quick-stats-real .nb-qreal{
+  width:100% !important;
+  min-width:0 !important;
+  min-height:92px !important;
+
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:flex-start !important;
+  justify-content:center !important;
+  gap:6px !important;
+
+  padding:16px 18px !important;
+
+  background:linear-gradient(180deg,rgba(7,17,31,.90),rgba(5,12,22,.96)) !important;
+  border:1px solid rgba(242,182,62,.22) !important;
+  border-radius:16px !important;
+
+  box-shadow:
+    0 14px 32px rgba(0,0,0,.18),
+    inset 0 1px 0 rgba(255,255,255,.035) !important;
+}
+
+/* Bloc filtres */
+#tab-browse .filters-final-clean{
+  display:block !important;
+
+  width:100% !important;
+  padding:16px !important;
+  margin:0 0 14px 0 !important;
+
+  background:linear-gradient(180deg,rgba(7,17,31,.90),rgba(5,12,22,.95)) !important;
+  border:1px solid rgba(242,182,62,.22) !important;
+  border-radius:16px !important;
+
+  box-shadow:
+    0 14px 34px rgba(0,0,0,.18),
+    inset 0 1px 0 rgba(255,255,255,.035) !important;
+}
+
+/* BARRE DE RECHERCHE AU-DESSUS DE TOUS LES SETS */
+#tab-browse .filters-final-clean .fsearch{
+  display:block !important;
+  visibility:visible !important;
+  opacity:1 !important;
+
+  width:100% !important;
+  min-width:0 !important;
+  max-width:none !important;
+  height:48px !important;
+
+  margin:0 0 12px 0 !important;
+  padding:0 16px !important;
+
+  background:rgba(5,9,16,.78) !important;
+  border:1px solid rgba(255,255,255,.16) !important;
+  border-radius:13px !important;
+
+  color:#eef5fb !important;
+  font-size:14px !important;
+  outline:none !important;
+}
+
+/* Ligne en dessous : sets / rareté / catégories / boutons / langues */
+#tab-browse .filters-line-final{
+  display:flex !important;
+  flex-wrap:nowrap !important;
+  align-items:center !important;
+  gap:10px !important;
+  width:100% !important;
+}
+
+/* Même taille et même ligne */
+#tab-browse .filters-line-final .fsel{
+  height:42px !important;
+  min-height:42px !important;
+  max-height:42px !important;
+
+  padding:0 12px !important;
+  border-radius:10px !important;
+
+  background:rgba(5,9,16,.72) !important;
+  border:1px solid rgba(255,255,255,.14) !important;
+  color:#f2f5f7 !important;
+
+  font-size:12px !important;
+  outline:none !important;
+}
+
+#tab-browse #set-filter,
+#tab-browse #rarity-filter{
+  flex:0 0 165px !important;
+  width:165px !important;
+}
+
+#tab-browse #special-filter{
+  flex:0 0 225px !important;
+  width:225px !important;
+}
+
+#tab-browse .filters-line-final .ftog,
+#tab-browse .filters-line-final .manual-btn{
+  height:42px !important;
+  min-height:42px !important;
+  max-height:42px !important;
+
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+
+  padding:0 14px !important;
+  border-radius:10px !important;
+
+  white-space:nowrap !important;
+  font-size:12px !important;
+}
+
+/* Langues alignées à droite */
+#tab-browse .filter-lang-inline{
+  margin-left:auto !important;
+
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-end !important;
+  gap:6px !important;
+  flex-wrap:nowrap !important;
+
+  min-width:max-content !important;
+}
+
+#tab-browse .filter-lang-inline button{
+  height:38px !important;
+  min-width:42px !important;
+
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+
+  padding:0 9px !important;
+  border-radius:10px !important;
+
+  border:1px solid rgba(255,255,255,.14) !important;
+  background:rgba(255,255,255,.055) !important;
+  color:#e8edf2 !important;
+
+  font-size:11px !important;
+  font-weight:900 !important;
+  cursor:pointer !important;
+}
+
+#tab-browse .filter-lang-inline button:first-child{
+  min-width:56px !important;
+  color:#f2b63e !important;
+  border-color:rgba(242,182,62,.55) !important;
+  background:rgba(242,182,62,.10) !important;
+}
+
+/* Fcount discret */
+#tab-browse .filters-final-clean .fcount{
+  display:block !important;
+  margin-top:10px !important;
+  color:#7d8b99 !important;
+  font-size:11px !important;
+  text-align:right !important;
+}
+
+/* Responsive */
+@media(max-width:1250px){
+  #tab-browse.tab-pane.active{
+    grid-template-columns:1fr !important;
+  }
+
+  #tab-browse .nb-quick-stats-real{
+    grid-column:1 !important;
+    grid-row:auto !important;
+
+    display:grid !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+
+  #tab-browse .filters-line-final{
+    flex-wrap:wrap !important;
+  }
+
+  #tab-browse .filter-lang-inline{
+    margin-left:0 !important;
+    width:100% !important;
+    justify-content:flex-start !important;
+  }
+}
+
+@media(max-width:700px){
+  #tab-browse .nb-quick-stats-real{
+    grid-template-columns:1fr !important;
+  }
+
+  #tab-browse .filters-line-final{
+    flex-direction:column !important;
+    align-items:stretch !important;
+  }
+
+  #tab-browse #set-filter,
+  #tab-browse #rarity-filter,
+  #tab-browse #special-filter,
+  #tab-browse .filters-line-final .ftog,
+  #tab-browse .filters-line-final .manual-btn{
+    width:100% !important;
+    flex:0 0 auto !important;
+  }
+
+  #tab-browse .filter-lang-inline{
+    flex-wrap:wrap !important;
+  }
+}
+</style>
+
+
+<style id="nakama-v24-stats-plus-fines">
+/* V24 - stats de droite plus fines */
+
+#tab-browse.tab-pane.active{
+  grid-template-columns:minmax(0,1fr) 235px !important;
+}
+
+#tab-browse .nb-quick-stats-real .nb-qreal{
+  min-height:74px !important;
+  padding:12px 14px !important;
+  border-radius:13px !important;
+}
+
+#tab-browse .nb-quick-stats-real .nb-qreal .label,
+#tab-browse .nb-quick-stats-real .nb-qreal .q-label{
+  font-size:10px !important;
+}
+
+#tab-browse .nb-quick-stats-real .nb-qreal .value,
+#tab-browse .nb-quick-stats-real .nb-qreal .q-value{
+  font-size:22px !important;
+}
+
+@media(max-width:1250px){
+  #tab-browse.tab-pane.active{
+    grid-template-columns:1fr !important;
+  }
+}
+</style>
+
+
+<style id="nakama-v25-swap-lang-manual">
+/* V25 - inverse langues et ajout manuel */
+
+#tab-browse .filters-line-final{
+  display:flex !important;
+  align-items:center !important;
+}
+
+/* Langues juste après catégories */
+#tab-browse .filter-lang-inline{
+  order:4 !important;
+  margin-left:0 !important;
+  justify-content:flex-start !important;
+}
+
+/* Possédées ensuite */
+#tab-browse .filters-line-final .ftog{
+  order:5 !important;
+}
+
+/* Ajout manuel complètement à droite */
+#tab-browse .filters-line-final .manual-btn{
+  order:6 !important;
+  margin-left:auto !important;
+}
+</style>
+
+
+<style id="nakama-v43-clean-no-banner-safe">
+/* V43 - suppression safe de la bannière, sans casser filtres/stats */
+
+/* Cache uniquement la bannière */
+.nb-banner-real,
+.nb-banner-img{
+  display:none !important;
+}
+
+/* Retire la ligne de bannière dans la grille */
+#main-screen.active{
+  grid-template-rows:auto auto !important;
+}
+
+/* Sidebar normale */
+#main-screen .main-tabs{
+  grid-row:1 / span 2 !important;
+  margin-top:0 !important;
+}
+
+/* Onglet browse placé en haut */
+#tab-browse.tab-pane.active{
+  grid-row:1 !important;
+  margin-top:0 !important;
+  padding-top:20px !important;
+}
+
+/* Stats de droite conservées, mais non fixes */
+#tab-browse .nb-quick-stats-real{
+  position:relative !important;
+  top:auto !important;
+  right:auto !important;
+  bottom:auto !important;
+  height:auto !important;
+  width:auto !important;
+  display:flex !important;
+}
+
+/* Recherche et filtres bien visibles */
+#tab-browse .filters-final-clean,
+#tab-browse .filters-bar{
+  display:block !important;
+  visibility:visible !important;
+  opacity:1 !important;
+}
+
+#tab-browse .fsearch,
+#search-input{
+  display:block !important;
+  visibility:visible !important;
+  opacity:1 !important;
+}
+
+/* Stats du haut visibles */
+#tab-browse .coll-stats-grid,
+#tab-browse .stats-row{
+  visibility:visible !important;
+  opacity:1 !important;
+}
+
+/* Évite le gros vide hérité */
+.content,
+.main-content,
+.tab-pane.active{
+  margin-top:0 !important;
+}
+</style>
+
+
+<style id="nakama-v44-fix-other-tabs-position">
+/* V44 - replace correctement Classeur / Amis / Wishlist / Decks */
+
+/* Tous les panneaux doivent commencer en haut à droite de la sidebar */
+#tab-collection,
+#tab-friends,
+#tab-wishlist,
+#tab-decks{
+  grid-column:2 !important;
+  grid-row:1 !important;
+
+  align-self:start !important;
+
+  margin:0 !important;
+  padding:20px 22px 28px 22px !important;
+
+  width:100% !important;
+  max-width:none !important;
+
+  min-height:100vh !important;
+
+  background:#050910 !important;
+}
+
+/* Quand ils sont actifs, ils prennent la même place que Parcourir */
+#tab-collection.active,
+#tab-friends.active,
+#tab-wishlist.active,
+#tab-decks.active{
+  display:block !important;
+}
+
+/* Corrige les wrappers internes qui pouvaient rester centrés/bas */
+#tab-collection .content,
+#tab-wishlist .content,
+#tab-decks .deck-wrap,
+#tab-friends .friends-wrap{
+  margin:0 !important;
+  padding:0 !important;
+
+  max-width:none !important;
+  width:100% !important;
+}
+
+/* Decks : garde un joli padding interne sans descendre */
+#tab-decks .deck-wrap{
+  padding:0 !important;
+}
+
+/* Amis : évite le bloc étroit perdu au milieu */
+#tab-friends .friends-wrap{
+  max-width:760px !important;
+}
+
+/* Collection / wishlist : garde le contenu aligné en haut */
+#tab-collection .empty-state,
+#tab-wishlist .empty-state,
+#tab-decks .empty-state{
+  margin-top:0 !important;
+}
+
+/* Responsive */
+@media(max-width:900px){
+  #tab-collection,
+  #tab-friends,
+  #tab-wishlist,
+  #tab-decks{
+    grid-column:1 !important;
+    grid-row:2 !important;
+    padding:14px !important;
+    min-height:auto !important;
+  }
+}
+</style>
+
+
+<style id="nakama-v45-hide-manual-button-classeur">
+/* V45 - retire le bouton "Ajouter carte manuelle" du classeur */
+
+#tab-collection .manual-btn,
+#tab-collection button[onclick*="Manual"],
+#tab-collection button[onclick*="manual"]{
+  display:none !important;
+}
+</style>
+
 </head>
 <body>
 
@@ -953,30 +1748,16 @@ body::before{
 <!-- MAIN SCREEN -->
 <div id="main-screen" class="screen">
   <div class="nb-banner-real" aria-label="Nakama Binder"></div>
-  <div class="topbar">
-    <button class="nb-menu-real" type="button" aria-label="Menu">
-      <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
-    </button>
-    <div class="nb-search-real">
-      <svg viewBox="0 0 24 24"><path d="M10.8 18a7.2 7.2 0 1 1 0-14.4 7.2 7.2 0 0 1 0 14.4Zm5.1-2.1 4.5 4.5"/></svg>
-      <input type="text" placeholder="Rechercher une carte, un personnage, un code..." oninput="document.getElementById('search-input').value=this.value; onSearch(this.value)">
-    </div>
-    <div class="nb-lang-real">
-      <button onclick="setLang('ALL')">Toutes</button>
-      <button onclick="setLang('FR')">FR</button>
-      <button onclick="setLang('EN')">EN</button>
-      <button onclick="setLang('JAP')">JP</button>
-      <button onclick="setLang('CN-HK')">CN-HK</button>
-      <button onclick="setLang('UNK')">Autres</button>
-    </div>
-    <div class="topbar-right">
-      <span id="topbar-user"></span>
-      <button class="icon-btn" onclick="doLogout()">Déconnexion</button>
-    </div>
-  </div>
-
   <div class="main-tabs">
-    <button class="main-tab active" onclick="switchMainTab('browse')">Parcourir</button>
+    
+    <div class="sidebar-user-box">
+      <div class="sidebar-user-avatar">☠</div>
+      <div>
+        <div class="sidebar-user-label">Connecté</div>
+        <div id="topbar-user" class="sidebar-user-name"></div>
+      </div>
+    </div>
+<button class="main-tab active" onclick="switchMainTab('browse')">Parcourir</button>
     <button class="main-tab" onclick="switchMainTab('collection')">Classeur</button>
     <button class="main-tab" onclick="switchMainTab('friends')">Amis</button>
     <button class="main-tab" onclick="switchMainTab('wishlist')">Wishlist</button>
@@ -985,42 +1766,53 @@ body::before{
 
   <!-- BROWSE TAB -->
   <div id="tab-browse" class="tab-pane active">
-    <div class="lang-tabs" id="lang-tabs">
-      <button class="lang-tab active" onclick="setLang('ALL')">Toutes</button>
-      <button class="lang-tab" onclick="setLang('FR')">🇫🇷 FR</button>
-      <button class="lang-tab" onclick="setLang('EN')">🇬🇧 EN</button>
-      <button class="lang-tab" onclick="setLang('JAP')">🇯🇵 JAP</button>
-      <button class="lang-tab" onclick="setLang('CN-HK')">🇨🇳 CN/HK</button>
-      <button class="lang-tab" onclick="setLang('UNK')">Autres</button>
-    </div>
-    <div class="filters-bar">
-      <input class="fsearch" type="text" placeholder="🔍 Rechercher nom ou code..." oninput="onSearch(this.value)" id="search-input"/>
-      <select class="fsel" id="set-filter" onchange="onFilter()">
-        <option value="">Tous les sets</option>
-      </select>
-      <select class="fsel" id="rarity-filter" onchange="onFilter()">
-        <option value="">Toutes raretés</option>
-        <option value="LEADER">Leader</option>
-        <option value="SUPERRARE">Super Rare</option>
-        <option value="RARE">Rare</option>
-        <option value="UNCOMMON">Uncommon</option>
-        <option value="COMMON">Common</option>
-        <option value="PROMO">Promo</option>
-        <option value="SECRET">Secret Rare</option>
-      </select>
-      <select class="fsel" id="special-filter" onchange="onFilter()">
-        <option value="">Toutes catégories spéciales</option>
-        <option value="DON">DON!!</option>
-        <option value="ANNIVERSARY">Anniversary</option>
-        <option value="MANGA">Manga Rare</option>
-        <option value="TREASURE">Treasure Rare</option>
-        <option value="SPECIAL">Special / SP / Alt Art</option>
-        <option value="PROMO">Promo</option>
-      </select>
-      <button class="ftog" id="toggle-owned" onclick="toggleOwned()">★ Possédées seulement</button>
-      <button class="manual-btn" onclick="openManualModal()">＋ Carte manuelle</button>
+
+    <div class="filters-bar filters-final-clean">
+      <input class="fsearch" type="text" placeholder="Rechercher une carte, un personnage, un code..." oninput="onSearch(this.value)" id="search-input"/>
+
+      <div class="filters-line-final">
+        <select class="fsel" id="set-filter" onchange="onFilter()">
+          <option value="">Tous les sets</option>
+        </select>
+
+        <select class="fsel" id="rarity-filter" onchange="onFilter()">
+          <option value="">Toutes raretés</option>
+          <option value="LEADER">Leader</option>
+          <option value="SUPERRARE">Super Rare</option>
+          <option value="RARE">Rare</option>
+          <option value="UNCOMMON">Uncommon</option>
+          <option value="COMMON">Common</option>
+          <option value="PROMO">Promo</option>
+          <option value="SECRET">Secret Rare</option>
+        </select>
+
+        <select class="fsel" id="special-filter" onchange="onFilter()">
+          <option value="">Toutes catégories spéciales</option>
+          <option value="DON">DON!!</option>
+          <option value="ANNIVERSARY">Anniversary</option>
+          <option value="MANGA">Manga Rare</option>
+          <option value="TREASURE">Treasure Rare</option>
+          <option value="SPECIAL">Special / SP / Alt Art</option>
+          <option value="PROMO">Promo</option>
+        </select>
+
+        <button class="ftog" id="toggle-owned" onclick="toggleOwned()">★ Possédées seulement</button>
+
+        <button class="manual-btn" onclick="openManualModal()">＋ Carte manuelle</button>
+
+        <div class="filter-lang-inline" aria-label="Choix de langue des cartes">
+          <button type="button" onclick="setLang('ALL')">Toutes</button>
+          <button type="button" onclick="setLang('FR')">FR</button>
+          <button type="button" onclick="setLang('EN')">EN</button>
+          <button type="button" onclick="setLang('JAP')">JP</button>
+          <button type="button" onclick="setLang('CN-HK')">CN-HK</button>
+          <button type="button" onclick="setLang('UNK')">Autres</button>
+        </div>
+      </div>
+
       <span class="fcount" id="fcount"></span>
     </div>
+
     <div class="stats-row">
       <div class="stat-item"><div class="stat-val" id="s-owned">0</div><div class="stat-lbl">Possédées</div></div>
       <div class="stat-item"><div class="stat-val" id="s-total">0</div><div class="stat-lbl">Total</div></div>
