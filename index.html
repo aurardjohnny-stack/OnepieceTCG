@@ -8334,5 +8334,215 @@ document.addEventListener('click', function(e){
 })();
 </script>
 
+
+<script id="nakama-v92-sync-hard-fix">
+(function(){
+  function getClient(){
+    try{
+      if(window.nakamaSupabase) return window.nakamaSupabase;
+      if(typeof nakamaSupabase !== 'undefined'){
+        window.nakamaSupabase = nakamaSupabase;
+        return nakamaSupabase;
+      }
+    }catch(e){}
+    return null;
+  }
+
+  async function getUser(){
+    const c = getClient();
+    if(!c) return null;
+    const { data } = await c.auth.getUser();
+    return data && data.user ? data.user : null;
+  }
+
+  function toast(msg){
+    if(typeof showToast === 'function') showToast(msg);
+    else alert(msg);
+  }
+
+  function qty(v){
+    if(v === true) return 1;
+    if(v === false || v == null) return 1;
+
+    if(typeof v === 'object'){
+      const possible = v.qty ?? v.count ?? v.quantity ?? v.amount ?? v.owned ?? 1;
+      const n = Number(possible);
+      return Number.isFinite(n) && n > 0 ? Math.floor(n) : 1;
+    }
+
+    const n = Number(v);
+    return Number.isFinite(n) && n > 0 ? Math.floor(n) : 1;
+  }
+
+  function getAllOwnedBuckets(){
+    const buckets = [];
+
+    try{
+      if(typeof ud === 'function'){
+        const u = ud();
+        if(u && u.owned) buckets.push({ name:'profil actuel', owned:u.owned });
+      }
+    }catch(e){}
+
+    try{
+      if(window.ST && ST.users){
+        Object.keys(ST.users).forEach(key => {
+          const owned = ST.users[key] && ST.users[key].owned;
+          if(owned) buckets.push({ name:key, owned });
+        });
+      }
+    }catch(e){}
+
+    try{
+      Object.keys(localStorage).forEach(k => {
+        const raw = localStorage.getItem(k);
+        if(!raw || raw[0] !== '{') return;
+
+        try{
+          const data = JSON.parse(raw);
+
+          if(data && data.owned){
+            buckets.push({ name:k, owned:data.owned });
+          }
+
+          if(data && data.users){
+            Object.keys(data.users).forEach(key => {
+              if(data.users[key] && data.users[key].owned){
+                buckets.push({ name:k + ':' + key, owned:data.users[key].owned });
+              }
+            });
+          }
+
+          Object.keys(data || {}).forEach(key => {
+            if(data[key] && data[key].owned){
+              buckets.push({ name:k + ':' + key, owned:data[key].owned });
+            }
+          });
+        }catch(e){}
+      });
+    }catch(e){}
+
+    return buckets;
+  }
+
+  function bestOwned(){
+    const buckets = getAllOwnedBuckets();
+
+    let best = { name:'aucun', owned:{} };
+
+    buckets.forEach(b => {
+      const count = Object.keys(b.owned || {}).filter(Boolean).length;
+      const bestCount = Object.keys(best.owned || {}).filter(Boolean).length;
+
+      if(count > bestCount){
+        best = b;
+      }
+    });
+
+    return best;
+  }
+
+  function cards(){
+    try{
+      return window.ST && Array.isArray(ST.cards) ? ST.cards : [];
+    }catch(e){
+      return [];
+    }
+  }
+
+  function findCard(id){
+    return cards().find(c =>
+      c.id === id ||
+      c.code === id ||
+      c.card_id === id
+    ) || null;
+  }
+
+  function img(card){
+    if(!card) return '';
+
+    try{
+      if(typeof imgUrl === 'function'){
+        const u = imgUrl(card);
+        if(u) return u;
+      }
+    }catch(e){}
+
+    return card.image || card.original_image || card.image_url || card.img || '';
+  }
+
+  window.syncCollectionCloud = async function(){
+    try{
+      const c = getClient();
+      const u = await getUser();
+
+      if(!c || !u){
+        toast('Connecte-toi pour synchroniser.');
+        return;
+      }
+
+      if(typeof syncCloudProfileName === 'function'){
+        await syncCloudProfileName();
+      }else if(typeof ensureCloudProfileHard === 'function'){
+        await ensureCloudProfileHard();
+      }
+
+      if(window.ST && (!ST.cards || !ST.cards.length) && typeof loadCards === 'function'){
+        await loadCards();
+      }
+
+      const bucket = bestOwned();
+      const owned = bucket.owned || {};
+
+      const rows = Object.keys(owned)
+        .filter(cardId => cardId && cardId !== 'undefined' && cardId !== 'null')
+        .map(cardId => {
+          const card = findCard(cardId);
+          return {
+            user_id: u.id,
+            card_id: String(cardId),
+            qty: qty(owned[cardId]),
+            card_code: card ? String(card.code || card.id || cardId) : String(cardId),
+            card_name: card ? String(card.name || card.code || cardId) : String(cardId),
+            image_url: img(card) || '',
+            updated_at: new Date().toISOString()
+          };
+        })
+        .filter(row => row.card_id && row.qty && row.qty > 0);
+
+      await c.from('user_cards').delete().eq('user_id', u.id);
+
+      if(!rows.length){
+        toast('0 carte trouvée à synchroniser.');
+        const status = document.getElementById('cloud-sync-status');
+        if(status) status.textContent = '0 carte trouvée dans : ' + bucket.name;
+        return;
+      }
+
+      // Envoi par lots pour éviter gros payload
+      const size = 500;
+      for(let i = 0; i < rows.length; i += size){
+        const chunk = rows.slice(i, i + size);
+        const { error } = await c.from('user_cards').insert(chunk);
+        if(error) throw error;
+      }
+
+      toast(rows.length + ' carte(s) synchronisée(s) ✓');
+
+      const status = document.getElementById('cloud-sync-status');
+      if(status){
+        status.textContent = rows.length + ' carte(s) synchronisée(s) depuis : ' + bucket.name;
+      }
+
+    }catch(e){
+      console.error(e);
+      toast('Erreur synchro : ' + (e.message || 'inconnue'));
+      const status = document.getElementById('cloud-sync-status');
+      if(status) status.textContent = 'Erreur : ' + (e.message || 'synchro impossible');
+    }
+  };
+})();
+</script>
+
 </body>
 </html>
