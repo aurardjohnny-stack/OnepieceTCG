@@ -8117,5 +8117,169 @@ document.addEventListener('click', function(e){
 })();
 </script>
 
+
+<script id="nakama-v90-sync-owned-fallback">
+(function(){
+  function getClient(){
+    try{
+      if(window.nakamaSupabase) return window.nakamaSupabase;
+      if(typeof nakamaSupabase !== 'undefined'){
+        window.nakamaSupabase = nakamaSupabase;
+        return nakamaSupabase;
+      }
+    }catch(e){}
+    return null;
+  }
+
+  async function getUser(){
+    const c = getClient();
+    if(!c) return null;
+    const { data } = await c.auth.getUser();
+    return data && data.user ? data.user : null;
+  }
+
+  function toast(msg){
+    if(typeof showToast === 'function') showToast(msg);
+    else alert(msg);
+  }
+
+  function findBestOwnedBucket(){
+    let best = {};
+    let bestName = 'aucun';
+
+    try{
+      if(typeof ud === 'function'){
+        const u = ud();
+        if(u && u.owned && Object.keys(u.owned).length){
+          best = u.owned;
+          bestName = 'profil actuel';
+        }
+      }
+    }catch(e){}
+
+    try{
+      if(window.ST && ST.users){
+        Object.keys(ST.users).forEach(key => {
+          const owned = ST.users[key] && ST.users[key].owned ? ST.users[key].owned : {};
+          if(Object.keys(owned).length > Object.keys(best).length){
+            best = owned;
+            bestName = key;
+          }
+        });
+      }
+    }catch(e){}
+
+    try{
+      const raw = localStorage.getItem('glb_v2');
+      if(raw){
+        const users = JSON.parse(raw);
+        Object.keys(users || {}).forEach(key => {
+          const owned = users[key] && users[key].owned ? users[key].owned : {};
+          if(Object.keys(owned).length > Object.keys(best).length){
+            best = owned;
+            bestName = key;
+          }
+        });
+      }
+    }catch(e){}
+
+    return { owned:best || {}, source:bestName };
+  }
+
+  function allCards(){
+    try{
+      if(window.ST && Array.isArray(ST.cards)) return ST.cards;
+    }catch(e){}
+    return [];
+  }
+
+  function findCard(cardId){
+    return allCards().find(c =>
+      c.id === cardId ||
+      c.code === cardId ||
+      c.card_id === cardId
+    ) || null;
+  }
+
+  function cardImg(card){
+    if(!card) return '';
+
+    try{
+      if(typeof imgUrl === 'function'){
+        const url = imgUrl(card);
+        if(url) return url;
+      }
+    }catch(e){}
+
+    return card.image || card.original_image || card.image_url || card.img || '';
+  }
+
+  window.syncCollectionCloud = async function(){
+    try{
+      const c = getClient();
+      const u = await getUser();
+
+      if(!c || !u){
+        toast('Connecte-toi pour synchroniser.');
+        return;
+      }
+
+      if(typeof syncCloudProfileName === 'function'){
+        await syncCloudProfileName();
+      }else if(typeof ensureCloudProfileHard === 'function'){
+        await ensureCloudProfileHard();
+      }
+
+      if(window.ST && (!ST.cards || !ST.cards.length) && typeof loadCards === 'function'){
+        await loadCards();
+      }
+
+      const found = findBestOwnedBucket();
+      const owned = found.owned || {};
+      const ids = Object.keys(owned);
+
+      await c.from('user_cards').delete().eq('user_id', u.id);
+
+      if(!ids.length){
+        toast('Aucune carte trouvée à synchroniser dans ce navigateur.');
+        const status = document.getElementById('cloud-sync-status');
+        if(status) status.textContent = '0 carte trouvée. Ouvre ton classeur et vérifie que tes cartes sont bien possédées.';
+        return;
+      }
+
+      const rows = ids.map(cardId => {
+        const card = findCard(cardId);
+        return {
+          user_id:u.id,
+          card_id:cardId,
+          qty:Number(owned[cardId] || 1),
+          card_code:card ? (card.code || card.id || cardId) : cardId,
+          card_name:card ? (card.name || card.code || cardId) : cardId,
+          image_url:cardImg(card),
+          updated_at:new Date().toISOString()
+        };
+      });
+
+      const { error } = await c.from('user_cards').insert(rows);
+      if(error) throw error;
+
+      toast(rows.length + ' carte(s) synchronisée(s) ✓');
+
+      const status = document.getElementById('cloud-sync-status');
+      if(status){
+        status.textContent = rows.length + ' carte(s) synchronisée(s) depuis : ' + found.source;
+      }
+
+    }catch(e){
+      console.error(e);
+      toast(e.message || 'Erreur synchro collection.');
+      const status = document.getElementById('cloud-sync-status');
+      if(status) status.textContent = 'Erreur : ' + (e.message || 'synchro impossible');
+    }
+  };
+
+})();
+</script>
+
 </body>
 </html>
