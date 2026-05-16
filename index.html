@@ -6832,5 +6832,132 @@ document.addEventListener('click', function(e){
 })();
 </script>
 
+
+<script id="nakama-v85-supabase-global-fix">
+(function(){
+  // Rend Supabase accessible aux scripts qui testent window.nakamaSupabase
+  try{
+    if(!window.nakamaSupabase && typeof nakamaSupabase !== 'undefined'){
+      window.nakamaSupabase = nakamaSupabase;
+    }
+  }catch(e){}
+
+  function sb(){
+    try{
+      if(window.nakamaSupabase) return window.nakamaSupabase;
+      if(typeof nakamaSupabase !== 'undefined') return nakamaSupabase;
+    }catch(e){}
+    return null;
+  }
+
+  async function getUserSafe(){
+    const client = sb();
+    if(!client) return null;
+
+    const { data } = await client.auth.getUser();
+    return data && data.user ? data.user : null;
+  }
+
+  async function fixProfileNow(){
+    const client = sb();
+    const user = await getUserSafe();
+    if(!client || !user) return null;
+
+    const name =
+      (user.user_metadata && user.user_metadata.display_name) ||
+      (user.email || '').split('@')[0] ||
+      'Nakama';
+
+    await client.from('profiles').upsert({
+      id:user.id,
+      email:user.email,
+      display_name:name,
+      avatar:null,
+      updated_at:new Date().toISOString()
+    });
+
+    return user;
+  }
+
+  async function refreshSocialBadges(){
+    const client = sb();
+    const user = await getUserSafe();
+    if(!client || !user) return;
+
+    let friendCount = 0;
+    let msgCount = 0;
+
+    try{
+      const fr = await client
+        .from('friend_requests')
+        .select('id')
+        .eq('addressee_id', user.id)
+        .eq('status', 'pending');
+
+      friendCount = fr.data ? fr.data.length : 0;
+    }catch(e){}
+
+    try{
+      // Pour l'instant messages non lus simples :
+      // on compte les messages reçus récents comme notif.
+      const msg = await client
+        .from('messages')
+        .select('id')
+        .eq('recipient_id', user.id);
+
+      msgCount = msg.data ? msg.data.length : 0;
+    }catch(e){}
+
+    const total = friendCount + msgCount;
+    const dot = document.getElementById('messages-notif');
+
+    if(dot){
+      dot.style.display = total > 0 ? 'inline-flex' : 'none';
+      dot.textContent = total > 9 ? '9+' : String(total);
+    }
+
+    const badge = document.getElementById('messages-badge');
+    if(badge){
+      if(friendCount > 0 && msgCount > 0){
+        badge.textContent = friendCount + ' demande(s) • ' + msgCount + ' message(s)';
+      }else if(friendCount > 0){
+        badge.textContent = friendCount + ' demande(s) ami';
+      }else if(msgCount > 0){
+        badge.textContent = msgCount + ' message(s)';
+      }else{
+        badge.textContent = 'Cloud';
+      }
+    }
+  }
+
+  // Remplace updateCloudNotifications si l'ancien script bug avec window.nakamaSupabase
+  window.updateCloudNotifications = refreshSocialBadges;
+
+  async function bootSocial(){
+    await fixProfileNow();
+
+    if(typeof renderFriends === 'function'){
+      try{ await renderFriends(); }catch(e){ console.warn(e); }
+    }
+
+    if(typeof renderMessages === 'function'){
+      try{ await renderMessages(); }catch(e){ console.warn(e); }
+    }
+
+    await refreshSocialBadges();
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(bootSocial, 500);
+  });
+
+  window.addEventListener('load', () => {
+    setTimeout(bootSocial, 900);
+  });
+
+  setInterval(refreshSocialBadges, 5000);
+})();
+</script>
+
 </body>
 </html>
