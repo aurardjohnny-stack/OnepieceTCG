@@ -8834,5 +8834,266 @@ document.addEventListener('click', function(e){
 })();
 </script>
 
+
+<script id="nakama-v94-merge-all-owned-sync">
+(function(){
+  function getClient(){
+    try{
+      if(window.nakamaSupabase) return window.nakamaSupabase;
+      if(typeof nakamaSupabase !== 'undefined'){
+        window.nakamaSupabase = nakamaSupabase;
+        return nakamaSupabase;
+      }
+    }catch(e){}
+    return null;
+  }
+
+  async function getUser(){
+    const c = getClient();
+    if(!c) return null;
+    const { data } = await c.auth.getUser();
+    return data && data.user ? data.user : null;
+  }
+
+  function toast(msg){
+    if(typeof showToast === 'function') showToast(msg);
+    else alert(msg);
+  }
+
+  function looksCardId(v){
+    return /^(FR|JP|EN)_(OP|ST|EB|P)-?\d|^(FR|JP|EN)_(OP|ST|EB)\d{2}-\d{3}|^MANUAL_/i.test(String(v || ''));
+  }
+
+  function cleanCardId(raw){
+    let id = String(raw || '').trim();
+    id = id.replace(/x\d+$/i, '');
+    return id;
+  }
+
+  function qtyFrom(rawKey, rawVal){
+    const key = String(rawKey || '');
+    const suffix = key.match(/x(\d+)$/i);
+    if(suffix){
+      const n = Number(suffix[1]);
+      if(Number.isFinite(n) && n > 0) return Math.floor(n);
+    }
+
+    if(rawVal === true || rawVal == null || rawVal === false) return 1;
+
+    if(typeof rawVal === 'object'){
+      const possible = rawVal.qty ?? rawVal.count ?? rawVal.quantity ?? rawVal.amount ?? rawVal.owned ?? 1;
+      const n = Number(possible);
+      return Number.isFinite(n) && n > 0 ? Math.floor(n) : 1;
+    }
+
+    const n = Number(rawVal);
+    return Number.isFinite(n) && n > 0 ? Math.floor(n) : 1;
+  }
+
+  function addOwned(map, key, val){
+    if(!looksCardId(key)) return;
+
+    const clean = cleanCardId(key);
+    if(!clean || clean === 'undefined' || clean === 'null') return;
+
+    const q = qtyFrom(key, val);
+    map[clean] = Math.max(map[clean] || 0, q || 1);
+  }
+
+  function deepScan(obj, map, depth){
+    if(depth > 8 || obj == null) return;
+
+    if(Array.isArray(obj)){
+      obj.forEach(item => {
+        if(typeof item === 'string'){
+          addOwned(map, item, 1);
+        }else{
+          deepScan(item, map, depth + 1);
+        }
+      });
+      return;
+    }
+
+    if(typeof obj !== 'object') return;
+
+    Object.keys(obj).forEach(k => {
+      const v = obj[k];
+
+      if(looksCardId(k)){
+        addOwned(map, k, v);
+      }
+
+      if(typeof v === 'string' && looksCardId(v)){
+        addOwned(map, v, 1);
+      }
+
+      if(v && typeof v === 'object'){
+        deepScan(v, map, depth + 1);
+      }
+    });
+  }
+
+  function collectEveryOwnedCard(){
+    const map = {};
+
+    // 1. Données utilisateur courantes
+    try{
+      if(typeof ud === 'function'){
+        const u = ud();
+        deepScan(u, map, 0);
+      }
+    }catch(e){}
+
+    // 2. État global du site
+    try{
+      if(window.ST){
+        deepScan(ST.users, map, 0);
+        deepScan(ST.user, map, 0);
+      }
+    }catch(e){}
+
+    // 3. Tous les localStorage JSON
+    try{
+      Object.keys(localStorage).forEach(k => {
+        const raw = localStorage.getItem(k);
+        if(!raw) return;
+
+        // Cas liste brute texte
+        raw.split(/\s+/).forEach(part => {
+          if(looksCardId(part)) addOwned(map, part, 1);
+        });
+
+        // Cas JSON
+        try{
+          const parsed = JSON.parse(raw);
+          deepScan(parsed, map, 0);
+        }catch(e){}
+      });
+    }catch(e){}
+
+    return map;
+  }
+
+  function baseCodeFromId(raw){
+    const id = cleanCardId(raw);
+
+    const m = id.match(/(OP\d{2}-\d{3}(?:_p\d+)?|ST\d{2}-\d{3}(?:_p\d+)?|EB\d{2}-\d{3}(?:_p\d+)?|P-\d{3}(?:_p\d+)?)/i);
+    return m ? m[1] : id;
+  }
+
+  function codeNoVariant(raw){
+    return baseCodeFromId(raw).replace(/_p\d+$/i, '');
+  }
+
+  function cards(){
+    try{
+      return window.ST && Array.isArray(ST.cards) ? ST.cards : [];
+    }catch(e){
+      return [];
+    }
+  }
+
+  function findCard(raw){
+    const id = cleanCardId(raw);
+    const base = baseCodeFromId(raw);
+    const noVar = codeNoVariant(raw);
+    const all = cards();
+
+    return all.find(c => c.id === id)
+      || all.find(c => c.code === id)
+      || all.find(c => c.id === base)
+      || all.find(c => c.code === base)
+      || all.find(c => c.id === noVar)
+      || all.find(c => c.code === noVar)
+      || all.find(c => String(c.id || '').includes(base))
+      || all.find(c => String(c.code || '').includes(noVar))
+      || null;
+  }
+
+  function img(card){
+    if(!card) return '';
+
+    try{
+      if(typeof imgUrl === 'function'){
+        const u = imgUrl(card);
+        if(u) return u;
+      }
+    }catch(e){}
+
+    return card.image || card.original_image || card.image_url || card.img || '';
+  }
+
+  window.syncCollectionCloud = async function(){
+    try{
+      const c = getClient();
+      const u = await getUser();
+
+      if(!c || !u){
+        toast('Connecte-toi pour synchroniser.');
+        return;
+      }
+
+      if(typeof syncCloudProfileName === 'function'){
+        await syncCloudProfileName();
+      }else if(typeof ensureCloudProfileHard === 'function'){
+        await ensureCloudProfileHard();
+      }
+
+      if(window.ST && (!ST.cards || !ST.cards.length) && typeof loadCards === 'function'){
+        await loadCards();
+      }
+
+      const owned = collectEveryOwnedCard();
+      const ids = Object.keys(owned);
+
+      await c.from('user_cards').delete().eq('user_id', u.id);
+
+      if(!ids.length){
+        toast('0 carte trouvée à synchroniser.');
+        const status = document.getElementById('cloud-sync-status');
+        if(status) status.textContent = '0 carte trouvée. Aucune donnée collection détectée.';
+        return;
+      }
+
+      const rows = ids.map(cardId => {
+        const card = findCard(cardId);
+        const base = baseCodeFromId(cardId);
+
+        return {
+          user_id:u.id,
+          card_id:cleanCardId(cardId),
+          qty:Math.max(1, Number(owned[cardId]) || 1),
+          card_code:card ? String(card.code || base || cardId) : String(base || cardId),
+          card_name:card ? String(card.name || card.code || cardId) : String(base || cardId),
+          image_url:img(card),
+          updated_at:new Date().toISOString()
+        };
+      });
+
+      for(let i = 0; i < rows.length; i += 500){
+        const chunk = rows.slice(i, i + 500);
+        const { error } = await c.from('user_cards').insert(chunk);
+        if(error) throw error;
+      }
+
+      const withImages = rows.filter(r => r.image_url).length;
+
+      toast(rows.length + ' carte(s) synchronisée(s), ' + withImages + ' image(s) ✓');
+
+      const status = document.getElementById('cloud-sync-status');
+      if(status){
+        status.textContent = rows.length + ' carte(s) fusionnée(s) depuis tous les stockages • ' + withImages + ' image(s)';
+      }
+
+    }catch(e){
+      console.error(e);
+      toast('Erreur synchro : ' + (e.message || 'inconnue'));
+      const status = document.getElementById('cloud-sync-status');
+      if(status) status.textContent = 'Erreur : ' + (e.message || 'synchro impossible');
+    }
+  };
+})();
+</script>
+
 </body>
 </html>
