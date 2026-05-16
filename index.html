@@ -3379,6 +3379,122 @@ gtag('config', 'G-FMT1J783L7');
 }
 </style>
 
+
+<style id="nakama-v88-notifs-binder-css">
+.friend-card .notif-pill,
+.message-thread .notif-pill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:18px;
+  height:18px;
+  padding:0 6px;
+  border-radius:999px;
+  background:#e63946;
+  color:#fff;
+  font-size:10px;
+  font-weight:900;
+  margin-left:6px;
+}
+
+.cloud-binder-modal{
+  position:fixed;
+  inset:0;
+  z-index:2147483647;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(2,6,12,.84);
+  backdrop-filter:blur(12px);
+}
+
+.cloud-binder-modal.active{
+  display:flex;
+}
+
+.cloud-binder-box{
+  width:min(1100px,96vw);
+  max-height:90vh;
+  overflow:auto;
+  border-radius:24px;
+  border:1px solid rgba(242,182,62,.24);
+  background:linear-gradient(180deg,#0b1727,#07111f);
+  padding:20px;
+  color:#f4f7fb;
+  box-shadow:0 30px 80px rgba(0,0,0,.48);
+}
+
+.cloud-binder-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:16px;
+}
+
+.cloud-binder-head h3{
+  margin:0;
+  color:#fff;
+}
+
+.cloud-binder-head button{
+  height:40px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.08);
+  color:#fff;
+  font-weight:900;
+  cursor:pointer;
+  padding:0 14px;
+}
+
+.cloud-binder-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(105px,1fr));
+  gap:10px;
+}
+
+.cloud-binder-card{
+  border-radius:14px;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.04);
+}
+
+.cloud-binder-card img{
+  width:100%;
+  display:block;
+}
+
+.cloud-binder-placeholder{
+  aspect-ratio:0.7;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:10px;
+  text-align:center;
+  color:#8ea0b3;
+  font-size:12px;
+}
+
+@media(max-width:900px){
+  .cloud-binder-modal{
+    padding:10px;
+  }
+  .cloud-binder-box{
+    width:100%;
+    max-height:calc(100vh - 20px);
+    border-radius:20px;
+    padding:14px;
+  }
+  .cloud-binder-grid{
+    grid-template-columns:repeat(auto-fill,minmax(82px,1fr));
+    gap:8px;
+  }
+}
+</style>
+
 </head>
 <body>
 
@@ -5856,9 +5972,9 @@ document.addEventListener('click', function(e){
       </div>
 
       <div class="nakama-setting-tile">
-        <div class="nakama-setting-tile-title">Collection publique</div>
-        <div class="nakama-setting-tile-help">Prévu pour le partage public de ton classeur.</div>
-        <button type="button" disabled>Bientôt</button>
+        <div class="nakama-setting-tile-title">Collection cloud</div>
+        <div class="nakama-setting-tile-help">Synchronise ton classeur pour que tes amis puissent le voir.</div>
+        <button type="button" id="nakama-sync-collection-cloud">Synchroniser</button>
       </div>
     </div>
 
@@ -7318,6 +7434,352 @@ document.addEventListener('click', function(e){
   window.addEventListener('load', () => {
     setTimeout(window.syncCloudProfileName, 1200);
   });
+})();
+</script>
+
+
+<div id="cloud-binder-modal" class="cloud-binder-modal" onclick="closeCloudBinder(event)">
+  <div class="cloud-binder-box" onclick="event.stopPropagation()">
+    <div class="cloud-binder-head">
+      <h3 id="cloud-binder-title">Classeur ami</h3>
+      <button type="button" onclick="forceCloseCloudBinder()">Fermer</button>
+    </div>
+    <div id="cloud-binder-content"></div>
+  </div>
+</div>
+
+
+<script id="nakama-v88-notifs-binder-js">
+(function(){
+  function client(){
+    try{
+      if(window.nakamaSupabase) return window.nakamaSupabase;
+      if(typeof nakamaSupabase !== 'undefined'){
+        window.nakamaSupabase = nakamaSupabase;
+        return nakamaSupabase;
+      }
+    }catch(e){}
+    return null;
+  }
+
+  async function user(){
+    const c = client();
+    if(!c) return null;
+    const { data } = await c.auth.getUser();
+    return data && data.user ? data.user : null;
+  }
+
+  function toast(msg){
+    if(typeof showToast === 'function') showToast(msg);
+    else alert(msg);
+  }
+
+  function getOwnedObject(){
+    try{
+      if(typeof ud === 'function'){
+        const u = ud();
+        return u.owned || {};
+      }
+    }catch(e){}
+
+    try{
+      if(window.ST && ST.user && ST.users && ST.users[ST.user]){
+        return ST.users[ST.user].owned || {};
+      }
+    }catch(e){}
+
+    return {};
+  }
+
+  function getCardById(id){
+    try{
+      if(window.ST && Array.isArray(ST.cards)){
+        return ST.cards.find(c => c.id === id || c.code === id);
+      }
+    }catch(e){}
+    return null;
+  }
+
+  window.syncCollectionCloud = async function(){
+    try{
+      const c = client();
+      const u = await user();
+
+      if(!c || !u){
+        toast('Connecte-toi pour synchroniser.');
+        return;
+      }
+
+      if(typeof syncCloudProfileName === 'function'){
+        await syncCloudProfileName();
+      }else if(typeof ensureCloudProfileHard === 'function'){
+        await ensureCloudProfileHard();
+      }
+
+      const owned = getOwnedObject();
+      const ids = Object.keys(owned || {});
+      const rows = ids.map(cardId => ({
+        user_id:u.id,
+        card_id:cardId,
+        qty:Number(owned[cardId] || 1),
+        updated_at:new Date().toISOString()
+      }));
+
+      await c.from('user_cards').delete().eq('user_id', u.id);
+
+      if(rows.length){
+        const { error } = await c.from('user_cards').insert(rows);
+        if(error) throw error;
+      }
+
+      toast('Collection synchronisée cloud ✓');
+    }catch(e){
+      console.error(e);
+      toast(e.message || 'Erreur synchro collection.');
+    }
+  };
+
+  window.openFriendBinderCloud = async function(friendId, friendName){
+    try{
+      const c = client();
+      const me = await user();
+
+      if(!c || !me){
+        toast('Connecte-toi.');
+        return;
+      }
+
+      const modal = document.getElementById('cloud-binder-modal');
+      const title = document.getElementById('cloud-binder-title');
+      const content = document.getElementById('cloud-binder-content');
+
+      if(title) title.textContent = 'Classeur de ' + friendName;
+      if(content) content.innerHTML = '<div class="empty-state" style="padding:20px">Chargement du classeur...</div>';
+      if(modal) modal.classList.add('active');
+
+      const { data, error } = await c
+        .from('user_cards')
+        .select('card_id,qty')
+        .eq('user_id', friendId);
+
+      if(error) throw error;
+
+      if(!data || !data.length){
+        if(content){
+          content.innerHTML = '<div class="empty-state" style="padding:20px">Ce joueur n’a pas encore synchronisé son classeur cloud.</div>';
+        }
+        return;
+      }
+
+      let html = '<div class="cloud-binder-grid">';
+
+      data.forEach(row => {
+        const card = getCardById(row.card_id);
+        const img = card ? (card.image || card.original_image || '') : '';
+
+        html += `
+          <div class="cloud-binder-card" title="${card ? card.name : row.card_id}">
+            ${img ? `<img src="${img}" alt="${card ? card.name : row.card_id}" loading="lazy">` : `<div class="cloud-binder-placeholder">${row.card_id}<br>x${row.qty}</div>`}
+          </div>
+        `;
+      });
+
+      html += '</div>';
+
+      if(content) content.innerHTML = html;
+    }catch(e){
+      console.error(e);
+      toast(e.message || 'Erreur classeur ami.');
+    }
+  };
+
+  window.closeCloudBinder = function(e){
+    if(e && e.target && e.target.id === 'cloud-binder-modal'){
+      forceCloseCloudBinder();
+    }
+  };
+
+  window.forceCloseCloudBinder = function(){
+    const modal = document.getElementById('cloud-binder-modal');
+    if(modal) modal.classList.remove('active');
+  };
+
+  async function countUnreadMessages(userId){
+    const c = client();
+    try{
+      const { data, error } = await c
+        .from('messages')
+        .select('id')
+        .eq('recipient_id', userId)
+        .is('read_at', null);
+
+      if(error) return 0;
+      return data ? data.length : 0;
+    }catch(e){
+      return 0;
+    }
+  }
+
+  async function countFriendRequests(userId){
+    const c = client();
+    try{
+      const { data, error } = await c
+        .from('friend_requests')
+        .select('id')
+        .eq('addressee_id', userId)
+        .eq('status', 'pending');
+
+      if(error) return 0;
+      return data ? data.length : 0;
+    }catch(e){
+      return 0;
+    }
+  }
+
+  async function refreshBadges(){
+    const u = await user();
+    if(!u) return;
+
+    const [reqs, msgs] = await Promise.all([
+      countFriendRequests(u.id),
+      countUnreadMessages(u.id)
+    ]);
+
+    const total = reqs + msgs;
+    const dot = document.getElementById('messages-notif');
+
+    if(dot){
+      dot.style.display = total > 0 ? 'inline-flex' : 'none';
+      dot.textContent = total > 9 ? '9+' : String(total);
+    }
+
+    const badge = document.getElementById('messages-badge');
+    if(badge){
+      if(reqs && msgs) badge.textContent = reqs + ' demande(s) • ' + msgs + ' message(s)';
+      else if(reqs) badge.textContent = reqs + ' demande(s)';
+      else if(msgs) badge.textContent = msgs + ' message(s)';
+      else badge.textContent = 'Cloud';
+    }
+  }
+
+  window.updateCloudNotifications = refreshBadges;
+
+  // Override renderFriends pour ajouter notif + bouton classeur
+  const oldRenderFriends = window.renderFriends;
+  window.renderFriends = async function(){
+    if(typeof oldRenderFriends === 'function'){
+      await oldRenderFriends();
+    }
+
+    try{
+      const c = client();
+      const u = await user();
+      const list = document.getElementById('friends-list');
+
+      if(!c || !u || !list) return;
+
+      const incoming = await c
+        .from('friend_requests')
+        .select('id,status,created_at,requester:profiles!friend_requests_requester_id_fkey(id,display_name,email)')
+        .eq('addressee_id', u.id)
+        .eq('status', 'pending')
+        .order('created_at', { ascending:false });
+
+      const friends = await c
+        .from('friendships')
+        .select('friend_id,friend:profiles!friendships_friend_id_fkey(id,display_name,email)')
+        .eq('user_id', u.id)
+        .order('created_at', { ascending:false });
+
+      let html = '';
+
+      if(incoming.data && incoming.data.length){
+        html += '<div class="empty-state" style="padding:12px;margin-bottom:10px">Demandes reçues <span class="notif-pill">' + incoming.data.length + '</span></div>';
+        incoming.data.forEach(req => {
+          const p = req.requester;
+          html += `
+            <div class="friend-card">
+              <div class="friend-av">${String(p.display_name || '?').slice(0,2).toUpperCase()}</div>
+              <div>
+                <div class="friend-name">${p.display_name}</div>
+                <div class="friend-status pending">Veut t’ajouter en ami</div>
+              </div>
+              <div class="cloud-friend-actions">
+                <button class="btn-accept-cloud" onclick="acceptFriendRequest('${req.id}')">Accepter</button>
+                <button class="btn-refuse-cloud" onclick="refuseFriendRequest('${req.id}')">Refuser</button>
+              </div>
+            </div>
+          `;
+        });
+      }
+
+      if(friends.data && friends.data.length){
+        html += '<div class="empty-state" style="padding:12px;margin-bottom:10px">Amis</div>';
+        friends.data.forEach(row => {
+          const p = row.friend;
+          const safeName = String(p.display_name || 'Nakama').replace(/'/g,"\\'");
+          html += `
+            <div class="friend-card">
+              <div class="friend-av">${String(p.display_name || '?').slice(0,2).toUpperCase()}</div>
+              <div>
+                <div class="friend-name">${p.display_name}</div>
+                <div class="friend-status accepted">✓ Ami</div>
+              </div>
+              <button class="btn-friend-action btn-view-coll" onclick="openFriendBinderCloud('${p.id}','${safeName}')">Voir classeur</button>
+              <button class="btn-friend-action btn-view-coll" onclick="selectChatFriend('${p.id}','${safeName}')">Message</button>
+              <button class="btn-friend-action btn-remove-friend" onclick="removeFriendCloud('${p.id}')">Retirer</button>
+            </div>
+          `;
+        });
+      }
+
+      if(html){
+        list.innerHTML = html;
+      }
+
+      await refreshBadges();
+    }catch(e){
+      console.warn(e);
+    }
+  };
+
+  // Marquer messages lus quand on affiche la conversation
+  const oldSelectChatFriend = window.selectChatFriend;
+  window.selectChatFriend = async function(friendId, friendName){
+    if(typeof oldSelectChatFriend === 'function'){
+      await oldSelectChatFriend(friendId, friendName);
+    }
+
+    try{
+      const c = client();
+      const u = await user();
+
+      if(c && u){
+        await c
+          .from('messages')
+          .update({ read_at:new Date().toISOString() })
+          .eq('sender_id', friendId)
+          .eq('recipient_id', u.id)
+          .is('read_at', null);
+      }
+
+      await refreshBadges();
+    }catch(e){}
+  };
+
+  function bindV88(){
+    const syncBtn = document.getElementById('nakama-sync-collection-cloud');
+    if(syncBtn && !syncBtn.dataset.v88Bound){
+      syncBtn.dataset.v88Bound = '1';
+      syncBtn.addEventListener('click', syncCollectionCloud);
+    }
+
+    refreshBadges();
+  }
+
+  document.addEventListener('DOMContentLoaded', bindV88);
+  window.addEventListener('load', bindV88);
+  setInterval(refreshBadges, 5000);
 })();
 </script>
 
