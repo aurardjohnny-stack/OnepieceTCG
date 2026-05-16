@@ -8281,5 +8281,58 @@ document.addEventListener('click', function(e){
 })();
 </script>
 
+
+<script id="nakama-v91-qty-fix">
+(function(){
+
+  function safeQty(v){
+    const n = Number(v);
+
+    if(!Number.isFinite(n)) return 1;
+    if(n <= 0) return 1;
+
+    return Math.floor(n);
+  }
+
+  // Patch synchro cloud
+  const oldSync = window.syncCollectionCloud;
+
+  window.syncCollectionCloud = async function(){
+    try{
+      // Hook temporaire sur Object.keys rows dans l'ancienne fonction
+      const originalMap = Array.prototype.map;
+
+      Array.prototype.map = function(cb, thisArg){
+        return originalMap.call(this, function(...args){
+          const result = cb.apply(this, args);
+
+          if(result && typeof result === 'object' && 'qty' in result){
+            result.qty = safeQty(result.qty);
+          }
+
+          return result;
+        }, thisArg);
+      };
+
+      try{
+        if(typeof oldSync === 'function'){
+          await oldSync();
+        }
+      } finally {
+        Array.prototype.map = originalMap;
+      }
+
+    }catch(e){
+      console.error(e);
+
+      if(typeof showToast === 'function'){
+        showToast('Erreur synchro : ' + (e.message || 'qty invalide'));
+      }
+    }
+  };
+
+})();
+</script>
+
 </body>
 </html>
