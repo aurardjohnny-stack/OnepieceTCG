@@ -3321,6 +3321,42 @@ gtag('config', 'G-FMT1J783L7');
 }
 </style>
 
+
+<style id="nakama-v81-social-fix-css">
+.btn-remove-friend{
+  background:rgba(190,38,38,.16) !important;
+  border:1px solid rgba(255,90,90,.30) !important;
+  color:#ffb3b3 !important;
+}
+
+.btn-remove-friend:hover{
+  background:rgba(190,38,38,.28) !important;
+  color:#fff !important;
+}
+</style>
+
+
+<style id="nakama-v82-lang-filter-active-fix">
+/* V82 - état actif visible pour les boutons de langue */
+
+.filter-lang-inline button.active,
+.filter-lang-inline button.is-active,
+.filter-lang-inline .active{
+  background:linear-gradient(135deg,#f2b63e,#ffd978) !important;
+  color:#07111f !important;
+  border-color:transparent !important;
+  box-shadow:0 0 18px rgba(242,182,62,.28) !important;
+}
+
+.filter-lang-inline button{
+  transition:.16s ease !important;
+}
+
+.filter-lang-inline button:hover{
+  transform:translateY(-1px) !important;
+}
+</style>
+
 </head>
 <body>
 
@@ -6670,6 +6706,295 @@ if(target.toLowerCase() === 'robinhd'){
       }
     }, 150);
   });
+
+})();
+</script>
+
+
+<script id="nakama-v81-social-fix-js">
+(function(){
+
+  function social(){
+    try{
+      return JSON.parse(localStorage.getItem('nakama_social_v1') || '{}');
+    }catch(e){
+      return {};
+    }
+  }
+
+  function saveSocial(data){
+    localStorage.setItem('nakama_social_v1', JSON.stringify(data || {}));
+  }
+
+  function getUserData(){
+    try{
+      if(typeof ud === 'function') return ud();
+    }catch(e){}
+
+    if(!window.ST) return {friends:[]};
+
+    if(!ST.user) ST.user = 'local';
+    if(!ST.users) ST.users = {};
+    if(!ST.users[ST.user]) ST.users[ST.user] = {friends:[]};
+
+    return ST.users[ST.user];
+  }
+
+  function persistUser(u){
+    try{
+      if(typeof setUd === 'function'){
+        setUd(u);
+        return;
+      }
+    }catch(e){}
+
+    try{
+      if(typeof save === 'function') save();
+    }catch(e){}
+  }
+
+  function hasRobinFriend(){
+    const u = getUserData();
+    return Array.isArray(u.friends) &&
+      u.friends.some(f =>
+        String(typeof f === 'string' ? f : (f.name || '')).toLowerCase() === 'robinhd'
+      );
+  }
+
+  // HARD RESET thread rendering
+  window.renderMessages = function(){
+    const list = document.getElementById('messages-list');
+    const body = document.getElementById('chat-body');
+    const notifWrap = document.getElementById('social-notifications');
+
+    if(!list || !body) return;
+
+    const s = social();
+    if(!Array.isArray(s.notifications)) s.notifications = [];
+    if(!Array.isArray(s.messages)) s.messages = [];
+
+    // Notifications demandes
+    const actionable = s.notifications.filter(n => n.actionable);
+
+    if(notifWrap){
+      if(actionable.length){
+        notifWrap.innerHTML = actionable.map(n => `
+          <div class="social-notif">
+            <div class="social-notif-top">
+              <div class="social-notif-title">Demande d’ami</div>
+              <div class="nakama-notif-dot">!</div>
+            </div>
+
+            <div class="social-notif-text">
+              ${n.from} veut accepter ta demande d’ami.
+            </div>
+
+            <div class="social-notif-actions">
+              <button class="social-accept" onclick="acceptRobinRequest()">Accepter</button>
+              <button class="social-refuse" onclick="refuseRobinRequest()">Refuser</button>
+            </div>
+          </div>
+        `).join('');
+      }else{
+        notifWrap.innerHTML = '';
+      }
+    }
+
+    // PAS AMI => PAS DE THREAD
+    if(!hasRobinFriend()){
+      list.innerHTML = `
+        <div class="empty-state" style="padding:20px">
+          Aucun message pour le moment.<br>
+          Ajoute un ami pour débloquer les conversations ⚓
+        </div>
+      `;
+
+      body.innerHTML = `
+        <div class="empty-state" style="padding:20px">
+          Aucun chat actif.
+        </div>
+      `;
+
+      return;
+    }
+
+    // AMI => THREAD ROBIN
+    const robinMessages = s.messages.filter(m =>
+      m.from === 'RobinHD' || m.to === 'RobinHD'
+    );
+
+    list.innerHTML = `
+      <div class="message-thread active">
+        <div class="thread-avatar">RH</div>
+        <div>
+          <div class="thread-name">RobinHD</div>
+          <div class="thread-last">
+            ${robinMessages.length ? robinMessages[robinMessages.length-1].text : 'Conversation démarrée'}
+          </div>
+        </div>
+      </div>
+    `;
+
+    body.innerHTML = robinMessages.map(m => `
+      <div class="chat-msg ${m.mine ? 'me' : 'them'}">
+        ${m.text}
+      </div>
+    `).join('');
+
+    body.scrollTop = body.scrollHeight;
+  };
+
+  // Remove friend
+  window.removeFriendSafe = function(name){
+    const u = getUserData();
+
+    if(!Array.isArray(u.friends)) u.friends = [];
+
+    u.friends = u.friends.filter(f =>
+      String(typeof f === 'string' ? f : (f.name || '')).toLowerCase() !== String(name).toLowerCase()
+    );
+
+    persistUser(u);
+
+    // clear robin messages/notifs
+    if(String(name).toLowerCase() === 'robinhd'){
+      const s = social();
+
+      s.messages = (s.messages || []).filter(m =>
+        m.from !== 'RobinHD' && m.to !== 'RobinHD'
+      );
+
+      s.notifications = (s.notifications || []).filter(n =>
+        n.from !== 'RobinHD'
+      );
+
+      saveSocial(s);
+    }
+
+    if(typeof renderFriends === 'function') renderFriends();
+    if(typeof renderMessages === 'function') renderMessages();
+
+    if(typeof updateNotifications === 'function'){
+      updateNotifications();
+    }
+  };
+
+  // Replace friends rendering with remove button
+  window.renderFriends = function(){
+    const u = getUserData();
+
+    if(!Array.isArray(u.friends)) u.friends = [];
+
+    const list = document.getElementById('friends-list');
+    if(!list) return;
+
+    if(!u.friends.length){
+      list.innerHTML = `
+        <div class="empty-state" style="padding:20px">
+          Aucun ami pour l’instant.<br>
+          Ajoute RobinHD pour tester le système social ⚓
+        </div>
+      `;
+      return;
+    }
+
+    list.innerHTML = u.friends.map(f => {
+      const name = typeof f === 'string' ? f : (f.name || 'Nakama');
+      const initials = name.slice(0,2).toUpperCase();
+
+      return `
+        <div class="friend-card">
+          <div class="friend-av">${initials}</div>
+
+          <div>
+            <div class="friend-name">${name}</div>
+            <div class="friend-meta">Ami ajouté</div>
+            <div class="friend-status accepted auto">✓ Ami</div>
+          </div>
+
+          <button class="btn-friend-action btn-view-coll"
+            onclick="viewFriendCollectionSafe('${name.replace(/'/g,"\\'")}')">
+            Voir classeur
+          </button>
+
+          <button class="btn-friend-action btn-remove-friend"
+            onclick="removeFriendSafe('${name.replace(/'/g,"\\'")}')">
+            Retirer
+          </button>
+        </div>
+      `;
+    }).join('');
+  };
+
+  // force refresh after load
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+      try{
+        renderFriends();
+        renderMessages();
+      }catch(e){}
+    }, 200);
+  });
+
+})();
+</script>
+
+
+<script id="nakama-v82-lang-filter-active-js">
+(function(){
+
+  function updateLangButtons(){
+    try{
+      const current =
+        (window.ST && ST.lang ? String(ST.lang).toUpperCase() : 'ALL');
+
+      const buttons = document.querySelectorAll('.filter-lang-inline button');
+
+      buttons.forEach(btn => {
+        const txt = (btn.textContent || '').trim().toUpperCase();
+
+        let key = txt;
+
+        if(txt.includes('ALL')) key = 'ALL';
+        if(txt === 'FR') key = 'FR';
+        if(txt === 'EN') key = 'EN';
+        if(txt === 'JP') key = 'JP';
+
+        const active = key === current;
+
+        btn.classList.toggle('active', active);
+        btn.classList.toggle('is-active', active);
+
+        if(active){
+          btn.setAttribute('aria-pressed', 'true');
+        }else{
+          btn.setAttribute('aria-pressed', 'false');
+        }
+      });
+    }catch(e){}
+  }
+
+  function bindLangButtons(){
+    const buttons = document.querySelectorAll('.filter-lang-inline button');
+
+    buttons.forEach(btn => {
+      if(btn.dataset.v82Bound) return;
+
+      btn.dataset.v82Bound = '1';
+
+      btn.addEventListener('click', () => {
+        setTimeout(updateLangButtons, 30);
+      }, true);
+    });
+
+    updateLangButtons();
+  }
+
+  document.addEventListener('DOMContentLoaded', bindLangButtons);
+  window.addEventListener('load', bindLangButtons);
+
+  // sécurité si render dynamique
+  setInterval(updateLangButtons, 1200);
 
 })();
 </script>
