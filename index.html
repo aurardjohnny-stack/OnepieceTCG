@@ -8544,5 +8544,295 @@ document.addEventListener('click', function(e){
 })();
 </script>
 
+
+<script id="nakama-v93-card-id-image-fix">
+(function(){
+  function getClient(){
+    try{
+      if(window.nakamaSupabase) return window.nakamaSupabase;
+      if(typeof nakamaSupabase !== 'undefined'){
+        window.nakamaSupabase = nakamaSupabase;
+        return nakamaSupabase;
+      }
+    }catch(e){}
+    return null;
+  }
+
+  async function getUser(){
+    const c = getClient();
+    if(!c) return null;
+    const { data } = await c.auth.getUser();
+    return data && data.user ? data.user : null;
+  }
+
+  function toast(msg){
+    if(typeof showToast === 'function') showToast(msg);
+    else alert(msg);
+  }
+
+  function cleanCardId(raw){
+    let id = String(raw || '').trim();
+
+    // enlève quantité collée à la fin : ...x1 / ...x2 / ...x10
+    id = id.replace(/x\d+$/i, '');
+
+    return id;
+  }
+
+  function baseCodeFromId(raw){
+    const id = cleanCardId(raw);
+
+    // Exemples:
+    // FR_OP11-106_p1_OP11-106_p1 -> OP11-106_p1
+    // JP_OP03-122_base_OP03-122 -> OP03-122
+    // MANUAL_P-033_mp8tm6yp -> P-033
+    const m = id.match(/(OP\d{2}-\d{3}(?:_p\d+)?|ST\d{2}-\d{3}(?:_p\d+)?|EB\d{2}-\d{3}(?:_p\d+)?|P-\d{3}(?:_p\d+)?)/i);
+    return m ? m[1] : id;
+  }
+
+  function codeNoVariant(raw){
+    return baseCodeFromId(raw).replace(/_p\d+$/i, '');
+  }
+
+  function qty(v){
+    if(v === true || v == null || v === false) return 1;
+
+    if(typeof v === 'object'){
+      const possible = v.qty ?? v.count ?? v.quantity ?? v.amount ?? v.owned ?? 1;
+      const n = Number(possible);
+      return Number.isFinite(n) && n > 0 ? Math.floor(n) : 1;
+    }
+
+    const n = Number(v);
+    return Number.isFinite(n) && n > 0 ? Math.floor(n) : 1;
+  }
+
+  function cards(){
+    try{
+      return window.ST && Array.isArray(ST.cards) ? ST.cards : [];
+    }catch(e){
+      return [];
+    }
+  }
+
+  function findCard(raw){
+    const id = cleanCardId(raw);
+    const base = baseCodeFromId(raw);
+    const noVar = codeNoVariant(raw);
+
+    const all = cards();
+
+    return all.find(c => c.id === id)
+      || all.find(c => c.code === id)
+      || all.find(c => c.id === base)
+      || all.find(c => c.code === base)
+      || all.find(c => c.id === noVar)
+      || all.find(c => c.code === noVar)
+      || all.find(c => String(c.id || '').includes(base))
+      || all.find(c => String(c.code || '').includes(noVar))
+      || null;
+  }
+
+  function img(card){
+    if(!card) return '';
+
+    try{
+      if(typeof imgUrl === 'function'){
+        const u = imgUrl(card);
+        if(u) return u;
+      }
+    }catch(e){}
+
+    return card.image || card.original_image || card.image_url || card.img || '';
+  }
+
+  function getOwnedBuckets(){
+    const buckets = [];
+
+    try{
+      if(typeof ud === 'function'){
+        const u = ud();
+        if(u && u.owned) buckets.push({ name:'profil actuel', owned:u.owned });
+      }
+    }catch(e){}
+
+    try{
+      if(window.ST && ST.users){
+        Object.keys(ST.users).forEach(key => {
+          const owned = ST.users[key] && ST.users[key].owned;
+          if(owned) buckets.push({ name:key, owned });
+        });
+      }
+    }catch(e){}
+
+    try{
+      Object.keys(localStorage).forEach(k => {
+        const raw = localStorage.getItem(k);
+        if(!raw || raw[0] !== '{') return;
+
+        try{
+          const data = JSON.parse(raw);
+
+          if(data && data.owned) buckets.push({ name:k, owned:data.owned });
+
+          if(data && data.users){
+            Object.keys(data.users).forEach(key => {
+              if(data.users[key] && data.users[key].owned){
+                buckets.push({ name:k + ':' + key, owned:data.users[key].owned });
+              }
+            });
+          }
+
+          Object.keys(data || {}).forEach(key => {
+            if(data[key] && data[key].owned){
+              buckets.push({ name:k + ':' + key, owned:data[key].owned });
+            }
+          });
+        }catch(e){}
+      });
+    }catch(e){}
+
+    return buckets;
+  }
+
+  function bestOwned(){
+    let best = { name:'aucun', owned:{} };
+
+    getOwnedBuckets().forEach(b => {
+      const count = Object.keys(b.owned || {}).length;
+      const bestCount = Object.keys(best.owned || {}).length;
+      if(count > bestCount) best = b;
+    });
+
+    return best;
+  }
+
+  window.syncCollectionCloud = async function(){
+    try{
+      const c = getClient();
+      const u = await getUser();
+
+      if(!c || !u){
+        toast('Connecte-toi pour synchroniser.');
+        return;
+      }
+
+      if(typeof syncCloudProfileName === 'function'){
+        await syncCloudProfileName();
+      }else if(typeof ensureCloudProfileHard === 'function'){
+        await ensureCloudProfileHard();
+      }
+
+      if(window.ST && (!ST.cards || !ST.cards.length) && typeof loadCards === 'function'){
+        await loadCards();
+      }
+
+      const bucket = bestOwned();
+      const owned = bucket.owned || {};
+      const keys = Object.keys(owned).filter(Boolean);
+
+      const rows = keys.map(rawId => {
+        const cleaned = cleanCardId(rawId);
+        const card = findCard(rawId);
+        const base = baseCodeFromId(rawId);
+
+        return {
+          user_id:u.id,
+          card_id:cleaned,
+          qty:qty(owned[rawId]),
+          card_code:card ? String(card.code || base || cleaned) : String(base || cleaned),
+          card_name:card ? String(card.name || card.code || cleaned) : String(base || cleaned),
+          image_url:img(card),
+          updated_at:new Date().toISOString()
+        };
+      }).filter(row => row.card_id && row.qty > 0);
+
+      await c.from('user_cards').delete().eq('user_id', u.id);
+
+      if(!rows.length){
+        toast('0 carte trouvée à synchroniser.');
+        return;
+      }
+
+      for(let i = 0; i < rows.length; i += 500){
+        const chunk = rows.slice(i, i + 500);
+        const { error } = await c.from('user_cards').insert(chunk);
+        if(error) throw error;
+      }
+
+      const withImages = rows.filter(r => r.image_url).length;
+      toast(rows.length + ' carte(s) synchronisée(s), ' + withImages + ' image(s) trouvée(s) ✓');
+
+      const status = document.getElementById('cloud-sync-status');
+      if(status){
+        status.textContent = rows.length + ' carte(s) depuis ' + bucket.name + ' • ' + withImages + ' image(s)';
+      }
+
+    }catch(e){
+      console.error(e);
+      toast('Erreur synchro : ' + (e.message || 'inconnue'));
+    }
+  };
+
+  window.openFriendBinderCloud = async function(friendId, friendName){
+    try{
+      const c = getClient();
+
+      if(!c){
+        toast('Supabase indisponible.');
+        return;
+      }
+
+      const modal = document.getElementById('cloud-binder-modal');
+      const title = document.getElementById('cloud-binder-title');
+      const content = document.getElementById('cloud-binder-content');
+
+      if(title) title.textContent = 'Classeur de ' + friendName;
+      if(content) content.innerHTML = '<div class="empty-state" style="padding:20px">Chargement du classeur...</div>';
+      if(modal) modal.classList.add('active');
+
+      const { data, error } = await c
+        .from('user_cards')
+        .select('card_id,qty,card_code,card_name,image_url')
+        .eq('user_id', friendId)
+        .order('updated_at', { ascending:false });
+
+      if(error) throw error;
+
+      if(!data || !data.length){
+        if(content){
+          content.innerHTML = '<div class="empty-state" style="padding:20px">Ce joueur n’a pas encore synchronisé son classeur cloud.</div>';
+        }
+        return;
+      }
+
+      let html = '<div class="cloud-binder-grid">';
+
+      data.forEach(row => {
+        const local = findCard(row.card_id) || findCard(row.card_code);
+        const image = row.image_url || img(local);
+        const name = row.card_name || (local ? local.name : row.card_id);
+
+        html += `
+          <div class="cloud-binder-card" title="${name}">
+            ${image
+              ? `<img src="${image}" alt="${name}" loading="lazy">`
+              : `<div class="cloud-binder-placeholder">${name}<br>x${row.qty || 1}</div>`}
+          </div>
+        `;
+      });
+
+      html += '</div>';
+      if(content) content.innerHTML = html;
+
+    }catch(e){
+      console.error(e);
+      toast(e.message || 'Erreur classeur ami.');
+    }
+  };
+
+})();
+</script>
+
 </body>
 </html>
