@@ -1782,6 +1782,93 @@ body,
 }
 </style>
 
+
+<style id="nakama-v47-cards-align-left">
+/* V47 - cartes alignées à gauche et largeur exploitée */
+
+/* Les blocs de rareté prennent toute la largeur */
+.rarity-block,
+.set-body,
+.cards-wrapper,
+.cards-grid{
+  width:100% !important;
+  max-width:none !important;
+}
+
+/* Supprime les centrages moches */
+.rarity-block,
+.set-body{
+  margin-left:0 !important;
+  margin-right:0 !important;
+  justify-content:flex-start !important;
+  align-items:flex-start !important;
+}
+
+/* La grille démarre à gauche */
+.cards-grid{
+  display:grid !important;
+
+  grid-template-columns:repeat(auto-fill,minmax(120px,120px)) !important;
+
+  justify-content:flex-start !important;
+  align-content:flex-start !important;
+
+  gap:12px !important;
+
+  width:100% !important;
+}
+
+/* Cartes fixes et propres */
+.card-item{
+  width:120px !important;
+  min-width:120px !important;
+  max-width:120px !important;
+}
+
+/* Le contenu principal prend toute la largeur */
+#browse-content,
+#main-content,
+.content{
+  width:100% !important;
+  max-width:none !important;
+}
+
+/* Les titres de set restent alignés */
+.set-header,
+.rarity-header{
+  width:100% !important;
+  text-align:left !important;
+}
+
+/* Très grands écrans */
+@media(min-width:1700px){
+  .cards-grid{
+    grid-template-columns:repeat(auto-fill,minmax(128px,128px)) !important;
+    gap:14px !important;
+  }
+
+  .card-item{
+    width:128px !important;
+    min-width:128px !important;
+    max-width:128px !important;
+  }
+}
+
+/* Ecrans moyens */
+@media(max-width:1200px){
+  .cards-grid{
+    grid-template-columns:repeat(auto-fill,minmax(105px,105px)) !important;
+    gap:10px !important;
+  }
+
+  .card-item{
+    width:105px !important;
+    min-width:105px !important;
+    max-width:105px !important;
+  }
+}
+</style>
+
 </head>
 <body>
 
