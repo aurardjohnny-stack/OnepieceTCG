@@ -1925,6 +1925,215 @@ gtag('js', new Date());
 gtag('config', 'G-FMT1J783L7');
 </script>
 
+
+<style id="nakama-v54-premium-card-modal">
+/* Premium Card Modal */
+#premium-card-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(2,6,12,.82);
+  backdrop-filter:blur(10px);
+  z-index:99999;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+}
+
+#premium-card-overlay.active{
+  display:flex;
+}
+
+.premium-card-modal{
+  width:min(1180px,96vw);
+  max-height:92vh;
+  overflow:auto;
+
+  background:linear-gradient(180deg,#0a1322,#07111f);
+  border:1px solid rgba(242,182,62,.22);
+  border-radius:28px;
+
+  box-shadow:
+    0 30px 80px rgba(0,0,0,.45),
+    inset 0 1px 0 rgba(255,255,255,.04);
+
+  padding:26px;
+
+  display:grid;
+  grid-template-columns:380px minmax(0,1fr);
+  gap:26px;
+}
+
+.premium-left{
+  position:sticky;
+  top:0;
+}
+
+.premium-card-image{
+  width:100%;
+  border-radius:22px;
+  overflow:hidden;
+  background:#09111d;
+  border:1px solid rgba(255,255,255,.08);
+  box-shadow:0 22px 50px rgba(0,0,0,.35);
+}
+
+.premium-card-image img{
+  width:100%;
+  display:block;
+}
+
+.premium-zoom-btn{
+  width:100%;
+  margin-top:14px;
+  height:50px;
+  border:0;
+  border-radius:14px;
+  background:linear-gradient(135deg,#f2b63e,#ffd978);
+  color:#07111f;
+  font-weight:900;
+  cursor:pointer;
+}
+
+.premium-title{
+  font-size:34px;
+  font-weight:900;
+  color:#fff;
+  margin-bottom:8px;
+}
+
+.premium-sub{
+  color:#9fb0c2;
+  font-size:14px;
+  margin-bottom:22px;
+}
+
+.premium-badges{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-bottom:24px;
+}
+
+.premium-badge{
+  padding:10px 14px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.4px;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.08);
+  color:#f4f7fb;
+}
+
+.premium-badge.rarity{
+  background:linear-gradient(135deg,rgba(242,182,62,.18),rgba(255,217,120,.08));
+  border-color:rgba(242,182,62,.3);
+  animation:premiumGlow 2.6s infinite ease-in-out;
+}
+
+@keyframes premiumGlow{
+  0%{transform:translateY(0);box-shadow:0 0 0 rgba(242,182,62,0);}
+  50%{transform:translateY(-2px);box-shadow:0 0 18px rgba(242,182,62,.18);}
+  100%{transform:translateY(0);box-shadow:0 0 0 rgba(242,182,62,0);}
+}
+
+.premium-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+  margin-bottom:24px;
+}
+
+.premium-box{
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:16px;
+  padding:16px;
+}
+
+.premium-box-label{
+  color:#8ea0b3;
+  font-size:12px;
+  margin-bottom:8px;
+  text-transform:uppercase;
+  letter-spacing:.8px;
+}
+
+.premium-box-value{
+  color:#fff;
+  font-size:15px;
+  font-weight:700;
+}
+
+.premium-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  margin-top:8px;
+}
+
+.premium-action{
+  flex:1;
+  min-width:180px;
+  height:52px;
+  border-radius:14px;
+  border:0;
+  cursor:pointer;
+  font-weight:900;
+  font-size:14px;
+}
+
+.premium-action.wishlist{
+  background:linear-gradient(135deg,#ff6b81,#ff9fb1);
+  color:#fff;
+}
+
+.premium-action.trade{
+  background:linear-gradient(135deg,#4da3ff,#8fd2ff);
+  color:#07111f;
+}
+
+.premium-close{
+  position:absolute;
+  top:18px;
+  right:18px;
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  border:0;
+  background:rgba(255,255,255,.08);
+  color:#fff;
+  cursor:pointer;
+  font-size:18px;
+}
+
+.premium-note{
+  margin-top:22px;
+  color:#8ea0b3;
+  line-height:1.6;
+  font-size:13px;
+}
+
+@media(max-width:900px){
+  .premium-card-modal{
+    grid-template-columns:1fr;
+  }
+
+  .premium-left{
+    position:relative;
+  }
+
+  .premium-title{
+    font-size:26px;
+  }
+
+  .premium-grid{
+    grid-template-columns:1fr;
+  }
+}
+</style>
+
 </head>
 <body>
 
@@ -3720,6 +3929,156 @@ window.addEventListener('load', async () => {
 nakamaSupabase.auth.onAuthStateChange((event, session) => {
   if(session && session.user){
     enterAppSupabase(session.user);
+  }
+});
+</script>
+
+
+<div id="premium-card-overlay" onclick="closePremiumCard(event)">
+  <div class="premium-card-modal">
+    <button class="premium-close" onclick="forceClosePremium()">✕</button>
+
+    <div class="premium-left">
+      <div class="premium-card-image">
+        <img id="premium-card-img" src="" alt="">
+      </div>
+
+      <button class="premium-zoom-btn" onclick="premiumZoomCard()">
+        🔎 Zoom HD
+      </button>
+    </div>
+
+    <div class="premium-right">
+      <div class="premium-title" id="premium-title"></div>
+      <div class="premium-sub" id="premium-sub"></div>
+
+      <div class="premium-badges">
+        <div class="premium-badge rarity" id="premium-rarity"></div>
+        <div class="premium-badge" id="premium-lang"></div>
+        <div class="premium-badge" id="premium-set"></div>
+      </div>
+
+      <div class="premium-grid">
+        <div class="premium-box">
+          <div class="premium-box-label">Code</div>
+          <div class="premium-box-value" id="premium-code"></div>
+        </div>
+
+        <div class="premium-box">
+          <div class="premium-box-label">Type</div>
+          <div class="premium-box-value" id="premium-type"></div>
+        </div>
+
+        <div class="premium-box">
+          <div class="premium-box-label">Variantes</div>
+          <div class="premium-box-value" id="premium-variants"></div>
+        </div>
+
+        <div class="premium-box">
+          <div class="premium-box-label">Prix estimé</div>
+          <div class="premium-box-value">Bientôt disponible</div>
+        </div>
+      </div>
+
+      <div class="premium-actions">
+        <button class="premium-action wishlist">
+          ❤️ Ajouter wishlist
+        </button>
+
+        <button class="premium-action trade">
+          ⚔️ Proposer échange
+        </button>
+      </div>
+
+      <div class="premium-note">
+        Plus tard ici :
+        prix CardMarket, utilisateurs possédant la carte,
+        decks utilisant la carte et historique des ventes ⚓
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script id="nakama-v54-premium-js">
+function getCardImage(card){
+  return card.original_image || card.image || '';
+}
+
+function openPremiumCard(card){
+  if(!card) return;
+
+  const overlay = document.getElementById('premium-card-overlay');
+  if(!overlay) return;
+
+  document.getElementById('premium-title').textContent =
+    card.name || card.code || 'Carte';
+
+  document.getElementById('premium-sub').textContent =
+    (card.set_name || card.set || 'One Piece TCG') + ' • ' +
+    (card.lang || 'ALL');
+
+  document.getElementById('premium-rarity').textContent =
+    card.rarity || 'UNKNOWN';
+
+  document.getElementById('premium-lang').textContent =
+    '🌍 ' + (card.lang || 'ALL');
+
+  document.getElementById('premium-set').textContent =
+    '📦 ' + (card.set || '?');
+
+  document.getElementById('premium-code').textContent =
+    card.code || '?';
+
+  document.getElementById('premium-type').textContent =
+    card.type || card.rarity || '?';
+
+  const variants = (window.ST && ST.cards)
+    ? ST.cards.filter(c => c.code === card.code).length
+    : 1;
+
+  document.getElementById('premium-variants').textContent =
+    variants + ' variante(s)';
+
+  document.getElementById('premium-card-img').src =
+    getCardImage(card);
+
+  overlay.classList.add('active');
+
+  window.__premiumCurrentCard = card;
+}
+
+function closePremiumCard(e){
+  if(e.target.id === 'premium-card-overlay'){
+    forceClosePremium();
+  }
+}
+
+function forceClosePremium(){
+  const overlay = document.getElementById('premium-card-overlay');
+  if(overlay) overlay.classList.remove('active');
+}
+
+function premiumZoomCard(){
+  if(window.__premiumCurrentCard && typeof openZoom === 'function'){
+    openZoom(getCardImage(window.__premiumCurrentCard));
+  }
+}
+
+/* Rend les cartes cliquables premium */
+document.addEventListener('click', function(e){
+  const cardEl = e.target.closest('.card-item');
+  if(!cardEl) return;
+
+  const idx =
+    cardEl.dataset.index ||
+    cardEl.getAttribute('data-index');
+
+  if(typeof idx !== 'undefined' &&
+     window.ST &&
+     Array.isArray(ST.filtered) &&
+     ST.filtered[idx]){
+      openPremiumCard(ST.filtered[idx]);
   }
 });
 </script>
