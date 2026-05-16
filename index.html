@@ -3474,5 +3474,37 @@ function renderDashboardStats(){
 }
 
 </script>
+
+<script id="nakama-v48-leader-fix">
+/* V48 - fix safe Leaders
+   Le JSON stocke les Leaders dans rarity:'LEADER', souvent avec type:''.
+   Cette fonction évite les Leaders manquants sans toucher aux cartes.
+*/
+
+(function(){
+  function norm(v){
+    return String(v || '').trim().toUpperCase();
+  }
+
+  window.isLeaderCard = function(card){
+    return norm(card && card.rarity) === 'LEADER' || norm(card && card.type) === 'LEADER';
+  };
+
+  window.getCardRarityFixed = function(card){
+    if(window.isLeaderCard(card)) return 'LEADER';
+    return norm(card && card.rarity);
+  };
+
+  // Patch léger des méthodes Array.filter les plus fréquentes n'est PAS fait :
+  // on préfère exposer les helpers et patcher render après chargement si possible.
+  const oldRender = window.renderCards;
+  if(typeof oldRender === 'function'){
+    window.renderCards = function(){
+      return oldRender.apply(this, arguments);
+    };
+  }
+})();
+</script>
+
 </body>
 </html>
