@@ -3495,6 +3495,37 @@ gtag('config', 'G-FMT1J783L7');
 }
 </style>
 
+
+<style id="nakama-v89-cloud-fix-css">
+/* V89 - force notifs visibles seulement quand actives */
+#messages-notif{
+  display:none !important;
+}
+
+#messages-notif.has-notifs{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  min-width:18px !important;
+  height:18px !important;
+  padding:0 5px !important;
+  border-radius:999px !important;
+  background:#e63946 !important;
+  color:#fff !important;
+  font-size:10px !important;
+  font-weight:900 !important;
+  margin-left:6px !important;
+  box-shadow:0 0 14px rgba(230,57,70,.5) !important;
+}
+
+.cloud-sync-status{
+  margin-top:10px;
+  color:#f2b63e;
+  font-size:12px;
+  font-weight:800;
+}
+</style>
+
 </head>
 <body>
 
@@ -7780,6 +7811,309 @@ document.addEventListener('click', function(e){
   document.addEventListener('DOMContentLoaded', bindV88);
   window.addEventListener('load', bindV88);
   setInterval(refreshBadges, 5000);
+})();
+</script>
+
+
+<script id="nakama-v89-cloud-fix-js">
+(function(){
+  function getClient(){
+    try{
+      if(window.nakamaSupabase) return window.nakamaSupabase;
+      if(typeof nakamaSupabase !== 'undefined'){
+        window.nakamaSupabase = nakamaSupabase;
+        return nakamaSupabase;
+      }
+    }catch(e){}
+    return null;
+  }
+
+  async function getUser(){
+    const c = getClient();
+    if(!c) return null;
+    const { data } = await c.auth.getUser();
+    return data && data.user ? data.user : null;
+  }
+
+  function toast(msg){
+    if(typeof showToast === 'function') showToast(msg);
+    else alert(msg);
+  }
+
+  async function ensureProfile(){
+    if(typeof syncCloudProfileName === 'function'){
+      return await syncCloudProfileName();
+    }
+
+    if(typeof ensureCloudProfileHard === 'function'){
+      return await ensureCloudProfileHard();
+    }
+
+    const c = getClient();
+    const u = await getUser();
+    if(!c || !u) return null;
+
+    const name = (u.user_metadata && u.user_metadata.display_name) || (u.email || '').split('@')[0] || 'Nakama';
+
+    await c.from('profiles').upsert({
+      id:u.id,
+      email:u.email,
+      display_name:name,
+      updated_at:new Date().toISOString()
+    }, { onConflict:'id' });
+
+    return { id:u.id, email:u.email, display_name:name };
+  }
+
+  function ownedObject(){
+    try{
+      if(typeof ud === 'function'){
+        const u = ud();
+        return u.owned || {};
+      }
+    }catch(e){}
+
+    try{
+      if(window.ST && ST.user && ST.users && ST.users[ST.user]){
+        return ST.users[ST.user].owned || {};
+      }
+    }catch(e){}
+
+    return {};
+  }
+
+  function allCards(){
+    try{
+      if(window.ST && Array.isArray(ST.cards)) return ST.cards;
+    }catch(e){}
+    return [];
+  }
+
+  function cardImg(card){
+    if(!card) return '';
+
+    try{
+      if(typeof imgUrl === 'function'){
+        const url = imgUrl(card);
+        if(url) return url;
+      }
+    }catch(e){}
+
+    return card.image || card.original_image || card.image_url || card.img || '';
+  }
+
+  function findCard(cardId){
+    const cards = allCards();
+    return cards.find(c =>
+      c.id === cardId ||
+      c.code === cardId ||
+      c.card_id === cardId
+    ) || null;
+  }
+
+  // Remplace la synchro cloud : on envoie ID + nom + code + image
+  window.syncCollectionCloud = async function(){
+    try{
+      const c = getClient();
+      const u = await getUser();
+
+      if(!c || !u){
+        toast('Connecte-toi pour synchroniser.');
+        return;
+      }
+
+      await ensureProfile();
+
+      // S'assure que les cartes sont chargées avant de chercher les images
+      if(window.ST && (!ST.cards || !ST.cards.length) && typeof loadCards === 'function'){
+        await loadCards();
+      }
+
+      const owned = ownedObject();
+      const ids = Object.keys(owned || {});
+
+      await c.from('user_cards').delete().eq('user_id', u.id);
+
+      if(!ids.length){
+        toast('Aucune carte possédée à synchroniser.');
+        return;
+      }
+
+      const rows = ids.map(cardId => {
+        const card = findCard(cardId);
+
+        return {
+          user_id:u.id,
+          card_id:cardId,
+          qty:Number(owned[cardId] || 1),
+          card_code:card ? (card.code || card.id || cardId) : cardId,
+          card_name:card ? (card.name || card.code || cardId) : cardId,
+          image_url:cardImg(card),
+          updated_at:new Date().toISOString()
+        };
+      });
+
+      const { error } = await c.from('user_cards').insert(rows);
+      if(error) throw error;
+
+      toast(rows.length + ' carte(s) synchronisée(s) ✓');
+
+      const status = document.getElementById('cloud-sync-status');
+      if(status) status.textContent = rows.length + ' carte(s) synchronisée(s).';
+
+    }catch(e){
+      console.error(e);
+      toast(e.message || 'Erreur synchro collection.');
+    }
+  };
+
+  // Remplace voir classeur : utilise les données cloud stockées directement
+  window.openFriendBinderCloud = async function(friendId, friendName){
+    try{
+      const c = getClient();
+
+      if(!c){
+        toast('Supabase indisponible.');
+        return;
+      }
+
+      const modal = document.getElementById('cloud-binder-modal');
+      const title = document.getElementById('cloud-binder-title');
+      const content = document.getElementById('cloud-binder-content');
+
+      if(title) title.textContent = 'Classeur de ' + friendName;
+      if(content) content.innerHTML = '<div class="empty-state" style="padding:20px">Chargement du classeur...</div>';
+      if(modal) modal.classList.add('active');
+
+      const { data, error } = await c
+        .from('user_cards')
+        .select('card_id,qty,card_code,card_name,image_url')
+        .eq('user_id', friendId)
+        .order('updated_at', { ascending:false });
+
+      if(error) throw error;
+
+      if(!data || !data.length){
+        if(content){
+          content.innerHTML = '<div class="empty-state" style="padding:20px">Ce joueur n’a pas encore synchronisé son classeur cloud.</div>';
+        }
+        return;
+      }
+
+      let html = '<div class="cloud-binder-grid">';
+
+      data.forEach(row => {
+        let img = row.image_url || '';
+        let name = row.card_name || row.card_code || row.card_id;
+
+        if(!img){
+          const local = findCard(row.card_id) || findCard(row.card_code);
+          if(local){
+            img = cardImg(local);
+            name = local.name || name;
+          }
+        }
+
+        html += `
+          <div class="cloud-binder-card" title="${name}">
+            ${img ? `<img src="${img}" alt="${name}" loading="lazy">` : `<div class="cloud-binder-placeholder">${name}<br>x${row.qty}</div>`}
+          </div>
+        `;
+      });
+
+      html += '</div>';
+
+      if(content) content.innerHTML = html;
+
+    }catch(e){
+      console.error(e);
+      toast(e.message || 'Erreur classeur ami.');
+    }
+  };
+
+  // Badge notifs robuste
+  window.updateCloudNotifications = async function(){
+    try{
+      const c = getClient();
+      const u = await getUser();
+      if(!c || !u) return;
+
+      const friendReq = await c
+        .from('friend_requests')
+        .select('id')
+        .eq('addressee_id', u.id)
+        .eq('status','pending');
+
+      let reqCount = friendReq.data ? friendReq.data.length : 0;
+      let msgCount = 0;
+
+      // read_at existe après SQL v2/v3 ; si pas encore, on ne casse pas.
+      try{
+        const msgs = await c
+          .from('messages')
+          .select('id')
+          .eq('recipient_id', u.id)
+          .is('read_at', null);
+
+        msgCount = msgs.data ? msgs.data.length : 0;
+      }catch(e){
+        msgCount = 0;
+      }
+
+      const total = reqCount + msgCount;
+
+      const dot = document.getElementById('messages-notif');
+      if(dot){
+        dot.textContent = total > 9 ? '9+' : String(total);
+        dot.classList.toggle('has-notifs', total > 0);
+        dot.style.display = total > 0 ? 'inline-flex' : 'none';
+      }
+
+      const badge = document.getElementById('messages-badge');
+      if(badge){
+        if(reqCount && msgCount) badge.textContent = reqCount + ' demande(s) • ' + msgCount + ' message(s)';
+        else if(reqCount) badge.textContent = reqCount + ' demande(s)';
+        else if(msgCount) badge.textContent = msgCount + ' message(s)';
+        else badge.textContent = 'Cloud';
+      }
+
+    }catch(e){
+      console.warn('notif error', e);
+    }
+  };
+
+  // Ajoute le statut sous le bouton sync s'il existe
+  function setupSyncStatus(){
+    const btn = document.getElementById('nakama-sync-collection-cloud');
+    if(btn && !document.getElementById('cloud-sync-status')){
+      const s = document.createElement('div');
+      s.id = 'cloud-sync-status';
+      s.className = 'cloud-sync-status';
+      s.textContent = '';
+      btn.insertAdjacentElement('afterend', s);
+    }
+
+    if(btn && !btn.dataset.v89Bound){
+      btn.dataset.v89Bound = '1';
+      btn.addEventListener('click', function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        syncCollectionCloud();
+      }, true);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    setupSyncStatus();
+    setTimeout(updateCloudNotifications, 800);
+  });
+
+  window.addEventListener('load', () => {
+    setupSyncStatus();
+    setTimeout(updateCloudNotifications, 1200);
+  });
+
+  setInterval(updateCloudNotifications, 4000);
 })();
 </script>
 
