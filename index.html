@@ -565,7 +565,7 @@ body::before{
   overflow:auto;
 }
 #main-screen .main-tabs::before{
-  content:'GRAND LINE MENU';
+  content:'';
   display:block;
   color:rgba(242,182,62,.80);
   font-size:10px;
@@ -1869,6 +1869,52 @@ body,
 }
 </style>
 
+
+<style id="nakama-v49-remove-grand-line-menu">
+/* V49 - retire "" */
+
+.main-tabs .sidebar-title,
+.main-tabs .menu-title,
+.main-tabs .brand-title,
+.main-tabs h1,
+.main-tabs h2,
+.main-tabs .logo-text{
+  display:none !important;
+}
+</style>
+
+
+<style id="nakama-v50-kill-grand-line-menu">
+/* V50 - suppression forcée du titre */
+
+.main-tabs > div:first-child,
+.main-tabs .top-title,
+.main-tabs .sidebar-header,
+.main-tabs .brand,
+.main-tabs .brand-wrap,
+.main-tabs .sidebar-brand{
+  display:none !important;
+}
+</style>
+
+
+<style id="nakama-v52-supabase-auth-ui">
+/* V52 - Auth Supabase */
+#auth-screen .divider,
+#quick-login-list{
+  display:none !important;
+}
+.auth-card::after{
+  content:'Un email de confirmation sera envoyé à l’inscription.';
+  display:block;
+  margin-top:14px;
+  color:var(--muted);
+  font-size:12px;
+  text-align:center;
+  line-height:1.4;
+}
+</style>
+
 </head>
 <body>
 
@@ -1886,7 +1932,7 @@ body,
         <button class="auth-tab" onclick="switchAuthTab('register')">Inscription</button>
       </div>
       <div id="login-form">
-        <div class="field"><label>Pseudo</label><input id="login-user" type="text" placeholder="Ton pseudo" autocomplete="username"/></div>
+        <div class="field"><label>Email</label><input id="login-user" type="email" placeholder="ton@email.com" autocomplete="username"/></div>
         <div class="field"><label>Mot de passe</label><input id="login-pass" type="password" placeholder="••••••••" autocomplete="current-password"/></div>
         <button class="btn-submit" onclick="doLogin()">Se connecter</button>
         <div class="auth-err" id="login-err"></div>
@@ -1894,8 +1940,8 @@ body,
         <div class="user-list" id="quick-login-list"></div>
       </div>
       <div id="register-form" style="display:none">
-        <div class="field"><label>Pseudo</label><input id="reg-user" type="text" placeholder="Ton pseudo" autocomplete="username"/></div>
-        <div class="field"><label>Mot de passe</label><input id="reg-pass" type="password" placeholder="Min. 4 caractères" autocomplete="new-password"/></div>
+        <div class="field"><label>Email</label><input id="reg-user" type="email" placeholder="ton@email.com" autocomplete="username"/></div>
+        <div class="field"><label>Mot de passe</label><input id="reg-pass" type="password" placeholder="Min. 6 caractères" autocomplete="new-password"/></div>
         <div class="field"><label>Confirmer</label><input id="reg-pass2" type="password" placeholder="Répète le mot de passe" autocomplete="new-password"/></div>
         <button class="btn-submit" onclick="doRegister()">Créer le compte</button>
         <div class="auth-err" id="reg-err"></div>
@@ -3504,6 +3550,168 @@ function renderDashboardStats(){
     };
   }
 })();
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script id="nakama-v52-supabase-auth">
+/* V52 - Supabase Auth
+   Projet: https://lyqvdfkhcdylrwhthayo.supabase.co
+   Clé utilisée: publishable key, OK côté navigateur.
+*/
+const NAKAMA_SUPABASE_URL = "https://lyqvdfkhcdylrwhthayo.supabase.co";
+const NAKAMA_SUPABASE_KEY = "sb_publishable_npmJpqQ5QBCJks-33yXU5A_RZlPP0Ck";
+const nakamaSupabase = window.supabase.createClient(NAKAMA_SUPABASE_URL, NAKAMA_SUPABASE_KEY);
+
+function cleanEmail(v){
+  return String(v || '').trim().toLowerCase();
+}
+
+function ensureUserBucket(user){
+  const key = user.id || user.email;
+  ST.user = key;
+
+  if(!ST.users[key]) {
+    ST.users[key] = {
+      pass: '',
+      email: user.email || '',
+      displayName: (user.user_metadata && user.user_metadata.display_name) || (user.email || '').split('@')[0],
+      owned: {},
+      friends: []
+    };
+    save();
+  }
+
+  return key;
+}
+
+function showAuthError(id, message){
+  const el = document.getElementById(id);
+  if(el) el.textContent = message || '';
+}
+
+window.doLogin = async function(){
+  const email = cleanEmail(document.getElementById('login-user')?.value);
+  const password = document.getElementById('login-pass')?.value || '';
+
+  showAuthError('login-err', '');
+
+  if(!email || !password){
+    showAuthError('login-err', 'Entre ton email et ton mot de passe.');
+    return;
+  }
+
+  const { data, error } = await nakamaSupabase.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if(error){
+    showAuthError('login-err', error.message || 'Connexion impossible.');
+    return;
+  }
+
+  if(data && data.user){
+    ensureUserBucket(data.user);
+    enterAppSupabase(data.user);
+  }
+};
+
+window.doRegister = async function(){
+  const email = cleanEmail(document.getElementById('reg-user')?.value);
+  const password = document.getElementById('reg-pass')?.value || '';
+  const password2 = document.getElementById('reg-pass2')?.value || '';
+
+  showAuthError('reg-err', '');
+
+  if(!email || !password){
+    showAuthError('reg-err', 'Entre ton email et un mot de passe.');
+    return;
+  }
+
+  if(password.length < 6){
+    showAuthError('reg-err', 'Mot de passe trop court : minimum 6 caractères.');
+    return;
+  }
+
+  if(password !== password2){
+    showAuthError('reg-err', 'Les mots de passe ne correspondent pas.');
+    return;
+  }
+
+  const { data, error } = await nakamaSupabase.auth.signUp({
+    email,
+    password,
+    options: {
+      emailRedirectTo: window.location.origin,
+      data: {
+        display_name: email.split('@')[0]
+      }
+    }
+  });
+
+  if(error){
+    showAuthError('reg-err', error.message || 'Inscription impossible.');
+    return;
+  }
+
+  showAuthError('reg-err', 'Compte créé. Vérifie tes emails pour confirmer ton inscription.');
+};
+
+window.doLogout = async function(){
+  await nakamaSupabase.auth.signOut();
+
+  ST.user = null;
+  localStorage.removeItem('glb_session');
+
+  document.getElementById('main-screen').classList.remove('active');
+  document.getElementById('auth-screen').classList.add('active');
+
+  const lu = document.getElementById('login-user');
+  const lp = document.getElementById('login-pass');
+  if(lu) lu.value = '';
+  if(lp) lp.value = '';
+};
+
+window.enterAppSupabase = function(user){
+  ensureUserBucket(user);
+
+  document.getElementById('auth-screen').classList.remove('active');
+  document.getElementById('main-screen').classList.add('active');
+
+  const name = (user.user_metadata && user.user_metadata.display_name) || (user.email || '').split('@')[0] || 'Nakama';
+  const userEl = document.getElementById('topbar-user');
+  if(userEl) userEl.textContent = '👤 ' + name;
+
+  if(typeof loadCards === 'function') loadCards();
+  if(typeof renderFriends === 'function') renderFriends();
+  if(typeof renderDashboardStats === 'function') renderDashboardStats();
+};
+
+// Remplace enterApp si un vieux flux local essaie encore de l'appeler.
+window.enterApp = function(){
+  nakamaSupabase.auth.getUser().then(({ data }) => {
+    if(data && data.user) enterAppSupabase(data.user);
+  });
+};
+
+// Auto-session au chargement
+window.addEventListener('load', async () => {
+  const { data } = await nakamaSupabase.auth.getSession();
+  if(data && data.session && data.session.user){
+    enterAppSupabase(data.session.user);
+  } else {
+    document.getElementById('main-screen').classList.remove('active');
+    document.getElementById('auth-screen').classList.add('active');
+  }
+});
+
+// Gère confirmation mail / refresh session
+nakamaSupabase.auth.onAuthStateChange((event, session) => {
+  if(session && session.user){
+    enterAppSupabase(session.user);
+  }
+});
 </script>
 
 </body>
