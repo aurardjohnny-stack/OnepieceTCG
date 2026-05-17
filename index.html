@@ -10320,5 +10320,90 @@ document.addEventListener('click', function(e){
 })();
 </script>
 
+
+<script id="nakama-v112-visitor-mode-fix">
+(function(){
+
+  function userLooksLogged(){
+    try{
+      if(window.nakamaSupabase && nakamaSupabase.auth){
+        return true;
+      }
+    }catch(e){}
+
+    try{
+      if(window.ST && ST.user && ST.user !== 'guest'){
+        return true;
+      }
+    }catch(e){}
+
+    try{
+      const keys = Object.keys(localStorage);
+      return keys.some(k =>
+        k.includes('supabase.auth') ||
+        k.includes('sb-')
+      );
+    }catch(e){}
+
+    return false;
+  }
+
+  function disableVisitorMode(){
+    try{
+      localStorage.removeItem('nakama_visitor_mode');
+      localStorage.removeItem('visitor_mode');
+      localStorage.setItem('nakama_visitor_mode_disabled','1');
+    }catch(e){}
+
+    document.body.classList.remove('visitor-mode');
+
+    const badge = Array.from(document.querySelectorAll('*')).find(el =>
+      (el.textContent || '').includes('Mode visiteur')
+    );
+
+    if(badge){
+      badge.style.display = 'none';
+    }
+
+    const bottomBar = Array.from(document.querySelectorAll('div')).find(el =>
+      (el.textContent || '').includes('Créer / connecter un compte')
+    );
+
+    if(bottomBar){
+      bottomBar.style.display = 'none';
+    }
+  }
+
+  async function verifySession(){
+    if(!userLooksLogged()) return;
+
+    try{
+      if(window.nakamaSupabase && nakamaSupabase.auth){
+        const { data } = await nakamaSupabase.auth.getSession();
+
+        if(data && data.session && data.session.user){
+          disableVisitorMode();
+          return;
+        }
+      }
+    }catch(e){}
+
+    // fallback si session locale seulement
+    disableVisitorMode();
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(verifySession, 200);
+    setTimeout(verifySession, 1200);
+  });
+
+  window.addEventListener('load', () => {
+    setTimeout(verifySession, 300);
+    setTimeout(verifySession, 1600);
+  });
+
+})();
+</script>
+
 </body>
 </html>
