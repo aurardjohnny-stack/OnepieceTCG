@@ -3924,23 +3924,6 @@ body.visitor-mode #visitor-signup-banner{
 }
 </style>
 
-
-
-<style id="nakama-v115-tab-stability-css">
-/* V115 - stabilité onglets */
-.tab-pane{
-  display:none;
-}
-
-.tab-pane.active{
-  display:block;
-}
-
-#tab-browse.active{
-  min-height:400px;
-}
-</style>
-
 </head>
 <body>
 
@@ -10221,241 +10204,34 @@ document.addEventListener('click', function(e){
 </script>
 
 
-<script id="nakama-v112-visitor-mode-fix">
+<script id="nakama-v116-clean-cache-rollback">
 (function(){
-
-  function userLooksLogged(){
+  async function cleanOldCache(){
     try{
-      if(window.nakamaSupabase && nakamaSupabase.auth){
-        return true;
-      }
-    }catch(e){}
-
-    try{
-      if(window.ST && ST.user && ST.user !== 'guest'){
-        return true;
-      }
-    }catch(e){}
-
-    try{
-      const keys = Object.keys(localStorage);
-      return keys.some(k =>
-        k.includes('supabase.auth') ||
-        k.includes('sb-')
-      );
-    }catch(e){}
-
-    return false;
-  }
-
-  function disableVisitorMode(){
-    try{
-      localStorage.removeItem('nakama_visitor_mode');
-      localStorage.removeItem('visitor_mode');
-      localStorage.setItem('nakama_visitor_mode_disabled','1');
-    }catch(e){}
-
-    document.body.classList.remove('visitor-mode');
-
-    const badge = Array.from(document.querySelectorAll('*')).find(el =>
-      (el.textContent || '').includes('Mode visiteur')
-    );
-
-    if(badge){
-      badge.style.display = 'none';
-    }
-
-    const bottomBar = Array.from(document.querySelectorAll('div')).find(el =>
-      (el.textContent || '').includes('Créer / connecter un compte')
-    );
-
-    if(bottomBar){
-      bottomBar.style.display = 'none';
-    }
-  }
-
-  async function verifySession(){
-    if(!userLooksLogged()) return;
-
-    try{
-      if(window.nakamaSupabase && nakamaSupabase.auth){
-        const { data } = await nakamaSupabase.auth.getSession();
-
-        if(data && data.session && data.session.user){
-          disableVisitorMode();
-          return;
+      if('serviceWorker' in navigator){
+        const regs = await navigator.serviceWorker.getRegistrations();
+        for(const reg of regs){
+          await reg.unregister();
         }
       }
     }catch(e){}
 
-    // fallback si session locale seulement
-    disableVisitorMode();
-  }
-
-  document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(verifySession, 200);
-    setTimeout(verifySession, 1200);
-  });
-
-  window.addEventListener('load', () => {
-    setTimeout(verifySession, 300);
-    setTimeout(verifySession, 1600);
-  });
-
-})();
-</script>
-
-
-
-<script id="nakama-v115-tab-stability-js">
-(function(){
-  let switchingTab = false;
-  let lastBrowseRender = 0;
-
-  function safeToast(msg){
-    if(typeof showToast === 'function') showToast(msg);
-    else console.warn(msg);
-  }
-
-  function activateTab(tab){
-    document.querySelectorAll('.tab-pane').forEach(pane => {
-      pane.classList.remove('active');
-      pane.style.display = 'none';
-    });
-
-    const target = document.getElementById('tab-' + tab);
-    if(target){
-      target.classList.add('active');
-      target.style.display = 'block';
-    }
-
-    document.querySelectorAll('[data-tab], .nav-item, .side-nav button, .sidebar button').forEach(btn => {
-      const txt = (btn.textContent || '').toLowerCase();
-      const isActive =
-        (btn.dataset && btn.dataset.tab === tab) ||
-        (tab === 'browse' && txt.includes('parcourir')) ||
-        (tab === 'collection' && txt.includes('classeur')) ||
-        (tab === 'friends' && txt.includes('amis')) ||
-        (tab === 'messages' && txt.includes('messages')) ||
-        (tab === 'wishlist' && txt.includes('wishlist')) ||
-        (tab === 'decks' && txt.includes('decks'));
-
-      btn.classList.toggle('active', !!isActive);
-    });
-  }
-
-  function renderBrowseSafe(){
-    const now = Date.now();
-
-    if(now - lastBrowseRender < 350) return;
-    lastBrowseRender = now;
-
     try{
-      if(window.ST && Array.isArray(ST.cards)){
-        if(!Array.isArray(ST.filtered) || !ST.filtered.length){
-          if(typeof applyFilters === 'function'){
-            applyFilters();
-            return;
+      if(window.caches){
+        const keys = await caches.keys();
+        for(const key of keys){
+          if(String(key).toLowerCase().includes('nakama')){
+            await caches.delete(key);
           }
         }
       }
-
-      if(typeof renderCards === 'function') renderCards();
-      if(typeof renderStats === 'function') renderStats();
-      if(typeof renderDashboardStats === 'function') renderDashboardStats();
-    }catch(e){
-      console.error('Erreur rendu Parcourir:', e);
-      safeToast('Erreur affichage Parcourir, recharge la page si besoin.');
-    }
+    }catch(e){}
   }
 
-  const oldSwitch = window.switchMainTab;
-
-  window.switchMainTab = function(tab){
-    if(switchingTab) return;
-    switchingTab = true;
-
-    try{
-      // On active d'abord sans laisser d'ancien patch casser l'affichage
-      activateTab(tab);
-
-      if(tab === 'browse'){
-        setTimeout(renderBrowseSafe, 80);
-      }
-
-      if(tab === 'collection' && typeof renderCollection === 'function'){
-        setTimeout(() => {
-          try{ renderCollection(); }catch(e){ console.error(e); }
-        }, 80);
-      }
-
-      if(tab === 'friends' && typeof renderFriends === 'function'){
-        setTimeout(() => {
-          try{ renderFriends(); }catch(e){ console.error(e); }
-        }, 80);
-      }
-
-      if(tab === 'messages' && typeof renderMessages === 'function'){
-        setTimeout(() => {
-          try{ renderMessages(); }catch(e){ console.error(e); }
-        }, 80);
-      }
-
-      if(tab === 'wishlist' && typeof renderWishlist === 'function'){
-        setTimeout(() => {
-          try{ renderWishlist(); }catch(e){ console.error(e); }
-        }, 80);
-      }
-
-      if(tab === 'decks' && typeof renderDecks === 'function'){
-        setTimeout(() => {
-          try{ renderDecks(); }catch(e){ console.error(e); }
-        }, 80);
-      }
-
-    }catch(e){
-      console.error('switch tab safe error', e);
-
-      // fallback ancien switch seulement si le safe échoue vraiment
-      try{
-        if(typeof oldSwitch === 'function') oldSwitch(tab);
-      }catch(err){
-        console.error(err);
-      }
-    }finally{
-      setTimeout(() => {
-        switchingTab = false;
-      }, 180);
-    }
-  };
-
-  // Intercepte les clics sidebar pour éviter double exécution de vieux onclicks
-  document.addEventListener('click', function(e){
-    const el = e.target.closest('button, a, .nav-item');
-    if(!el) return;
-
-    const txt = (el.textContent || '').trim().toLowerCase();
-    let tab = null;
-
-    if(txt.includes('parcourir')) tab = 'browse';
-    else if(txt.includes('classeur')) tab = 'collection';
-    else if(txt.includes('amis')) tab = 'friends';
-    else if(txt.includes('messages')) tab = 'messages';
-    else if(txt.includes('wishlist')) tab = 'wishlist';
-    else if(txt.includes('decks')) tab = 'decks';
-
-    if(!tab) return;
-
-    const insideSidebar = el.closest('.sidebar, .side-nav, aside, nav') || txt === 'parcourir' || txt === 'classeur';
-
-    if(insideSidebar){
-      e.preventDefault();
-      e.stopPropagation();
-      e.stopImmediatePropagation();
-      window.switchMainTab(tab);
-    }
-  }, true);
-
+  // Nettoie l'ancien cache qui pouvait servir une version cassée
+  window.addEventListener('load', () => {
+    cleanOldCache();
+  });
 })();
 </script>
 
