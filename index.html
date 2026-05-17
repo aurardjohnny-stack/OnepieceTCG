@@ -3949,37 +3949,12 @@ body.visitor-mode #visitor-signup-banner{
 </style>
 
 
-<style id="nakama-v113-memory-guard-css">
-/* V113 - anti crash mémoire */
-#nakama-load-more-wrap{
-  display:flex;
-  justify-content:center;
-  padding:24px 0 40px;
-}
-
-#nakama-load-more-btn{
-  height:46px;
-  border-radius:14px;
-  border:1px solid rgba(242,182,62,.32);
-  background:linear-gradient(135deg,#f2b63e,#ffd978);
-  color:#07111f;
-  font-weight:950;
-  cursor:pointer;
-  padding:0 18px;
-  box-shadow:0 12px 28px rgba(0,0,0,.18);
-}
-
-#nakama-render-count{
-  color:#8ea0b3;
-  font-size:12px;
-  text-align:center;
-  margin-top:8px;
-}
-
-.card-grid,
-.cards-grid,
-#cards-grid{
-  contain:content;
+<style id="nakama-v114-safe-light-optim-css">
+/* V114 - optimisation légère safe, sans toucher au rendu */
+.card-item img,
+.card img,
+.cloud-binder-card img{
+  content-visibility:auto;
 }
 </style>
 
@@ -10441,146 +10416,35 @@ document.addEventListener('click', function(e){
 </script>
 
 
-<script id="nakama-v113-memory-guard-js">
+<script id="nakama-v114-safe-light-optim-js">
 (function(){
-  const FIRST_BATCH = 120;
-  const NEXT_BATCH = 120;
-  let visibleLimit = FIRST_BATCH;
-  let lastFilterKey = '';
+  function safeOptimizeImages(){
+    const imgs = Array.from(document.querySelectorAll('.card-item img, .card img, .cloud-binder-card img'));
 
-  function getGrid(){
-    return document.getElementById('cards-grid') ||
-           document.querySelector('.cards-grid') ||
-           document.querySelector('.card-grid');
-  }
-
-  function filterKey(){
-    try{
-      return JSON.stringify({
-        len: ST.filtered ? ST.filtered.length : 0,
-        search: ST.search,
-        lang: ST.lang,
-        set: ST.filterSet,
-        rarity: ST.filterRarity,
-        special: ST.filterSpecial,
-        owned: ST.onlyOwned
-      });
-    }catch(e){
-      return '';
-    }
-  }
-
-  function cleanupOldCards(){
-    const grid = getGrid();
-    if(!grid) return;
-
-    const cards = Array.from(grid.children);
-    if(cards.length > visibleLimit + 40){
-      cards.slice(visibleLimit).forEach(el => {
-        if(el.id !== 'nakama-load-more-wrap') el.remove();
-      });
-    }
-  }
-
-  function addLoadMore(){
-    const grid = getGrid();
-    if(!grid || !window.ST || !Array.isArray(ST.filtered)) return;
-
-    const old = document.getElementById('nakama-load-more-wrap');
-    if(old) old.remove();
-
-    const total = ST.filtered.length || 0;
-
-    if(total <= visibleLimit) return;
-
-    const wrap = document.createElement('div');
-    wrap.id = 'nakama-load-more-wrap';
-    wrap.innerHTML = `
-      <div>
-        <button id="nakama-load-more-btn" type="button">Charger plus de cartes</button>
-        <div id="nakama-render-count">${Math.min(visibleLimit,total)} / ${total} cartes affichées</div>
-      </div>
-    `;
-
-    grid.insertAdjacentElement('afterend', wrap);
-
-    const btn = document.getElementById('nakama-load-more-btn');
-    if(btn){
-      btn.addEventListener('click', function(){
-        visibleLimit += NEXT_BATCH;
-        if(typeof renderCards === 'function') renderCards();
-      });
-    }
-  }
-
-  function optimizeImages(){
-    document.querySelectorAll('.card img, .card-item img, .card-img img, img').forEach((img, i) => {
-      if(i > 40) img.loading = 'lazy';
-      img.decoding = 'async';
-      if(i > 80) img.fetchPriority = 'low';
+    imgs.forEach((img, i) => {
+      try{
+        img.loading = i < 36 ? 'eager' : 'lazy';
+        img.decoding = 'async';
+        img.fetchPriority = i < 12 ? 'high' : 'low';
+      }catch(e){}
     });
   }
 
-  const originalRenderCards = window.renderCards;
-
-  if(typeof originalRenderCards === 'function'){
-    window.renderCards = function(){
-      try{
-        const key = filterKey();
-        if(key !== lastFilterKey){
-          visibleLimit = FIRST_BATCH;
-          lastFilterKey = key;
-        }
-
-        if(window.ST && Array.isArray(ST.filtered)){
-          const full = ST.filtered;
-          const sliced = full.slice(0, visibleLimit);
-          ST.filtered = sliced;
-
-          const result = originalRenderCards.apply(this, arguments);
-
-          ST.filtered = full;
-
-          setTimeout(() => {
-            cleanupOldCards();
-            addLoadMore();
-            optimizeImages();
-          }, 30);
-
-          return result;
-        }
-
-        const result = originalRenderCards.apply(this, arguments);
-        setTimeout(() => {
-          addLoadMore();
-          optimizeImages();
-        }, 30);
-        return result;
-      }catch(e){
-        console.error('Memory guard render error', e);
-        return originalRenderCards.apply(this, arguments);
-      }
-    };
-  }
-
-  const originalApplyFilters = window.applyFilters;
-  if(typeof originalApplyFilters === 'function'){
-    window.applyFilters = function(){
-      visibleLimit = FIRST_BATCH;
-      const result = originalApplyFilters.apply(this, arguments);
-      setTimeout(() => {
-        addLoadMore();
-        optimizeImages();
-      }, 60);
-      return result;
-    };
-  }
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(safeOptimizeImages, 300);
+  });
 
   window.addEventListener('load', () => {
-    setTimeout(() => {
-      if(typeof renderCards === 'function') renderCards();
-      optimizeImages();
-    }, 800);
+    setTimeout(safeOptimizeImages, 300);
+    setTimeout(safeOptimizeImages, 1500);
+  });
+
+  const observer = new MutationObserver(() => {
+    requestAnimationFrame(safeOptimizeImages);
+  });
+
+  document.addEventListener('DOMContentLoaded', () => {
+    observer.observe(document.body, { childList:true, subtree:true });
   });
 })();
 </script>
