@@ -3683,26 +3683,6 @@ body.visitor-mode #visitor-signup-banner{
 </style>
 
 
-<style id="nakama-v99-language-active-fix-css">
-/* V99 - Fix bouton langue actif */
-.lang-btn.active,
-.language-btn.active,
-[data-lang].active,
-button[data-lang].active{
-  background:linear-gradient(135deg,#f2b63e,#ffd978) !important;
-  color:#07111f !important;
-  border-color:#f2b63e !important;
-  box-shadow:0 0 18px rgba(242,182,62,.28) !important;
-}
-
-.lang-btn,
-.language-btn,
-button[data-lang]{
-  transition:all .16s ease !important;
-}
-</style>
-
-
 <style id="nakama-v100-logout-clean-css">
 /* V100 - Déconnexion épurée dans paramètres */
 
@@ -3757,6 +3737,213 @@ button[data-lang]{
   #nakama-bottom-dock{
     width:auto !important;
     grid-template-columns:1fr !important;
+  }
+}
+</style>
+
+
+
+<style id="nakama-v103-lang-final-css">
+.filter-lang-inline .lang-tab.active{
+  background:linear-gradient(135deg,#f2b63e,#ffd978) !important;
+  color:#07111f !important;
+  border-color:#f2b63e !important;
+  box-shadow:0 0 20px rgba(242,182,62,.34) !important;
+}
+
+.filter-lang-inline .lang-tab{
+  transition:all .16s ease !important;
+}
+</style>
+
+
+<style id="nakama-v104-lang-hard-fix-css">
+/* V104 - Fix dur boutons langue : plus d'overlap avec Possédées */
+
+.filter-lang-inline{
+  position:relative !important;
+  z-index:50 !important;
+  pointer-events:auto !important;
+  display:flex !important;
+  flex-wrap:wrap !important;
+  gap:6px !important;
+  align-items:center !important;
+}
+
+.filter-lang-inline .lang-tab,
+.filter-lang-inline button[data-lang-choice]{
+  position:relative !important;
+  z-index:55 !important;
+  pointer-events:auto !important;
+  min-width:48px !important;
+  height:38px !important;
+  padding:0 10px !important;
+  border-radius:999px !important;
+  cursor:pointer !important;
+}
+
+.filter-lang-inline .lang-tab.active,
+.filter-lang-inline button[data-lang-choice].active{
+  background:linear-gradient(135deg,#f2b63e,#ffd978) !important;
+  color:#07111f !important;
+  border-color:#f2b63e !important;
+  box-shadow:0 0 20px rgba(242,182,62,.34) !important;
+}
+
+.filters-line-final .ftog,
+.filters-bar .ftog,
+#toggle-owned{
+  position:relative !important;
+  z-index:10 !important;
+}
+
+@media(max-width:900px){
+  #tab-browse .filter-lang-inline{
+    grid-column:1 / -1 !important;
+    order:4 !important;
+    width:100% !important;
+    display:grid !important;
+    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+    gap:6px !important;
+  }
+
+  #tab-browse .filter-lang-inline .lang-tab,
+  #tab-browse .filter-lang-inline button[data-lang-choice]{
+    width:100% !important;
+    min-width:0 !important;
+  }
+}
+</style>
+
+
+<style id="nakama-v107-cnhk-yellow-only-css">
+.filter-lang-inline button.active,
+.filter-lang-inline button.lang-active{
+  background:linear-gradient(135deg,#f2b63e,#ffd978) !important;
+  color:#07111f !important;
+  border-color:#f2b63e !important;
+  box-shadow:0 0 20px rgba(242,182,62,.34) !important;
+}
+</style>
+
+
+<style id="nakama-v110-cnhk-clicked-button-yellow-css">
+.filter-lang-inline button[data-force-active-lang="1"],
+.filter-lang-inline button.active,
+.filter-lang-inline button.lang-active{
+  background:linear-gradient(135deg,#f2b63e,#ffd978) !important;
+  color:#07111f !important;
+  border-color:#f2b63e !important;
+  box-shadow:0 0 20px rgba(242,182,62,.34) !important;
+}
+</style>
+
+
+<style id="nakama-v111-friend-showcase-css">
+/* V111 - Vitrine classeur ami */
+
+.friend-binder-preview{
+  margin-top:12px !important;
+  padding:12px !important;
+  border-radius:16px !important;
+  border:1px solid rgba(242,182,62,.18) !important;
+  background:
+    radial-gradient(circle at 15% 0%,rgba(242,182,62,.10),transparent 36%),
+    rgba(255,255,255,.035) !important;
+  width:100% !important;
+}
+
+.friend-binder-preview-title{
+  display:flex !important;
+  justify-content:space-between !important;
+  align-items:center !important;
+  gap:8px !important;
+  color:#f2b63e !important;
+  font-weight:900 !important;
+  font-size:12px !important;
+  margin-bottom:10px !important;
+}
+
+.friend-binder-preview-stats{
+  display:grid !important;
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  gap:8px !important;
+  margin-bottom:10px !important;
+}
+
+.friend-binder-stat{
+  border-radius:12px !important;
+  padding:8px !important;
+  background:rgba(255,255,255,.045) !important;
+  border:1px solid rgba(255,255,255,.07) !important;
+}
+
+.friend-binder-stat b{
+  display:block !important;
+  color:#fff !important;
+  font-size:15px !important;
+}
+
+.friend-binder-stat span{
+  display:block !important;
+  color:#8ea0b3 !important;
+  font-size:10px !important;
+  margin-top:2px !important;
+}
+
+.friend-binder-preview-grid{
+  display:grid !important;
+  grid-template-columns:repeat(9,42px) !important;
+  gap:6px !important;
+  align-items:start !important;
+}
+
+.friend-binder-preview-card{
+  width:42px !important;
+  height:60px !important;
+  border-radius:8px !important;
+  overflow:hidden !important;
+  background:rgba(255,255,255,.06) !important;
+  border:1px solid rgba(255,255,255,.08) !important;
+  box-shadow:0 6px 14px rgba(0,0,0,.18) !important;
+}
+
+.friend-binder-preview-card img{
+  width:100% !important;
+  height:100% !important;
+  object-fit:cover !important;
+  display:block !important;
+}
+
+.friend-binder-preview-empty{
+  color:#8ea0b3 !important;
+  font-size:12px !important;
+  line-height:1.4 !important;
+}
+
+@media(max-width:900px){
+  .friend-binder-preview-grid{
+    grid-template-columns:repeat(6,38px) !important;
+  }
+
+  .friend-binder-preview-card{
+    width:38px !important;
+    height:54px !important;
+  }
+}
+
+@media(max-width:520px){
+  .friend-binder-preview-stats{
+    grid-template-columns:1fr !important;
+  }
+
+  .friend-binder-preview-grid{
+    grid-template-columns:repeat(5,36px) !important;
+  }
+
+  .friend-binder-preview-card{
+    width:36px !important;
+    height:51px !important;
   }
 }
 </style>
@@ -3892,12 +4079,12 @@ button[data-lang]{
         <button class="manual-btn" onclick="openManualModal()">＋ Carte manuelle</button>
 
         <div class="filter-lang-inline" aria-label="Choix de langue des cartes">
-          <button type="button" onclick="setLang('ALL')">Toutes</button>
-          <button type="button" onclick="setLang('FR')">FR</button>
-          <button type="button" onclick="setLang('EN')">EN</button>
-          <button type="button" onclick="setLang('JAP')">JP</button>
+          <button class="lang-tab active" data-lang-choice="ALL" type="button" onclick="setLang(\'ALL\')"  class="lang-tab active" type="button" >Toutes</button>
+          <button class="lang-tab" data-lang-choice="FR" type="button" onclick="setLang(\'FR\')"  class="lang-tab" type="button" >FR</button>
+          <button class="lang-tab" data-lang-choice="EN" type="button" onclick="setLang(\'EN\')"  class="lang-tab" type="button" >EN</button>
+          <button class="lang-tab" data-lang-choice="JAP" type="button" onclick="setLang(\'JAP\')"  class="lang-tab" type="button" >JP</button>
           <button type="button" onclick="setLang('CN-HK')">CN-HK</button>
-          <button type="button" onclick="setLang('UNK')">Autres</button>
+          <button class="lang-tab" data-lang-choice="UNK" type="button" onclick="setLang(\'UNK\')"  class="lang-tab" type="button" >Autres</button>
         </div>
       </div>
 
@@ -9667,105 +9854,6 @@ document.addEventListener('click', function(e){
 </script>
 
 
-<script id="nakama-v99-language-active-fix-js">
-(function(){
-
-  function updateLanguageButtons(){
-    let current = null;
-
-    try{
-      current =
-        localStorage.getItem('selectedLanguage') ||
-        localStorage.getItem('lang') ||
-        localStorage.getItem('language') ||
-        (window.ST && ST.lang) ||
-        'FR';
-    }catch(e){
-      current = 'FR';
-    }
-
-    current = String(current).toUpperCase();
-
-    const buttons = document.querySelectorAll(
-      '.lang-btn, .language-btn, button[data-lang], [data-language]'
-    );
-
-    buttons.forEach(btn => {
-      const value =
-        (btn.dataset.lang ||
-         btn.dataset.language ||
-         btn.textContent || '')
-        .trim()
-        .toUpperCase();
-
-      const active =
-        value === current ||
-        value.includes(current);
-
-      btn.classList.toggle('active', active);
-
-      if(active){
-        btn.style.background = 'linear-gradient(135deg,#f2b63e,#ffd978)';
-        btn.style.color = '#07111f';
-        btn.style.borderColor = '#f2b63e';
-      }
-    });
-  }
-
-  function bindLanguageButtons(){
-    const buttons = document.querySelectorAll(
-      '.lang-btn, .language-btn, button[data-lang], [data-language]'
-    );
-
-    buttons.forEach(btn => {
-      if(btn.dataset.v99Bound) return;
-      btn.dataset.v99Bound = '1';
-
-      btn.addEventListener('click', () => {
-        const value =
-          (btn.dataset.lang ||
-           btn.dataset.language ||
-           btn.textContent || '')
-          .trim()
-          .toUpperCase();
-
-        try{
-          localStorage.setItem('selectedLanguage', value);
-          localStorage.setItem('lang', value);
-        }catch(e){}
-
-        setTimeout(updateLanguageButtons, 10);
-        setTimeout(updateLanguageButtons, 80);
-      });
-    });
-  }
-
-  document.addEventListener('DOMContentLoaded', () => {
-    bindLanguageButtons();
-    updateLanguageButtons();
-  });
-
-  window.addEventListener('load', () => {
-    bindLanguageButtons();
-    updateLanguageButtons();
-  });
-
-  const observer = new MutationObserver(() => {
-    bindLanguageButtons();
-    updateLanguageButtons();
-  });
-
-  document.addEventListener('DOMContentLoaded', () => {
-    observer.observe(document.body, {
-      childList:true,
-      subtree:true
-    });
-  });
-
-})();
-</script>
-
-
 <script id="nakama-v100-logout-clean-js">
 (function(){
   async function logoutClean(){
@@ -9799,6 +9887,436 @@ document.addEventListener('click', function(e){
 
   document.addEventListener('DOMContentLoaded', bind);
   window.addEventListener('load', bind);
+})();
+</script>
+
+
+
+<script id="nakama-v103-lang-final-js">
+(function(){
+  const oldSetLang = window.setLang;
+
+  function labelFor(lang){
+    if(lang === 'ALL') return 'Toutes';
+    if(lang === 'JAP') return 'JP';
+    if(lang === 'CN') return 'CN-HK';
+    if(lang === 'UNK') return 'Autres';
+    return lang;
+  }
+
+  function paintLang(lang){
+    const wanted = labelFor(lang || (window.ST && ST.lang) || 'ALL');
+
+    document.querySelectorAll('.filter-lang-inline .lang-tab').forEach(btn => {
+      const text = (btn.textContent || '').trim();
+      const active = text === wanted;
+
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+  }
+
+  window.setLang = function(lang){
+    if(window.ST) ST.lang = lang;
+
+    if(typeof oldSetLang === 'function'){
+      try{
+        oldSetLang(lang);
+      }catch(e){
+        if(typeof applyFilters === 'function') applyFilters();
+      }
+    }else if(typeof applyFilters === 'function'){
+      applyFilters();
+    }
+
+    paintLang(lang);
+  };
+
+  document.addEventListener('DOMContentLoaded', () => {
+    paintLang(window.ST && ST.lang ? ST.lang : 'ALL');
+  });
+
+  window.addEventListener('load', () => {
+    paintLang(window.ST && ST.lang ? ST.lang : 'ALL');
+  });
+})();
+</script>
+
+
+<script id="nakama-v104-lang-hard-fix-js">
+(function(){
+  function label(lang){
+    if(lang === 'ALL') return 'Toutes';
+    if(lang === 'JAP') return 'JP';
+    if(lang === 'CN') return 'CN-HK';
+    if(lang === 'UNK') return 'Autres';
+    return lang;
+  }
+
+  function paint(lang){
+    const current = lang || (window.ST && ST.lang) || 'ALL';
+
+    document.querySelectorAll('.filter-lang-inline button[data-lang-choice], .filter-lang-inline .lang-tab').forEach(btn => {
+      const val = btn.dataset.langChoice || '';
+      const active = val === current;
+
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+  }
+
+  function applyLanguage(lang){
+    if(window.ST) ST.lang = lang;
+
+    if(typeof applyFilters === 'function'){
+      applyFilters();
+    }
+
+    paint(lang);
+  }
+
+  function bind(){
+    const wrap = document.querySelector('.filter-lang-inline');
+    if(!wrap || wrap.dataset.v104Bound) return;
+
+    wrap.dataset.v104Bound = '1';
+
+    wrap.addEventListener('click', function(e){
+      const btn = e.target.closest('button[data-lang-choice], .lang-tab');
+      if(!btn) return;
+
+      const lang = btn.dataset.langChoice;
+      if(!lang) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+
+      applyLanguage(lang);
+    }, true);
+
+    paint();
+  }
+
+  // Override propre, au cas où un onclick ancien tourne encore
+  window.setLang = function(lang){
+    applyLanguage(lang);
+  };
+
+  document.addEventListener('DOMContentLoaded', bind);
+  window.addEventListener('load', () => {
+    bind();
+    setTimeout(bind, 500);
+    setTimeout(paint, 600);
+  });
+})();
+</script>
+
+
+
+<script id="nakama-v107-cnhk-yellow-only">
+(function(){
+  function paintLangActive(){
+    if(!window.ST) return;
+
+    const current = ST.lang;
+
+    document.querySelectorAll('.filter-lang-inline button').forEach(btn => {
+      const txt = (btn.textContent || '').trim().toUpperCase();
+
+      let active = false;
+
+      if(current === 'ALL' && txt === 'TOUTES') active = true;
+      if(current === 'FR' && txt === 'FR') active = true;
+      if(current === 'EN' && txt === 'EN') active = true;
+      if(current === 'JAP' && txt === 'JP') active = true;
+      if(
+        (current === 'CN' || current === 'CN-HK') &&
+        (txt.includes('CN') || txt.includes('HK'))
+      ) active = true;
+      if((current === 'UNK' || current === 'OTHER') && txt.includes('AUTRES')) active = true;
+
+      btn.classList.toggle('active', active);
+      btn.classList.toggle('lang-active', active);
+      btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+
+      if(active){
+        btn.style.setProperty('background', 'linear-gradient(135deg,#f2b63e,#ffd978)', 'important');
+        btn.style.setProperty('color', '#07111f', 'important');
+        btn.style.setProperty('border-color', '#f2b63e', 'important');
+        btn.style.setProperty('box-shadow', '0 0 20px rgba(242,182,62,.34)', 'important');
+      }else{
+        btn.style.removeProperty('background');
+        btn.style.removeProperty('color');
+        btn.style.removeProperty('border-color');
+        btn.style.removeProperty('box-shadow');
+      }
+    });
+  }
+
+  const oldSetLang = window.setLang;
+
+  window.setLang = function(lang){
+    if(typeof oldSetLang === 'function'){
+      oldSetLang(lang);
+    }else{
+      if(window.ST) ST.lang = lang;
+      if(typeof applyFilters === 'function') applyFilters();
+    }
+
+    setTimeout(paintLangActive, 0);
+    setTimeout(paintLangActive, 100);
+  };
+
+  document.addEventListener('click', function(e){
+    const btn = e.target.closest('.filter-lang-inline button');
+    if(!btn) return;
+
+    setTimeout(paintLangActive, 0);
+    setTimeout(paintLangActive, 120);
+  }, true);
+
+  document.addEventListener('DOMContentLoaded', paintLangActive);
+  window.addEventListener('load', paintLangActive);
+})();
+</script>
+
+
+<script id="nakama-v110-cnhk-clicked-button-yellow">
+(function(){
+  function clearLangActive(){
+    document.querySelectorAll('.filter-lang-inline button').forEach(btn => {
+      btn.classList.remove('active', 'lang-active');
+      btn.removeAttribute('data-force-active-lang');
+      btn.style.removeProperty('background');
+      btn.style.removeProperty('color');
+      btn.style.removeProperty('border-color');
+      btn.style.removeProperty('box-shadow');
+    });
+  }
+
+  function makeYellow(btn){
+    if(!btn) return;
+
+    clearLangActive();
+
+    btn.classList.add('active', 'lang-active');
+    btn.setAttribute('aria-pressed', 'true');
+    btn.setAttribute('data-force-active-lang', '1');
+
+    btn.style.setProperty('background', 'linear-gradient(135deg,#f2b63e,#ffd978)', 'important');
+    btn.style.setProperty('color', '#07111f', 'important');
+    btn.style.setProperty('border-color', '#f2b63e', 'important');
+    btn.style.setProperty('box-shadow', '0 0 20px rgba(242,182,62,.34)', 'important');
+  }
+
+  function findBtnForLang(lang){
+    return Array.from(document.querySelectorAll('.filter-lang-inline button')).find(btn => {
+      const oc = btn.getAttribute('onclick') || '';
+      return oc.includes("setLang('" + lang + "')") || oc.includes('setLang("' + lang + '")');
+    });
+  }
+
+  function forcePaintByState(){
+    if(!window.ST) return;
+
+    let lang = ST.lang;
+
+    if(lang === 'CN' || lang === 'CN-HK' || lang === 'CNHK'){
+      makeYellow(findBtnForLang('CN'));
+      return;
+    }
+
+    if(lang === 'UNK' || lang === 'OTHER'){
+      makeYellow(findBtnForLang('UNK'));
+      return;
+    }
+
+    if(lang === 'JAP' || lang === 'JP'){
+      makeYellow(findBtnForLang('JAP'));
+      return;
+    }
+
+    makeYellow(findBtnForLang(lang || 'ALL'));
+  }
+
+  // Capture direct du clic : le bouton cliqué devient jaune.
+  document.addEventListener('click', function(e){
+    const btn = e.target.closest('.filter-lang-inline button');
+    if(!btn) return;
+
+    const oc = btn.getAttribute('onclick') || '';
+    if(!oc.includes('setLang')) return;
+
+    setTimeout(() => makeYellow(btn), 0);
+    setTimeout(() => makeYellow(btn), 80);
+    setTimeout(() => makeYellow(btn), 250);
+  }, true);
+
+  const oldSetLang = window.setLang;
+  window.setLang = function(lang){
+    if(typeof oldSetLang === 'function'){
+      oldSetLang(lang);
+    }else{
+      if(window.ST) ST.lang = lang;
+      if(typeof applyFilters === 'function') applyFilters();
+    }
+
+    setTimeout(forcePaintByState, 0);
+    setTimeout(forcePaintByState, 100);
+  };
+
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(forcePaintByState, 300);
+  });
+
+  window.addEventListener('load', () => {
+    setTimeout(forcePaintByState, 500);
+  });
+})();
+</script>
+
+
+<script id="nakama-v111-friend-showcase-js">
+(function(){
+  function getClient(){
+    try{
+      if(window.nakamaSupabase) return window.nakamaSupabase;
+      if(typeof nakamaSupabase !== 'undefined'){
+        window.nakamaSupabase = nakamaSupabase;
+        return nakamaSupabase;
+      }
+    }catch(e){}
+    return null;
+  }
+
+  function localCardImage(row){
+    try{
+      if(!window.ST || !Array.isArray(ST.cards)) return row.image_url || '';
+
+      const id = row.card_id || row.card_code;
+      const clean = String(id || '').replace(/x\d+$/i,'');
+
+      const card = ST.cards.find(c =>
+        c.id === clean ||
+        c.code === clean ||
+        String(c.id || '').includes(clean) ||
+        String(c.code || '').includes(String(clean || '').replace(/_p\d+$/i,''))
+      );
+
+      if(card){
+        if(typeof imgUrl === 'function'){
+          const url = imgUrl(card);
+          if(url) return url;
+        }
+        return card.image || card.original_image || card.image_url || card.img || row.image_url || '';
+      }
+    }catch(e){}
+
+    return row.image_url || '';
+  }
+
+  async function buildFriendShowcase(friendId){
+    const c = getClient();
+    if(!c || !friendId) return '';
+
+    try{
+      const { data, error } = await c
+        .from('user_cards')
+        .select('card_id,card_code,card_name,image_url,qty')
+        .eq('user_id', friendId)
+        .order('updated_at', { ascending:false })
+        .limit(9);
+
+      if(error || !data || !data.length){
+        return `
+          <div class="friend-binder-preview">
+            <div class="friend-binder-preview-title">
+              <span>Vitrine classeur</span><span>0 carte</span>
+            </div>
+            <div class="friend-binder-preview-empty">Ce joueur n’a pas encore synchronisé son classeur.</div>
+          </div>
+        `;
+      }
+
+      let totalQty = 0;
+      data.forEach(row => totalQty += Number(row.qty || 1));
+
+      const cards = data.map(row => {
+        const image = localCardImage(row);
+        const name = row.card_name || row.card_code || row.card_id || 'Carte';
+
+        return `
+          <div class="friend-binder-preview-card" title="${name}">
+            ${image ? `<img src="${image}" alt="${name}" loading="lazy">` : ''}
+          </div>
+        `;
+      }).join('');
+
+      return `
+        <div class="friend-binder-preview">
+          <div class="friend-binder-preview-title">
+            <span>Vitrine classeur</span><span>${data.length} cartes vues</span>
+          </div>
+
+          <div class="friend-binder-preview-stats">
+            <div class="friend-binder-stat"><b>${data.length}</b><span>cartes aperçu</span></div>
+            <div class="friend-binder-stat"><b>${totalQty}</b><span>exemplaires</span></div>
+            <div class="friend-binder-stat"><b>Cloud</b><span>synchronisé</span></div>
+          </div>
+
+          <div class="friend-binder-preview-grid">${cards}</div>
+        </div>
+      `;
+    }catch(e){
+      return '';
+    }
+  }
+
+  const previousRenderFriends = window.renderFriends;
+
+  window.renderFriends = async function(){
+    if(typeof previousRenderFriends === 'function'){
+      await previousRenderFriends();
+    }
+
+    try{
+      const friendCards = Array.from(document.querySelectorAll('.friend-card'));
+
+      for(const card of friendCards){
+        if(card.dataset.v111ShowcaseDone) continue;
+
+        const oldPreview = card.querySelector('.friend-binder-preview');
+        if(oldPreview) oldPreview.remove();
+
+        const binderBtn = Array.from(card.querySelectorAll('button')).find(btn =>
+          (btn.textContent || '').toLowerCase().includes('classeur')
+        );
+
+        if(!binderBtn) continue;
+
+        const onclick = binderBtn.getAttribute('onclick') || '';
+        const m = onclick.match(/openFriendBinderCloud\('([^']+)'/);
+
+        if(!m) continue;
+
+        const preview = await buildFriendShowcase(m[1]);
+
+        if(preview){
+          card.insertAdjacentHTML('beforeend', preview);
+          card.dataset.v111ShowcaseDone = '1';
+        }
+      }
+    }catch(e){
+      console.warn('showcase friend error', e);
+    }
+  };
+
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      if(typeof renderFriends === 'function') renderFriends();
+    }, 1000);
+  });
 })();
 </script>
 
