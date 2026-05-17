@@ -3,7 +3,16 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Grand Line Binder — One Piece TCG</title>
+<title>Nakama Binder | Classeur One Piece Card Game, prix et collection</title>
+
+<meta name="description" content="Nakama Binder permet de suivre sa collection One Piece Card Game, consulter les prix des cartes, gérer son binder et partager avec ses amis."/>
+<meta property="og:title" content="Nakama Binder | Classeur One Piece Card Game"/>
+<meta property="og:description" content="Collection, prix en temps réel, binder cloud, amis et cartes One Piece Card Game."/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://www.nakamabinder.com/"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<link rel="canonical" href="https://www.nakamabinder.com/"/>
+
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
@@ -10235,5 +10244,15 @@ document.addEventListener('click', function(e){
 })();
 </script>
 
+<script id="nakama-seo-runtime">
+(function(){
+ const SEO_BASE='/seo-cards.json';
+ function setMeta(n,c,a='name'){if(!c)return;let e=document.querySelector(`meta[${a}="${n}"]`);if(!e){e=document.createElement('meta');e.setAttribute(a,n);document.head.appendChild(e)}e.setAttribute('content',c)}
+ function setCanonical(u){let e=document.querySelector('link[rel="canonical"]');if(!e){e=document.createElement('link');e.rel='canonical';document.head.appendChild(e)}e.href=u}
+ function addJsonLd(card){document.querySelectorAll('script[data-nakama-jsonld]').forEach(s=>s.remove());const s=document.createElement('script');s.type='application/ld+json';s.dataset.nakamaJsonld='1';s.textContent=JSON.stringify({"@context":"https://schema.org","@type":"Product","name":`${card.name} ${card.code}`,"description":card.description,"image":card.image,"brand":{"@type":"Brand","name":"One Piece Card Game"},"category":"Trading Card","url":card.url});document.head.appendChild(s)}
+ async function applySeo(){const m=location.pathname.match(/^\/card\/([^\/?#]+)/);if(!m){document.title='Nakama Binder | Classeur One Piece Card Game, prix et collection';setMeta('description','Nakama Binder permet de suivre sa collection One Piece Card Game, consulter les prix des cartes, gérer son binder et partager avec ses amis.');setCanonical(location.origin+'/');return}try{const data=await (await fetch(SEO_BASE,{cache:'force-cache'})).json();const card=(data.cards||[]).find(c=>c.slug===decodeURIComponent(m[1]));if(!card)return;document.title=card.title;setMeta('description',card.description);setMeta('og:title',card.title,'property');setMeta('og:description',card.description,'property');setMeta('og:image',card.image,'property');setMeta('og:type','product','property');setMeta('twitter:card','summary_large_image');setMeta('twitter:title',card.title);setMeta('twitter:description',card.description);setMeta('twitter:image',card.image);setCanonical(card.url);addJsonLd(card)}catch(e){}}
+ applySeo();
+})();
+</script>
 </body>
 </html>
