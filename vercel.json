@@ -1,12 +1,5 @@
 {
   "rewrites": [
-    {
-      "source": "/api/proxy",
-      "destination": "/api/proxy"
-    },
-    {
-      "source": "/card/(.*)",
-      "destination": "/index.html"
-    }
+    { "source": "/api/proxy", "destination": "/api/proxy" }
   ]
 }
