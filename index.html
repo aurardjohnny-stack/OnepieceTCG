@@ -3621,30 +3621,6 @@ body.visitor-mode #visitor-signup-banner{
 </style>
 
 
-<style id="nakama-v97-transfer-optimization-css">
-/* V97 - optimisation transfert sans changer le design */
-.card-item img,
-.premium-card-image img,
-.cloud-binder-card img{
-  content-visibility:auto;
-}
-
-.card-item{
-  content-visibility:auto;
-  contain-intrinsic-size:220px 320px;
-}
-
-.card-item img:not(.loaded){
-  opacity:.25;
-}
-
-.card-item img.loaded{
-  opacity:1;
-  transition:opacity .18s ease;
-}
-</style>
-
-
 <style id="nakama-v98-welcome-info-css">
 #nakama-welcome-info{
   margin:0 0 18px 0;
@@ -3949,12 +3925,19 @@ body.visitor-mode #visitor-signup-banner{
 </style>
 
 
-<style id="nakama-v114-safe-light-optim-css">
-/* V114 - optimisation légère safe, sans toucher au rendu */
-.card-item img,
-.card img,
-.cloud-binder-card img{
-  content-visibility:auto;
+
+<style id="nakama-v115-tab-stability-css">
+/* V115 - stabilité onglets */
+.tab-pane{
+  display:none;
+}
+
+.tab-pane.active{
+  display:block;
+}
+
+#tab-browse.active{
+  min-height:400px;
 }
 </style>
 
@@ -9744,99 +9727,6 @@ document.addEventListener('click', function(e){
 </script>
 
 
-<script id="nakama-v97-transfer-optimization-js">
-(function(){
-  const MAX_EAGER_IMAGES = 36;
-
-  function optimizeImg(img, index){
-    if(!img || img.dataset.v97Optimized) return;
-    img.dataset.v97Optimized = '1';
-
-    img.loading = index < MAX_EAGER_IMAGES ? 'eager' : 'lazy';
-    img.decoding = 'async';
-    img.fetchPriority = index < 12 ? 'high' : 'low';
-    img.referrerPolicy = 'no-referrer';
-
-    if(img.complete){
-      img.classList.add('loaded');
-    }else{
-      img.addEventListener('load', () => img.classList.add('loaded'), { once:true });
-      img.addEventListener('error', () => img.classList.add('loaded'), { once:true });
-    }
-  }
-
-  function optimizeImages(){
-    const imgs = Array.from(document.querySelectorAll('.card-item img, .cloud-binder-card img'));
-    imgs.forEach((img, i) => optimizeImg(img, i));
-  }
-
-  document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(optimizeImages, 200);
-  });
-
-  window.addEventListener('load', () => {
-    setTimeout(optimizeImages, 300);
-    setTimeout(optimizeImages, 1200);
-  });
-
-  const observer = new MutationObserver(() => {
-    requestAnimationFrame(optimizeImages);
-  });
-
-  document.addEventListener('DOMContentLoaded', () => {
-    observer.observe(document.body, {
-      childList:true,
-      subtree:true
-    });
-  });
-
-  const oldRenderCards = window.renderCards;
-  if(typeof oldRenderCards === 'function'){
-    window.renderCards = function(){
-      const result = oldRenderCards.apply(this, arguments);
-      setTimeout(optimizeImages, 50);
-      return result;
-    };
-  }
-
-  const oldApplyFilters = window.applyFilters;
-  if(typeof oldApplyFilters === 'function'){
-    window.applyFilters = function(){
-      const result = oldApplyFilters.apply(this, arguments);
-      setTimeout(optimizeImages, 80);
-      return result;
-    };
-  }
-
-  const oldOpenPremiumCard = window.openPremiumCard;
-  if(typeof oldOpenPremiumCard === 'function'){
-    window.openPremiumCard = function(card){
-      const result = oldOpenPremiumCard.apply(this, arguments);
-      setTimeout(() => {
-        document.querySelectorAll('#premium-card-overlay img, #zoom-overlay img').forEach(img => {
-          img.loading = 'eager';
-          img.decoding = 'async';
-          img.fetchPriority = 'high';
-        });
-      }, 50);
-      return result;
-    };
-  }
-})();
-</script>
-
-
-<script id="nakama-v97-cache-worker-register">
-(function(){
-  if(!('serviceWorker' in navigator)) return;
-
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/nakama-cache-sw.js').catch(() => {});
-  });
-})();
-</script>
-
-
 <script id="nakama-v98-welcome-info-js">
 (function(){
   const KEY = 'nakama_welcome_hidden_v1';
@@ -10416,36 +10306,156 @@ document.addEventListener('click', function(e){
 </script>
 
 
-<script id="nakama-v114-safe-light-optim-js">
-(function(){
-  function safeOptimizeImages(){
-    const imgs = Array.from(document.querySelectorAll('.card-item img, .card img, .cloud-binder-card img'));
 
-    imgs.forEach((img, i) => {
-      try{
-        img.loading = i < 36 ? 'eager' : 'lazy';
-        img.decoding = 'async';
-        img.fetchPriority = i < 12 ? 'high' : 'low';
-      }catch(e){}
+<script id="nakama-v115-tab-stability-js">
+(function(){
+  let switchingTab = false;
+  let lastBrowseRender = 0;
+
+  function safeToast(msg){
+    if(typeof showToast === 'function') showToast(msg);
+    else console.warn(msg);
+  }
+
+  function activateTab(tab){
+    document.querySelectorAll('.tab-pane').forEach(pane => {
+      pane.classList.remove('active');
+      pane.style.display = 'none';
+    });
+
+    const target = document.getElementById('tab-' + tab);
+    if(target){
+      target.classList.add('active');
+      target.style.display = 'block';
+    }
+
+    document.querySelectorAll('[data-tab], .nav-item, .side-nav button, .sidebar button').forEach(btn => {
+      const txt = (btn.textContent || '').toLowerCase();
+      const isActive =
+        (btn.dataset && btn.dataset.tab === tab) ||
+        (tab === 'browse' && txt.includes('parcourir')) ||
+        (tab === 'collection' && txt.includes('classeur')) ||
+        (tab === 'friends' && txt.includes('amis')) ||
+        (tab === 'messages' && txt.includes('messages')) ||
+        (tab === 'wishlist' && txt.includes('wishlist')) ||
+        (tab === 'decks' && txt.includes('decks'));
+
+      btn.classList.toggle('active', !!isActive);
     });
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(safeOptimizeImages, 300);
-  });
+  function renderBrowseSafe(){
+    const now = Date.now();
 
-  window.addEventListener('load', () => {
-    setTimeout(safeOptimizeImages, 300);
-    setTimeout(safeOptimizeImages, 1500);
-  });
+    if(now - lastBrowseRender < 350) return;
+    lastBrowseRender = now;
 
-  const observer = new MutationObserver(() => {
-    requestAnimationFrame(safeOptimizeImages);
-  });
+    try{
+      if(window.ST && Array.isArray(ST.cards)){
+        if(!Array.isArray(ST.filtered) || !ST.filtered.length){
+          if(typeof applyFilters === 'function'){
+            applyFilters();
+            return;
+          }
+        }
+      }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    observer.observe(document.body, { childList:true, subtree:true });
-  });
+      if(typeof renderCards === 'function') renderCards();
+      if(typeof renderStats === 'function') renderStats();
+      if(typeof renderDashboardStats === 'function') renderDashboardStats();
+    }catch(e){
+      console.error('Erreur rendu Parcourir:', e);
+      safeToast('Erreur affichage Parcourir, recharge la page si besoin.');
+    }
+  }
+
+  const oldSwitch = window.switchMainTab;
+
+  window.switchMainTab = function(tab){
+    if(switchingTab) return;
+    switchingTab = true;
+
+    try{
+      // On active d'abord sans laisser d'ancien patch casser l'affichage
+      activateTab(tab);
+
+      if(tab === 'browse'){
+        setTimeout(renderBrowseSafe, 80);
+      }
+
+      if(tab === 'collection' && typeof renderCollection === 'function'){
+        setTimeout(() => {
+          try{ renderCollection(); }catch(e){ console.error(e); }
+        }, 80);
+      }
+
+      if(tab === 'friends' && typeof renderFriends === 'function'){
+        setTimeout(() => {
+          try{ renderFriends(); }catch(e){ console.error(e); }
+        }, 80);
+      }
+
+      if(tab === 'messages' && typeof renderMessages === 'function'){
+        setTimeout(() => {
+          try{ renderMessages(); }catch(e){ console.error(e); }
+        }, 80);
+      }
+
+      if(tab === 'wishlist' && typeof renderWishlist === 'function'){
+        setTimeout(() => {
+          try{ renderWishlist(); }catch(e){ console.error(e); }
+        }, 80);
+      }
+
+      if(tab === 'decks' && typeof renderDecks === 'function'){
+        setTimeout(() => {
+          try{ renderDecks(); }catch(e){ console.error(e); }
+        }, 80);
+      }
+
+    }catch(e){
+      console.error('switch tab safe error', e);
+
+      // fallback ancien switch seulement si le safe échoue vraiment
+      try{
+        if(typeof oldSwitch === 'function') oldSwitch(tab);
+      }catch(err){
+        console.error(err);
+      }
+    }finally{
+      setTimeout(() => {
+        switchingTab = false;
+      }, 180);
+    }
+  };
+
+  // Intercepte les clics sidebar pour éviter double exécution de vieux onclicks
+  document.addEventListener('click', function(e){
+    const el = e.target.closest('button, a, .nav-item');
+    if(!el) return;
+
+    const txt = (el.textContent || '').trim().toLowerCase();
+    let tab = null;
+
+    if(txt.includes('parcourir')) tab = 'browse';
+    else if(txt.includes('classeur')) tab = 'collection';
+    else if(txt.includes('amis')) tab = 'friends';
+    else if(txt.includes('messages')) tab = 'messages';
+    else if(txt.includes('wishlist')) tab = 'wishlist';
+    else if(txt.includes('decks')) tab = 'decks';
+
+    if(!tab) return;
+
+    const insideSidebar = el.closest('.sidebar, .side-nav, aside, nav') || txt === 'parcourir' || txt === 'classeur';
+
+    if(insideSidebar){
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      window.switchMainTab(tab);
+    }
+  }, true);
+
 })();
 </script>
 
