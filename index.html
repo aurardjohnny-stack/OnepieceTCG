@@ -3644,6 +3644,123 @@ body.visitor-mode #visitor-signup-banner{
 }
 </style>
 
+
+<style id="nakama-v98-welcome-info-css">
+#nakama-welcome-info{
+  margin:0 0 18px 0;
+  padding:20px;
+  border-radius:22px;
+  border:1px solid rgba(242,182,62,.24);
+  background:radial-gradient(circle at 20% 0%,rgba(242,182,62,.16),transparent 34%),linear-gradient(180deg,rgba(7,17,31,.92),rgba(5,12,22,.97));
+  box-shadow:0 18px 46px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.04);
+  color:#f4f7fb;
+  position:relative;
+  overflow:hidden;
+}
+#nakama-welcome-info.hidden{display:none!important}
+.nakama-welcome-top{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:14px}
+.nakama-welcome-kicker{display:inline-flex;align-items:center;gap:8px;padding:7px 10px;border-radius:999px;background:rgba(242,182,62,.10);border:1px solid rgba(242,182,62,.24);color:#f2b63e;font-size:12px;font-weight:900;margin-bottom:10px}
+.nakama-welcome-title{margin:0;font-size:28px;font-weight:950;letter-spacing:-.4px;color:#fff}
+.nakama-welcome-sub{margin:7px 0 0;color:#9fb0c2;font-size:14px;line-height:1.55;max-width:760px}
+.nakama-welcome-close{flex:0 0 auto;height:36px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.07);color:#f4f7fb;font-weight:900;cursor:pointer;padding:0 12px}
+.nakama-welcome-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:16px}
+.nakama-welcome-card{padding:14px;border-radius:16px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.045)}
+.nakama-welcome-icon{font-size:21px;margin-bottom:8px}
+.nakama-welcome-card-title{font-weight:900;color:#fff;font-size:13px;margin-bottom:4px}
+.nakama-welcome-card-text{color:#92a4b8;font-size:12px;line-height:1.45}
+.nakama-welcome-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.nakama-welcome-actions button{height:42px;border-radius:13px;border:0;cursor:pointer;font-weight:900;padding:0 14px}
+.nakama-welcome-primary{background:linear-gradient(135deg,#f2b63e,#ffd978);color:#07111f}
+.nakama-welcome-secondary{background:rgba(255,255,255,.08);color:#f4f7fb;border:1px solid rgba(255,255,255,.10)!important}
+@media(max-width:900px){
+  #nakama-welcome-info{margin:0 0 12px 0;padding:16px;border-radius:18px}
+  .nakama-welcome-top{flex-direction:column}
+  .nakama-welcome-title{font-size:23px}
+  .nakama-welcome-grid{grid-template-columns:1fr}
+  .nakama-welcome-actions{flex-direction:column}
+  .nakama-welcome-actions button,.nakama-welcome-close{width:100%}
+}
+</style>
+
+
+<style id="nakama-v99-language-active-fix-css">
+/* V99 - Fix bouton langue actif */
+.lang-btn.active,
+.language-btn.active,
+[data-lang].active,
+button[data-lang].active{
+  background:linear-gradient(135deg,#f2b63e,#ffd978) !important;
+  color:#07111f !important;
+  border-color:#f2b63e !important;
+  box-shadow:0 0 18px rgba(242,182,62,.28) !important;
+}
+
+.lang-btn,
+.language-btn,
+button[data-lang]{
+  transition:all .16s ease !important;
+}
+</style>
+
+
+<style id="nakama-v100-logout-clean-css">
+/* V100 - Déconnexion épurée dans paramètres */
+
+#nakama-bottom-dock{
+  width:180px !important;
+}
+
+#nakama-bottom-logout{
+  display:none !important;
+}
+
+.nakama-account-clean{
+  margin-top:18px !important;
+  padding:14px !important;
+  border-radius:16px !important;
+  border:1px solid rgba(255,255,255,.08) !important;
+  background:rgba(255,255,255,.035) !important;
+}
+
+.nakama-account-clean-title{
+  color:#f4f7fb !important;
+  font-weight:900 !important;
+  font-size:13px !important;
+  margin-bottom:4px !important;
+}
+
+.nakama-account-clean-sub{
+  color:#8ea0b3 !important;
+  font-size:12px !important;
+  line-height:1.45 !important;
+  margin-bottom:12px !important;
+}
+
+#nakama-clean-logout{
+  width:100% !important;
+  height:42px !important;
+  border-radius:12px !important;
+  border:1px solid rgba(255,90,90,.22) !important;
+  background:rgba(190,38,38,.12) !important;
+  color:#ffb3b3 !important;
+  font-weight:900 !important;
+  cursor:pointer !important;
+}
+
+#nakama-clean-logout:hover{
+  background:rgba(190,38,38,.22) !important;
+  color:#fff !important;
+  border-color:rgba(255,90,90,.42) !important;
+}
+
+@media(max-width:700px){
+  #nakama-bottom-dock{
+    width:auto !important;
+    grid-template-columns:1fr !important;
+  }
+}
+</style>
+
 </head>
 <body>
 
@@ -3710,6 +3827,36 @@ body.visitor-mode #visitor-signup-banner{
 
   <!-- BROWSE TAB -->
   <div id="tab-browse" class="tab-pane active">
+
+<div id="nakama-welcome-info">
+  <div class="nakama-welcome-top">
+    <div>
+      <div class="nakama-welcome-kicker">⚓ Bienvenue sur Nakama Binder</div>
+      <h1 class="nakama-welcome-title">Ton classeur One Piece Card Game en ligne</h1>
+      <p class="nakama-welcome-sub">
+        Parcours les cartes, suis les prix en temps réel, construis ton binder,
+        partage ta collection avec tes amis et prépare tes futurs échanges.
+        Tu peux visiter librement, et créer un compte seulement si tu veux sauvegarder.
+      </p>
+    </div>
+    <button class="nakama-welcome-close" type="button" onclick="hideNakamaWelcome()">Masquer</button>
+  </div>
+
+  <div class="nakama-welcome-grid">
+    <div class="nakama-welcome-card"><div class="nakama-welcome-icon">🃏</div><div class="nakama-welcome-card-title">Explorer les cartes</div><div class="nakama-welcome-card-text">Recherche par set, rareté, langue et variantes. Clique une carte pour ouvrir sa fiche premium.</div></div>
+    <div class="nakama-welcome-card"><div class="nakama-welcome-icon">💰</div><div class="nakama-welcome-card-title">Voir les prix</div><div class="nakama-welcome-card-text">Consulte les prix des cartes et repère les pépites de ta collection.</div></div>
+    <div class="nakama-welcome-card"><div class="nakama-welcome-icon">📚</div><div class="nakama-welcome-card-title">Gérer ton binder</div><div class="nakama-welcome-card-text">Ajoute tes cartes, suis ta progression et synchronise ton classeur cloud.</div></div>
+    <div class="nakama-welcome-card"><div class="nakama-welcome-icon">👥</div><div class="nakama-welcome-card-title">Amis & messages</div><div class="nakama-welcome-card-text">Ajoute tes amis, accepte les demandes et discute pour préparer les échanges.</div></div>
+    <div class="nakama-welcome-card"><div class="nakama-welcome-icon">✨</div><div class="nakama-welcome-card-title">Profil custom</div><div class="nakama-welcome-card-text">Choisis ton pseudo, ton avatar et ton identité de collectionneur.</div></div>
+    <div class="nakama-welcome-card"><div class="nakama-welcome-icon">👀</div><div class="nakama-welcome-card-title">Mode visiteur</div><div class="nakama-welcome-card-text">Pas besoin de compte pour regarder les cartes et découvrir le site.</div></div>
+  </div>
+
+  <div class="nakama-welcome-actions">
+    <button class="nakama-welcome-primary" type="button" onclick="scrollToCards()">Voir les cartes</button>
+    <button class="nakama-welcome-secondary" type="button" onclick="exitVisitorMode && exitVisitorMode()">Créer / connecter un compte</button>
+  </div>
+</div>
+
 
     <div class="filters-bar filters-final-clean">
       <input class="fsearch" type="text" placeholder="Rechercher une carte, un personnage, un code..." oninput="onSearch(this.value)" id="search-input"/>
@@ -6129,6 +6276,14 @@ document.addEventListener('click', function(e){
         <button type="button" id="nakama-sync-collection-cloud">Synchroniser</button>
       </div>
     </div>
+
+    
+<div class="nakama-account-clean" id="nakama-account-clean">
+  <div class="nakama-account-clean-title">Compte</div>
+  <div class="nakama-account-clean-sub">Quitter ta session sur cet appareil.</div>
+  <button type="button" id="nakama-clean-logout">Déconnexion</button>
+</div>
+
 
     <div class="nakama-settings-actions">
       <button type="button" id="nakama-close-settings">Fermer</button>
@@ -9481,6 +9636,169 @@ document.addEventListener('click', function(e){
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/nakama-cache-sw.js').catch(() => {});
   });
+})();
+</script>
+
+
+<script id="nakama-v98-welcome-info-js">
+(function(){
+  const KEY = 'nakama_welcome_hidden_v1';
+
+  window.hideNakamaWelcome = function(){
+    const box = document.getElementById('nakama-welcome-info');
+    if(box) box.classList.add('hidden');
+    localStorage.setItem(KEY, '1');
+  };
+
+  window.scrollToCards = function(){
+    const target = document.getElementById('main-content') || document.getElementById('browse-content') || document.querySelector('.cards-grid');
+    if(target) target.scrollIntoView({ behavior:'smooth', block:'start' });
+  };
+
+  function restoreWelcome(){
+    const box = document.getElementById('nakama-welcome-info');
+    if(!box) return;
+    if(localStorage.getItem(KEY) === '1') box.classList.add('hidden');
+  }
+
+  document.addEventListener('DOMContentLoaded', restoreWelcome);
+  window.addEventListener('load', restoreWelcome);
+})();
+</script>
+
+
+<script id="nakama-v99-language-active-fix-js">
+(function(){
+
+  function updateLanguageButtons(){
+    let current = null;
+
+    try{
+      current =
+        localStorage.getItem('selectedLanguage') ||
+        localStorage.getItem('lang') ||
+        localStorage.getItem('language') ||
+        (window.ST && ST.lang) ||
+        'FR';
+    }catch(e){
+      current = 'FR';
+    }
+
+    current = String(current).toUpperCase();
+
+    const buttons = document.querySelectorAll(
+      '.lang-btn, .language-btn, button[data-lang], [data-language]'
+    );
+
+    buttons.forEach(btn => {
+      const value =
+        (btn.dataset.lang ||
+         btn.dataset.language ||
+         btn.textContent || '')
+        .trim()
+        .toUpperCase();
+
+      const active =
+        value === current ||
+        value.includes(current);
+
+      btn.classList.toggle('active', active);
+
+      if(active){
+        btn.style.background = 'linear-gradient(135deg,#f2b63e,#ffd978)';
+        btn.style.color = '#07111f';
+        btn.style.borderColor = '#f2b63e';
+      }
+    });
+  }
+
+  function bindLanguageButtons(){
+    const buttons = document.querySelectorAll(
+      '.lang-btn, .language-btn, button[data-lang], [data-language]'
+    );
+
+    buttons.forEach(btn => {
+      if(btn.dataset.v99Bound) return;
+      btn.dataset.v99Bound = '1';
+
+      btn.addEventListener('click', () => {
+        const value =
+          (btn.dataset.lang ||
+           btn.dataset.language ||
+           btn.textContent || '')
+          .trim()
+          .toUpperCase();
+
+        try{
+          localStorage.setItem('selectedLanguage', value);
+          localStorage.setItem('lang', value);
+        }catch(e){}
+
+        setTimeout(updateLanguageButtons, 10);
+        setTimeout(updateLanguageButtons, 80);
+      });
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    bindLanguageButtons();
+    updateLanguageButtons();
+  });
+
+  window.addEventListener('load', () => {
+    bindLanguageButtons();
+    updateLanguageButtons();
+  });
+
+  const observer = new MutationObserver(() => {
+    bindLanguageButtons();
+    updateLanguageButtons();
+  });
+
+  document.addEventListener('DOMContentLoaded', () => {
+    observer.observe(document.body, {
+      childList:true,
+      subtree:true
+    });
+  });
+
+})();
+</script>
+
+
+<script id="nakama-v100-logout-clean-js">
+(function(){
+  async function logoutClean(){
+    try{
+      if(window.nakamaSupabase){
+        await window.nakamaSupabase.auth.signOut();
+      }else if(typeof nakamaSupabase !== 'undefined'){
+        await nakamaSupabase.auth.signOut();
+      }
+    }catch(e){}
+
+    try{
+      localStorage.removeItem('glb_session');
+      localStorage.removeItem('nakama_visitor_mode');
+    }catch(e){}
+
+    location.reload();
+  }
+
+  function bind(){
+    const btn = document.getElementById('nakama-clean-logout');
+    if(btn && !btn.dataset.bound){
+      btn.dataset.bound = '1';
+      btn.addEventListener('click', function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        logoutClean();
+      });
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', bind);
+  window.addEventListener('load', bind);
 })();
 </script>
 
