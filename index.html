@@ -4624,6 +4624,7 @@ async function loadCards() {
     mergeManualCards();
     buildSetFilter();
     applyFilters();
+    nbMaybeOpenSeoCardWhenReady();
   } catch(e) {
     document.getElementById('main-content').innerHTML =
       `<div class="empty-state" style="color:#e05c5c">Erreur de chargement de cards.json.<br>Vérifie que le fichier est bien à la racine de ton site.</div>`;
@@ -4639,6 +4640,127 @@ function imgUrl(card) {
     return 'https://raw.githubusercontent.com/aurardjohnny-stack/op-tcg-images/main/' + filename;
   }
   return PROXY + encodeURIComponent(orig);
+}
+
+// ─── SEO CARD ROUTES /card/:slug ──────────────────────────────────
+// Permet aux URLs du sitemap (/card/...) d'ouvrir automatiquement la bonne carte.
+function nbSeoSlugPart(v) {
+  return String(v || '')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/&/g, ' and ')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+function nbRaritySlug(card) {
+  const r = String(card && card.rarity || '').toUpperCase();
+  const raw = String([card && card.rarity, card && card.type, card && card.variant, card && card.id, card && card.code].filter(Boolean).join(' ')).toUpperCase();
+  if (r === 'TREASURE' || raw.includes('TREASURE')) return 'treasurerare';
+  if (r === 'SPECIAL' || raw.includes('SPECIAL')) return 'special';
+  if (r === 'MANGA' || raw.includes('MANGA')) return 'manga';
+  if (r === 'ANNIVERSARY' || raw.includes('ANNIV')) return 'anniversary';
+  if (r === 'SECRET' || raw.includes('SECRET')) return 'secretrare';
+  if (r === 'SUPERRARE' || raw.includes('SUPER')) return 'superrare';
+  return nbSeoSlugPart(card && card.rarity || '');
+}
+
+function nbCardSlugCandidates(card) {
+  const code = nbSeoSlugPart(card.code || card.id || card.card_id || '');
+  const name = nbSeoSlugPart(card.name || '');
+  const rarity = nbRaritySlug(card);
+  const lang = nbSeoSlugPart(card.lang || '');
+  const rawFields = [
+    card.slug, card.seo_slug, card.url_slug, card.id, card.code, card.card_id,
+    [card.code || card.id, card.name, card.rarity, card.variant, card.lang].filter(Boolean).join(' '),
+    [code, name, rarity, lang].filter(Boolean).join('-')
+  ];
+  const out = new Set();
+  rawFields.forEach(v => {
+    const s = nbSeoSlugPart(v);
+    if (s) out.add(s);
+  });
+  return Array.from(out);
+}
+
+function nbFindCardBySlug(slug) {
+  slug = nbSeoSlugPart(slug);
+  if (!slug || !window.ST || !Array.isArray(ST.cards)) return null;
+
+  // 1) Match exact sur les slugs possibles.
+  for (const card of ST.cards) {
+    if (nbCardSlugCandidates(card).includes(slug)) return card;
+  }
+
+  // 2) Match robuste : code + langue + morceaux du nom.
+  const codeMatch = slug.match(/^((?:op|st|eb|prb)\d{2}-\d{3}|p-\d{3}|p\d{3})/i);
+  const codeWanted = codeMatch ? nbSeoSlugPart(codeMatch[1]) : '';
+  const langMatch = slug.match(/-(fr|en|jap|jp|tc|cn-hk)$/i);
+  const langWanted = langMatch ? langMatch[1].toUpperCase().replace('JP','JAP') : '';
+
+  let candidates = ST.cards.slice();
+  if (codeWanted) {
+    candidates = candidates.filter(c => nbSeoSlugPart(c.code || c.id || '').startsWith(codeWanted));
+  }
+  if (langWanted) {
+    candidates = candidates.filter(c => String(c.lang || '').toUpperCase() === langWanted);
+  }
+  if (!candidates.length && codeWanted) {
+    candidates = ST.cards.filter(c => nbSeoSlugPart(c.code || c.id || '').startsWith(codeWanted));
+  }
+
+  const slugTokens = slug.split('-').filter(t => t.length > 1);
+  candidates.sort((a,b) => {
+    const score = c => {
+      const hay = nbSeoSlugPart([c.id, c.code, c.name, c.rarity, c.variant, c.lang].filter(Boolean).join('-'));
+      return slugTokens.reduce((n,t) => n + (hay.includes(t) ? 1 : 0), 0);
+    };
+    return score(b) - score(a);
+  });
+
+  return candidates[0] || null;
+}
+
+function nbOpenCardFromCurrentUrl() {
+  const m = window.location.pathname.match(/^\/card\/([^\/?#]+)/);
+  if (!m) return false;
+  const slug = decodeURIComponent(m[1]);
+  const card = nbFindCardBySlug(slug);
+
+  if (!card) {
+    const mc = document.getElementById('main-content');
+    if (mc) mc.insertAdjacentHTML('afterbegin',
+      '<div class="empty-state" style="padding:18px;color:#f0c040">Carte SEO introuvable pour cette URL : ' + escapeHtml(slug) + '</div>'
+    );
+    return false;
+  }
+
+  // Titre/meta côté navigateur. Google peut le lire au rendu JS, et l'utilisateur voit la bonne carte.
+  const title = (card.name || card.code || 'Carte') + ' ' + (card.code || '') + ' | Nakama Binder';
+  document.title = title;
+  const desc = 'Carte One Piece Card Game ' + (card.name || '') + ' ' + (card.code || '') + ', rareté ' + (card.rarity || '') + ', langue ' + (card.lang || '') + '.';
+  let meta = document.querySelector('meta[name="description"]');
+  if (meta) meta.setAttribute('content', desc);
+  let canonical = document.querySelector('link[rel="canonical"]');
+  if (canonical) canonical.setAttribute('href', location.origin + '/card/' + nbSeoSlugPart(slug));
+
+  // Ouvre la fiche existante sans casser l'app.
+  setTimeout(() => {
+    try {
+      openModal(card.id || card.code, imgUrl(card), card.name || card.code || slug);
+    } catch(e) {
+      if (typeof openPremiumCard === 'function') openPremiumCard(card);
+    }
+  }, 250);
+
+  return true;
+}
+
+function nbMaybeOpenSeoCardWhenReady() {
+  if (!window.__nbSeoCardOpened && /^\/card\/[^\/?#]+/.test(window.location.pathname)) {
+    window.__nbSeoCardOpened = true;
+    nbOpenCardFromCurrentUrl();
+  }
 }
 
 function buildSetFilter() {
