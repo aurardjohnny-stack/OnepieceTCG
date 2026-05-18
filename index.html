@@ -10880,8 +10880,13 @@ document.addEventListener('click', function(e){
       <button class="nakama-info-close" type="button" data-nakama-close>&times;</button>
     </div>
     <p>Un bug, une carte incorrecte, une idée ou une amélioration ? Ton retour aide NakamaBinder à devenir plus solide pour tous les collectionneurs.</p>
-    <form id="nakama-feedback-form">
+    <form id="nakama-feedback-form" action="https://formsubmit.co/nakamabinder@gmail.com" method="POST">
+      <input type="hidden" name="_subject" value="Nouveau retour utilisateur - NakamaBinder">
+      <input type="hidden" name="_template" value="table">
+      <input type="hidden" name="_captcha" value="true">
+      <input type="hidden" name="_next" value="https://www.nakamabinder.com/">
       <input type="text" name="name" placeholder="Pseudo ou nom (optionnel)">
+      <input type="email" name="email" placeholder="Email de réponse (optionnel)">
       <select name="type">
         <option value="avis">Avis général</option>
         <option value="bug">Bug</option>
@@ -10909,11 +10914,11 @@ document.addEventListener('click', function(e){
     <div class="nakama-legal-block">
       <h3>1. Éditeur du site</h3>
       <p>Nom du site : <strong>NakamaBinder</strong></p>
-      <p>Éditeur : <span class="nakama-placeholder">AURARD JOHNNY</span></p>
-      <p>Statut juridique : <span class="nakama-placeholder">PARTICULIER</span></p>
-      <p>Adresse : <span class="nakama-placeholder">MEURTHE ET MOSELLE, FRANCE</span></p>
+      <p>Éditeur : <span class="nakama-placeholder">Johnny Aurard</span></p>
+      <p>Statut juridique : <span class="nakama-placeholder">Particulier</span></p>
+      <p>Adresse : <span class="nakama-placeholder">Meurthe-et-Moselle, France</span></p>
       <p>Email de contact : <span class="nakama-placeholder">nakamabinder@gmail.com</span></p>
-      <p>Directeur de la publication : <span class="nakama-placeholder">AURARD JOHNNY</span></p>
+      <p>Directeur de la publication : <span class="nakama-placeholder">Johnny Aurard</span></p>
     </div>
 
     <div class="nakama-legal-block">
@@ -10935,7 +10940,7 @@ document.addEventListener('click', function(e){
     <div class="nakama-legal-block">
       <h3>5. Données personnelles</h3>
       <p>Les données éventuellement collectées peuvent inclure un pseudo, une adresse email, des données de collection, des messages envoyés via formulaire, ainsi que des données techniques de navigation.</p>
-      <p>Conformément au RGPD, vous pouvez demander l'accès, la rectification ou la suppression de vos données en contactant : <span class="nakama-placeholder">contact@nakamabinder.com</span>.</p>
+      <p>Conformément au RGPD, vous pouvez demander l'accès, la rectification ou la suppression de vos données en contactant : <span class="nakama-placeholder">nakamabinder@gmail.com</span>.</p>
     </div>
 
     <div class="nakama-legal-block">
@@ -10974,11 +10979,7 @@ document.addEventListener('click', function(e){
   document.addEventListener('keydown', e => {
     if(e.key === 'Escape') closeAll();
   });
-  document.getElementById('nakama-feedback-form')?.addEventListener('submit', function(e){
-    e.preventDefault();
-    document.getElementById('nakama-feedback-success').style.display = 'block';
-    this.reset();
-  });
+  /* FormSubmit handles nakama-feedback-form submissions by email. */
 })();
 </script>
 <!-- END NAKAMABINDER DISCREET FEEDBACK + LEGAL PATCH -->
