@@ -10880,11 +10880,8 @@ document.addEventListener('click', function(e){
       <button class="nakama-info-close" type="button" data-nakama-close>&times;</button>
     </div>
     <p>Un bug, une carte incorrecte, une idée ou une amélioration ? Ton retour aide NakamaBinder à devenir plus solide pour tous les collectionneurs.</p>
-    <form id="nakama-feedback-form" action="https://formsubmit.co/nakamabinder@gmail.com" method="POST">
-      <input type="hidden" name="_subject" value="Nouveau retour utilisateur - NakamaBinder">
-      <input type="hidden" name="_template" value="table">
-      <input type="hidden" name="_captcha" value="true">
-      <input type="hidden" name="_next" value="https://www.nakamabinder.com/">
+    <form id="nakama-feedback-form" action="https://formspree.io/f/mykvzepr" method="POST">
+      <input type="hidden" name="_subject" value="Nouveau retour NakamaBinder">
       <input type="text" name="name" placeholder="Pseudo ou nom (optionnel)">
       <input type="email" name="email" placeholder="Email de réponse (optionnel)">
       <select name="type">
@@ -10898,6 +10895,7 @@ document.addEventListener('click', function(e){
       <button class="nakama-info-submit" type="submit" id="nakama-feedback-submit">Envoyer mon retour ✨</button>
     </form>
     <div id="nakama-feedback-success" class="nakama-info-success">Merci pour ton retour 💚</div>
+    <p style="font-size:12px;color:#6f8090;margin-top:12px">Les messages sont envoyés via Formspree vers la boîte email configurée.</p>
     <p style="font-size:12px;color:#6f8090;margin-top:12px">Note : ce formulaire affiche une confirmation locale. Pour recevoir vraiment les messages, il faudra le relier à Discord, Supabase, Firebase, Google Sheets ou email.</p>
   </div>
 </div>
@@ -10979,7 +10977,7 @@ document.addEventListener('click', function(e){
   document.addEventListener('keydown', e => {
     if(e.key === 'Escape') closeAll();
   });
-  /* FormSubmit handles nakama-feedback-form submissions by email. */
+  
 })();
 </script>
 <!-- END NAKAMABINDER DISCREET FEEDBACK + LEGAL PATCH -->
@@ -11018,25 +11016,7 @@ document.addEventListener('click', function(e){
 </style>
 
 
-<script id="nakama-feedback-submit-fallback">
-(function(){
-  function submitFeedbackForm(){
-    var form = document.getElementById('nakama-feedback-form');
-    if(!form) return;
-    if(form.requestSubmit) form.requestSubmit();
-    else form.submit();
-  }
-  document.addEventListener('click', function(e){
-    var btn = e.target && e.target.closest ? e.target.closest('#nakama-feedback-submit') : null;
-    if(!btn) return;
-    var form = document.getElementById('nakama-feedback-form');
-    if(!form) return;
-    // Let normal HTML validation run. If invalid, browser shows required field message.
-    if(form.reportValidity && !form.reportValidity()) return;
-    form.submit();
-  }, true);
-})();
-</script>
+
 
 </body>
 </html>
