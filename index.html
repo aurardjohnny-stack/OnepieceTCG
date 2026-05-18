@@ -10515,5 +10515,69 @@ document.addEventListener('click', function(e){
 })();
 </script>
 
+
+
+<script id="nakama-seo-route-lock-v2">
+(function(){
+  const isSeoRoute = /^\/card\/[^\/?#]+/.test(location.pathname);
+  if(!isSeoRoute) return;
+
+  let lastSeoHtml = '';
+  let lastSeoTitle = document.title;
+  let restoring = false;
+
+  function getTarget(){
+    return document.getElementById('main-content') || document.querySelector('.content') || document.body;
+  }
+
+  function hasSeoCard(){
+    return !!document.getElementById('seo-card-fallback');
+  }
+
+  function saveSeoState(){
+    const target = getTarget();
+    const seo = document.getElementById('seo-card-fallback');
+    if(target && seo){
+      lastSeoHtml = target.innerHTML;
+      lastSeoTitle = document.title;
+    }
+  }
+
+  function restoreSeoState(){
+    if(restoring || !lastSeoHtml) return;
+    const target = getTarget();
+    if(!target || hasSeoCard()) return;
+    restoring = true;
+    target.innerHTML = lastSeoHtml;
+    document.title = lastSeoTitle;
+    restoring = false;
+  }
+
+  // Empêche la page app de repasser devant la fiche SEO.
+  // Ton appli peut continuer à charger en fond, mais dès qu'elle écrase le contenu, on remet la fiche.
+  const observer = new MutationObserver(function(){
+    saveSeoState();
+    restoreSeoState();
+  });
+
+  function startLock(){
+    saveSeoState();
+    const target = getTarget();
+    if(target){
+      observer.observe(target, { childList:true, subtree:false });
+    }
+    // Sécurité supplémentaire pour les scripts retardés/cache/service worker.
+    [300, 800, 1500, 3000, 6000, 10000].forEach(ms => setTimeout(function(){
+      saveSeoState();
+      restoreSeoState();
+    }, ms));
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startLock);
+  else startLock();
+  window.addEventListener('load', startLock);
+})();
+</script>
+
 </body>
 </html>
