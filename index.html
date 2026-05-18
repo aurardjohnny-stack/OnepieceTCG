@@ -11203,5 +11203,185 @@ document.addEventListener('click', function(e){
 </script>
 <!-- END NAKAMABINDER FRIEND BINDER IMAGE FIX -->
 
+
+<!-- NAKAMABINDER HARD FIX CLOUD BINDER PLACEHOLDER IMAGES -->
+<style id="nakama-hard-cloud-image-fix-css">
+  .cloud-binder-card{
+    aspect-ratio:.717 !important;
+    min-height:140px !important;
+  }
+  .cloud-binder-card img{
+    width:100% !important;
+    height:100% !important;
+    object-fit:cover !important;
+    display:block !important;
+    opacity:1 !important;
+  }
+  .friend-binder-preview-card img{
+    width:100% !important;
+    height:100% !important;
+    object-fit:cover !important;
+    display:block !important;
+    opacity:1 !important;
+  }
+</style>
+
+<script id="nakama-hard-cloud-image-fix-js">
+(function(){
+  let cardCache = null;
+  let loadingCards = null;
+
+  function norm(v){
+    return String(v || '')
+      .toUpperCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .replace(/[^A-Z0-9]+/g,'');
+  }
+
+  function parts(v){
+    const raw = String(v || '').toUpperCase();
+    const code = (raw.match(/((?:OP|ST|EB|PRB)\d{2}-\d{3}|P-?\d{3})/) || [])[1] || '';
+    const variant = (raw.match(/[_-](P\d+)\b/) || [])[1] || '';
+    return { code:norm(code), variant:norm(variant) };
+  }
+
+  function esc(v){
+    return String(v == null ? '' : v).replace(/[&<>"']/g, function(ch){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
+    });
+  }
+
+  async function loadCards(){
+    if(cardCache) return cardCache;
+    if(loadingCards) return loadingCards;
+
+    loadingCards = (async function(){
+      try{
+        if(window.ST && Array.isArray(ST.cards) && ST.cards.length){
+          cardCache = ST.cards;
+          return cardCache;
+        }
+      }catch(e){}
+
+      try{
+        const res = await fetch('/cards.json?v=' + Date.now(), {cache:'no-store'});
+        const json = await res.json();
+        cardCache = Array.isArray(json) ? json : (json.cards || json.data || []);
+        return cardCache;
+      }catch(e){
+        console.warn('Impossible de charger cards.json pour images classeur ami', e);
+        cardCache = [];
+        return cardCache;
+      }
+    })();
+
+    return loadingCards;
+  }
+
+  function findCard(list, wantedText){
+    const want = parts(wantedText);
+    const rawNorm = norm(wantedText);
+
+    if(!list || !list.length) return null;
+
+    let exact = list.find(c =>
+      norm(c.id) === rawNorm ||
+      norm(c.code) === rawNorm ||
+      norm(c.card_id) === rawNorm
+    );
+    if(exact) return exact;
+
+    let candidates = list.filter(c => {
+      const joined = [c.id, c.code, c.card_id, c.variant, c.name].join('_');
+      const cp = parts(joined);
+      return (want.code && cp.code === want.code) || (want.code && norm(joined).includes(want.code));
+    });
+
+    if(want.variant && candidates.length){
+      const variantCandidates = candidates.filter(c => {
+        const joined = [c.id, c.code, c.variant].join('_');
+        return norm(joined).includes(want.variant) || norm(c.variant) === want.variant;
+      });
+      if(variantCandidates.length) candidates = variantCandidates;
+    }
+
+    if(candidates.length > 1){
+      const en = candidates.find(c => String(c.lang || '').toUpperCase() === 'EN');
+      if(en) return en;
+      const fr = candidates.find(c => String(c.lang || '').toUpperCase() === 'FR');
+      if(fr) return fr;
+    }
+
+    return candidates[0] || null;
+  }
+
+  function imageOf(card){
+    if(!card) return '';
+    try{
+      if(typeof window.imgUrl === 'function'){
+        const u = window.imgUrl(card);
+        if(u) return u;
+      }
+    }catch(e){}
+    return card.image || card.original_image || card.image_url || card.img || card.thumbnail || '';
+  }
+
+  async function replaceCloudPlaceholders(){
+    const list = await loadCards();
+
+    document.querySelectorAll('.cloud-binder-placeholder').forEach(ph => {
+      const box = ph.closest('.cloud-binder-card');
+      if(!box || box.dataset.nakamaImageFixed === '1') return;
+
+      const text = (ph.textContent || '').split(/\s+/).filter(Boolean).join(' ');
+      const id = text.split('x')[0].trim();
+      const card = findCard(list, id || text);
+      const img = imageOf(card);
+      const name = (card && card.name) || id || 'Carte';
+
+      if(img){
+        box.dataset.nakamaImageFixed = '1';
+        box.innerHTML = '<img src="' + esc(img) + '" alt="' + esc(name) + '" loading="lazy" onerror="this.style.display=\\'none\\'">';
+      }
+    });
+
+    document.querySelectorAll('.friend-binder-preview-card').forEach(box => {
+      if(box.querySelector('img') || box.dataset.nakamaImageFixed === '1') return;
+
+      const text = box.getAttribute('title') || box.textContent || '';
+      const card = findCard(list, text);
+      const img = imageOf(card);
+      const name = (card && card.name) || text || 'Carte';
+
+      if(img){
+        box.dataset.nakamaImageFixed = '1';
+        box.innerHTML = '<img src="' + esc(img) + '" alt="' + esc(name) + '" loading="lazy">';
+      }
+    });
+  }
+
+  function scheduleFix(){
+    setTimeout(replaceCloudPlaceholders, 100);
+    setTimeout(replaceCloudPlaceholders, 500);
+    setTimeout(replaceCloudPlaceholders, 1200);
+    setTimeout(replaceCloudPlaceholders, 2500);
+  }
+
+  const mo = new MutationObserver(scheduleFix);
+  window.addEventListener('load', function(){
+    try{ mo.observe(document.body, {childList:true, subtree:true}); }catch(e){}
+    scheduleFix();
+  });
+
+  document.addEventListener('click', function(e){
+    const txt = (e.target && e.target.textContent || '').toLowerCase();
+    if(txt.includes('classeur') || txt.includes('voir')){
+      scheduleFix();
+    }
+  }, true);
+})();
+</script>
+<!-- END NAKAMABINDER HARD FIX CLOUD BINDER PLACEHOLDER IMAGES -->
+
 </body>
 </html>
