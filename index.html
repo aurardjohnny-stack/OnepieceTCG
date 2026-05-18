@@ -4616,7 +4616,7 @@ function enterApp() {
 // ─── CARDS LOADING ────────────────────────────────────────────────
 async function loadCards() {
   try {
-    const res = await fetch('./cards.json?v=3');
+    const res = await fetch('/cards.json?v=3');
     const data = await res.json();
     ST.cards = (data.cards || [])
       .map(normalizeCard)
