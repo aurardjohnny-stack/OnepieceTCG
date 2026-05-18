@@ -2,14 +2,6 @@
   "version": 2,
   "rewrites": [
     {
-      "source": "/sitemap.xml",
-      "destination": "/sitemap.xml"
-    },
-    {
-      "source": "/robots.txt",
-      "destination": "/robots.txt"
-    },
-    {
       "source": "/card/:slug*",
       "destination": "/index.html"
     },
@@ -22,7 +14,7 @@
       "destination": "/index.html"
     },
     {
-      "source": "/(.*)",
+      "source": "/((?!sitemap\\.xml|robots\\.txt|cards\\.json|seo-cards\\.json).*)",
       "destination": "/index.html"
     }
   ]
