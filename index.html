@@ -10895,7 +10895,7 @@ document.addEventListener('click', function(e){
         <option value="carte">Carte manquante ou incorrecte</option>
       </select>
       <textarea name="message" placeholder="Votre message..." required></textarea>
-      <button class="nakama-info-submit" type="submit">Envoyer mon retour ✨</button>
+      <button class="nakama-info-submit" type="submit" id="nakama-feedback-submit">Envoyer mon retour ✨</button>
     </form>
     <div id="nakama-feedback-success" class="nakama-info-success">Merci pour ton retour 💚</div>
     <p style="font-size:12px;color:#6f8090;margin-top:12px">Note : ce formulaire affiche une confirmation locale. Pour recevoir vraiment les messages, il faudra le relier à Discord, Supabase, Firebase, Google Sheets ou email.</p>
@@ -10983,6 +10983,60 @@ document.addEventListener('click', function(e){
 })();
 </script>
 <!-- END NAKAMABINDER DISCREET FEEDBACK + LEGAL PATCH -->
+
+
+<style id="nakama-feedback-click-fix">
+  #nakama-feedback-modal,
+  #nakama-legal-modal{
+    pointer-events:auto !important;
+    z-index:2147483000 !important;
+  }
+  #nakama-feedback-modal.open,
+  #nakama-legal-modal.open{
+    display:flex !important;
+  }
+  #nakama-feedback-modal .nakama-info-panel,
+  #nakama-legal-modal .nakama-info-panel{
+    position:relative !important;
+    z-index:2147483001 !important;
+    pointer-events:auto !important;
+  }
+  #nakama-feedback-form,
+  #nakama-feedback-form *{
+    pointer-events:auto !important;
+  }
+  #nakama-feedback-form button,
+  #nakama-feedback-form .nakama-info-submit{
+    display:block !important;
+    position:relative !important;
+    z-index:2147483002 !important;
+    pointer-events:auto !important;
+    cursor:pointer !important;
+    opacity:1 !important;
+    visibility:visible !important;
+  }
+</style>
+
+
+<script id="nakama-feedback-submit-fallback">
+(function(){
+  function submitFeedbackForm(){
+    var form = document.getElementById('nakama-feedback-form');
+    if(!form) return;
+    if(form.requestSubmit) form.requestSubmit();
+    else form.submit();
+  }
+  document.addEventListener('click', function(e){
+    var btn = e.target && e.target.closest ? e.target.closest('#nakama-feedback-submit') : null;
+    if(!btn) return;
+    var form = document.getElementById('nakama-feedback-form');
+    if(!form) return;
+    // Let normal HTML validation run. If invalid, browser shows required field message.
+    if(form.reportValidity && !form.reportValidity()) return;
+    form.submit();
+  }, true);
+})();
+</script>
 
 </body>
 </html>
