@@ -11018,5 +11018,190 @@ document.addEventListener('click', function(e){
 
 
 
+
+<!-- NAKAMABINDER FRIEND BINDER IMAGE FIX -->
+<style id="nakama-friend-binder-image-fix-css">
+  .cloud-binder-card img,
+  .friend-binder-preview-card img{
+    width:100% !important;
+    height:100% !important;
+    object-fit:cover !important;
+    display:block !important;
+    opacity:1 !important;
+  }
+  .cloud-binder-card{
+    aspect-ratio:.717 !important;
+  }
+  .friend-binder-preview-card{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+  }
+</style>
+
+<script id="nakama-friend-binder-image-fix-js">
+(function(){
+  function norm(v){
+    return String(v || '')
+      .toUpperCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .replace(/[^A-Z0-9]+/g,'');
+  }
+
+  function keyParts(v){
+    const raw = String(v || '').toUpperCase();
+    const codeMatch = raw.match(/((?:OP|ST|EB|PRB)\d{2}-\d{3}|P-?\d{3})/);
+    const pMatch = raw.match(/[_-](P\d+)\b/);
+    return {
+      code: codeMatch ? norm(codeMatch[1]) : '',
+      variant: pMatch ? norm(pMatch[1]) : ''
+    };
+  }
+
+  function allCards(){
+    try{
+      if(window.ST && Array.isArray(ST.cards)) return ST.cards;
+    }catch(e){}
+    return [];
+  }
+
+  function getSmartCard(cardId){
+    const list = allCards();
+    const wanted = keyParts(cardId);
+    const cleanWanted = norm(cardId);
+
+    if(!list.length) return null;
+
+    let exact = list.find(c => 
+      norm(c.id) === cleanWanted ||
+      norm(c.code) === cleanWanted ||
+      norm(c.card_id) === cleanWanted
+    );
+    if(exact) return exact;
+
+    let candidates = list.filter(c => {
+      const cid = String(c.id || '');
+      const ccode = String(c.code || '');
+      const cvariant = String(c.variant || '');
+      const cp = keyParts([cid, ccode, cvariant].join('_'));
+      return wanted.code && (
+        norm(ccode) === wanted.code ||
+        norm(cid).includes(wanted.code) ||
+        cp.code === wanted.code
+      );
+    });
+
+    if(wanted.variant && candidates.length > 1){
+      const byVariant = candidates.filter(c => {
+        const joined = [c.id, c.code, c.variant].join('_');
+        return norm(joined).includes(wanted.variant) || norm(c.variant) === wanted.variant;
+      });
+      if(byVariant.length) candidates = byVariant;
+    }
+
+    if(candidates.length > 1){
+      const en = candidates.find(c => /^EN$/i.test(String(c.lang || ''))) || candidates.find(c => /EN/i.test(String(c.lang || '')));
+      if(en) return en;
+    }
+
+    return candidates[0] || null;
+  }
+
+  function smartImage(card, row){
+    if(row && row.image_url) return row.image_url;
+
+    if(card){
+      try{
+        if(typeof window.imgUrl === 'function'){
+          const u = window.imgUrl(card);
+          if(u) return u;
+        }
+      }catch(e){}
+
+      return card.image || card.original_image || card.image_url || card.img || card.thumbnail || '';
+    }
+
+    return '';
+  }
+
+  function esc(v){
+    return String(v == null ? '' : v).replace(/[&<>"']/g, function(ch){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
+    });
+  }
+
+  const oldOpen = window.openFriendBinderCloud;
+  window.openFriendBinderCloud = async function(friendId, friendName){
+    try{
+      const c = (typeof window.nakamaSupabase !== 'undefined' && window.nakamaSupabase) ? window.nakamaSupabase : null;
+      const modal = document.getElementById('cloud-binder-modal');
+      const title = document.getElementById('cloud-binder-title');
+      const content = document.getElementById('cloud-binder-content');
+
+      if(!c){
+        if(typeof oldOpen === 'function') return oldOpen(friendId, friendName);
+        return;
+      }
+
+      if(title) title.textContent = 'Classeur de ' + friendName;
+      if(content) content.innerHTML = '<div class="empty-state" style="padding:20px">Chargement du classeur...</div>';
+      if(modal) modal.classList.add('active');
+
+      const { data, error } = await c
+        .from('user_cards')
+        .select('card_id,card_code,card_name,image_url,qty')
+        .eq('user_id', friendId);
+
+      if(error) throw error;
+
+      if(!data || !data.length){
+        if(content) content.innerHTML = '<div class="empty-state" style="padding:20px">Ce joueur n’a pas encore synchronisé son classeur cloud.</div>';
+        return;
+      }
+
+      let html = '<div class="cloud-binder-grid">';
+
+      data.forEach(row => {
+        const card = getSmartCard(row.card_id || row.card_code);
+        const img = smartImage(card, row);
+        const name = (card && card.name) || row.card_name || row.card_code || row.card_id || 'Carte';
+        const code = (card && card.code) || row.card_code || row.card_id || '';
+
+        html += `
+          <div class="cloud-binder-card" title="${esc(name)}">
+            ${img ? `<img src="${esc(img)}" alt="${esc(name)}" loading="lazy" onerror="this.outerHTML='<div class=&quot;cloud-binder-placeholder&quot;>${esc(code)}<br>x${Number(row.qty || 1)}</div>'">` : `<div class="cloud-binder-placeholder">${esc(code)}<br>x${Number(row.qty || 1)}</div>`}
+          </div>
+        `;
+      });
+
+      html += '</div>';
+      if(content) content.innerHTML = html;
+    }catch(e){
+      console.error(e);
+      if(typeof window.toast === 'function') window.toast(e.message || 'Erreur classeur ami.');
+      else if(typeof window.showToast === 'function') window.showToast(e.message || 'Erreur classeur ami.');
+    }
+  };
+
+  async function patchFriendPreviews(){
+    document.querySelectorAll('.friend-binder-preview-card').forEach(box => {
+      if(box.querySelector('img')) return;
+      const title = box.getAttribute('title') || '';
+      const card = getSmartCard(title);
+      const img = smartImage(card, null);
+      if(img){
+        box.innerHTML = `<img src="${esc(img)}" alt="${esc((card && card.name) || title)}" loading="lazy">`;
+      }
+    });
+  }
+
+  window.addEventListener('load', function(){
+    setTimeout(patchFriendPreviews, 1200);
+    setTimeout(patchFriendPreviews, 2500);
+  });
+})();
+</script>
+<!-- END NAKAMABINDER FRIEND BINDER IMAGE FIX -->
+
 </body>
 </html>
