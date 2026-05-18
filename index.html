@@ -3933,19 +3933,6 @@ body.visitor-mode #visitor-signup-banner{
 }
 </style>
 
-
-<style id="nakama-v117-friend-image-safe-css">
-.cloud-binder-card{aspect-ratio:.717 !important;}
-.cloud-binder-card img,
-.friend-binder-preview-card img{
-  width:100% !important;
-  height:100% !important;
-  object-fit:cover !important;
-  display:block !important;
-  opacity:1 !important;
-}
-</style>
-
 </head>
 <body>
 
@@ -8107,52 +8094,9 @@ document.addEventListener('click', function(e){
 
   function getCardById(id){
     try{
-      if(!window.ST || !Array.isArray(ST.cards)) return null;
-
-      const raw = String(id || '').replace(/x\d+$/i,'').trim();
-      const norm = v => String(v || '').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Z0-9]+/g,'');
-      const rawNorm = norm(raw);
-      const codeMatch = raw.toUpperCase().match(/((?:OP|ST|EB|PRB)\d{2}-\d{3}|P-?\d{3})/);
-      const varMatch = raw.toUpperCase().match(/[_-](P\d+)\b/);
-      const wantedCode = codeMatch ? norm(codeMatch[1]) : '';
-      const wantedVariant = varMatch ? norm(varMatch[1]) : '';
-
-      let exact = ST.cards.find(c =>
-        norm(c.id) === rawNorm ||
-        norm(c.code) === rawNorm ||
-        norm(c.card_id) === rawNorm
-      );
-      if(exact) return exact;
-
-      let candidates = ST.cards.filter(c => {
-        const joined = [c.id, c.code, c.card_id, c.variant, c.name].join('_');
-        return wantedCode && (
-          norm(c.code) === wantedCode ||
-          norm(joined).includes(wantedCode)
-        );
-      });
-
-      if(wantedVariant && candidates.length > 1){
-        const byVariant = candidates.filter(c => {
-          const joined = [c.id, c.code, c.variant].join('_');
-          return norm(joined).includes(wantedVariant) || norm(c.variant) === wantedVariant;
-        });
-        if(byVariant.length) candidates = byVariant;
+      if(window.ST && Array.isArray(ST.cards)){
+        return ST.cards.find(c => c.id === id || c.code === id);
       }
-
-      if(candidates.length > 1){
-        const currentLang = (window.ST && ST.lang && ST.lang !== 'ALL') ? String(ST.lang).toUpperCase() : '';
-        if(currentLang){
-          const byLang = candidates.find(c => String(c.lang || '').toUpperCase() === currentLang);
-          if(byLang) return byLang;
-        }
-        const en = candidates.find(c => String(c.lang || '').toUpperCase() === 'EN');
-        if(en) return en;
-        const fr = candidates.find(c => String(c.lang || '').toUpperCase() === 'FR');
-        if(fr) return fr;
-      }
-
-      return candidates[0] || null;
     }catch(e){}
     return null;
   }
@@ -8176,21 +8120,32 @@ document.addEventListener('click', function(e){
       const owned = getOwnedObject();
       const ids = Object.keys(owned || {});
       const rows = ids.map(cardId => {
-        const card = getCardById(cardId);
-        let image = '';
-        try{
-          if(card && typeof imgUrl === 'function') image = imgUrl(card) || '';
-        }catch(e){}
-        if(!image && card) image = card.image || card.original_image || card.image_url || card.img || '';
+        const card = (typeof getCardById === 'function' ? getCardById(cardId) : null)
+          || (window.ST && Array.isArray(ST.cards)
+            ? ST.cards.find(c =>
+                c.id === cardId ||
+                c.code === cardId ||
+                String(c.id || '').includes(cardId) ||
+                String(cardId || '').includes(c.code)
+              )
+            : null);
+
+        let imageUrl = '';
+        if(card){
+          if(typeof imgUrl === 'function'){
+            try { imageUrl = imgUrl(card) || ''; } catch(e) {}
+          }
+          imageUrl = imageUrl || card.image || card.original_image || card.image_url || card.img || '';
+        }
 
         return {
           user_id:u.id,
           card_id:cardId,
-          card_code: card ? (card.code || cardId) : cardId,
-          card_name: card ? (card.name || cardId) : cardId,
-          image_url: image,
           qty:Number(owned[cardId] || 1),
-          updated_at:new Date().toISOString()
+          updated_at:new Date().toISOString(),
+          card_code: card ? (card.code || cardId) : cardId,
+          card_name: card ? (card.name || card.code || cardId) : cardId,
+          image_url: imageUrl
         };
       });
 
@@ -8228,7 +8183,7 @@ document.addEventListener('click', function(e){
 
       const { data, error } = await c
         .from('user_cards')
-        .select('card_id,card_code,card_name,image_url,qty')
+        .select('card_id,qty')
         .eq('user_id', friendId);
 
       if(error) throw error;
@@ -10274,50 +10229,28 @@ document.addEventListener('click', function(e){
 
   function localCardImage(row){
     try{
-      if(row && row.image_url) return row.image_url;
-      if(!window.ST || !Array.isArray(ST.cards)) return '';
+      if(!window.ST || !Array.isArray(ST.cards)) return row.image_url || '';
 
-      const raw = String((row && (row.card_id || row.card_code || row.card_name)) || '').replace(/x\d+$/i,'').trim();
-      const norm = v => String(v || '').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Z0-9]+/g,'');
-      const rawNorm = norm(raw);
-      const codeMatch = raw.toUpperCase().match(/((?:OP|ST|EB|PRB)\d{2}-\d{3}|P-?\d{3})/);
-      const varMatch = raw.toUpperCase().match(/[_-](P\d+)\b/);
-      const wantedCode = codeMatch ? norm(codeMatch[1]) : '';
-      const wantedVariant = varMatch ? norm(varMatch[1]) : '';
+      const id = row.card_id || row.card_code;
+      const clean = String(id || '').replace(/x\d+$/i,'');
 
-      let candidates = ST.cards.filter(c => {
-        const joined = [c.id, c.code, c.card_id, c.variant, c.name].join('_');
-        return norm(c.id) === rawNorm ||
-               norm(c.code) === rawNorm ||
-               (wantedCode && (norm(c.code) === wantedCode || norm(joined).includes(wantedCode)));
-      });
-
-      if(wantedVariant && candidates.length > 1){
-        const byVariant = candidates.filter(c => norm([c.id,c.code,c.variant].join('_')).includes(wantedVariant) || norm(c.variant) === wantedVariant);
-        if(byVariant.length) candidates = byVariant;
-      }
-
-      if(candidates.length > 1){
-        const en = candidates.find(c => String(c.lang || '').toUpperCase() === 'EN');
-        if(en) candidates = [en];
-        else {
-          const fr = candidates.find(c => String(c.lang || '').toUpperCase() === 'FR');
-          if(fr) candidates = [fr];
-        }
-      }
-
-      const card = candidates[0] || null;
+      const card = ST.cards.find(c =>
+        c.id === clean ||
+        c.code === clean ||
+        String(c.id || '').includes(clean) ||
+        String(c.code || '').includes(String(clean || '').replace(/_p\d+$/i,''))
+      );
 
       if(card){
         if(typeof imgUrl === 'function'){
           const url = imgUrl(card);
           if(url) return url;
         }
-        return card.image || card.original_image || card.image_url || card.img || '';
+        return card.image || card.original_image || card.image_url || card.img || row.image_url || '';
       }
     }catch(e){}
 
-    return (row && row.image_url) || '';
+    return row.image_url || '';
   }
 
   async function buildFriendShowcase(friendId){
@@ -11107,6 +11040,128 @@ document.addEventListener('click', function(e){
 
 
 
+
+
+<!-- NAKAMABINDER CLOUD SYNC IMAGE_URL FIX -->
+<script id="nakama-cloud-sync-image-url-fix">
+(function(){
+  function safeToast(msg){
+    if(typeof window.toast === 'function') window.toast(msg);
+    else if(typeof window.showToast === 'function') window.showToast(msg);
+    else console.log(msg);
+  }
+
+  function smartFindCard(cardId){
+    try{
+      if(typeof window.getCardById === 'function'){
+        const direct = window.getCardById(cardId);
+        if(direct) return direct;
+      }
+
+      if(!window.ST || !Array.isArray(ST.cards)) return null;
+
+      const raw = String(cardId || '');
+      const code = (raw.match(/((?:OP|ST|EB|PRB)\d{2}-\d{3}|P-?\d{3})/i) || [])[1] || '';
+      const variant = (raw.match(/[_-](p\d+)/i) || [])[1] || '';
+
+      let candidates = ST.cards.filter(c => {
+        const joined = [c.id, c.code, c.variant].join('_').toLowerCase();
+        return joined.includes(raw.toLowerCase()) || (code && joined.includes(code.toLowerCase()));
+      });
+
+      if(variant && candidates.length > 1){
+        const byVariant = candidates.filter(c => [c.id, c.variant].join('_').toLowerCase().includes(variant.toLowerCase()));
+        if(byVariant.length) candidates = byVariant;
+      }
+
+      if(candidates.length > 1){
+        const en = candidates.find(c => String(c.lang || '').toUpperCase() === 'EN');
+        if(en) return en;
+        const fr = candidates.find(c => String(c.lang || '').toUpperCase() === 'FR');
+        if(fr) return fr;
+      }
+
+      return candidates[0] || null;
+    }catch(e){
+      return null;
+    }
+  }
+
+  function smartImage(card, row){
+    if(row && row.image_url) return row.image_url;
+    if(!card) return '';
+
+    try{
+      if(typeof window.imgUrl === 'function'){
+        const u = window.imgUrl(card);
+        if(u) return u;
+      }
+    }catch(e){}
+
+    return card.image || card.original_image || card.image_url || card.img || '';
+  }
+
+  function esc(v){
+    return String(v == null ? '' : v).replace(/[&<>"']/g, function(ch){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
+    });
+  }
+
+  const previousOpenFriendBinderCloud = window.openFriendBinderCloud;
+  window.openFriendBinderCloud = async function(friendId, friendName){
+    try{
+      const c = window.nakamaSupabase || (typeof nakamaSupabase !== 'undefined' ? nakamaSupabase : null);
+      if(!c){
+        if(typeof previousOpenFriendBinderCloud === 'function') return previousOpenFriendBinderCloud(friendId, friendName);
+        return;
+      }
+
+      const modal = document.getElementById('cloud-binder-modal');
+      const title = document.getElementById('cloud-binder-title');
+      const content = document.getElementById('cloud-binder-content');
+
+      if(title) title.textContent = 'Classeur de ' + friendName;
+      if(content) content.innerHTML = '<div class="empty-state" style="padding:20px">Chargement du classeur...</div>';
+      if(modal) modal.classList.add('active');
+
+      const { data, error } = await c
+        .from('user_cards')
+        .select('card_id,card_code,card_name,image_url,qty')
+        .eq('user_id', friendId);
+
+      if(error) throw error;
+
+      if(!data || !data.length){
+        if(content) content.innerHTML = '<div class="empty-state" style="padding:20px">Ce joueur n’a pas encore synchronisé son classeur cloud.</div>';
+        return;
+      }
+
+      let out = '<div class="cloud-binder-grid">';
+
+      data.forEach(row => {
+        const card = smartFindCard(row.card_id || row.card_code);
+        const img = smartImage(card, row);
+        const name = (card && card.name) || row.card_name || row.card_code || row.card_id || 'Carte';
+        const code = (card && card.code) || row.card_code || row.card_id || '';
+        const qty = Number(row.qty || 1);
+
+        out += `
+          <div class="cloud-binder-card" title="${esc(name)}">
+            ${img ? `<img src="${esc(img)}" alt="${esc(name)}" loading="lazy" onload="this.classList.add('loaded')" onerror="this.outerHTML='<div class=&quot;cloud-binder-placeholder&quot;>${esc(code)}<br>x${qty}</div>'">` : `<div class="cloud-binder-placeholder">${esc(code)}<br>x${qty}</div>`}
+          </div>
+        `;
+      });
+
+      out += '</div>';
+      if(content) content.innerHTML = out;
+    }catch(e){
+      console.error(e);
+      safeToast(e.message || 'Erreur classeur ami.');
+    }
+  };
+})();
+</script>
+<!-- END NAKAMABINDER CLOUD SYNC IMAGE_URL FIX -->
 
 </body>
 </html>
