@@ -11211,5 +11211,174 @@ document.addEventListener('click', function(e){
 </style>
 <!-- END NAKAMABINDER FRIEND SHOWCASE LAYOUT FIX -->
 
+
+<!-- NAKAMABINDER PERFORMANCE BOOST PATCH -->
+<style id="nakama-performance-boost-css">
+  .card-item,
+  .deck-card,
+  .cloud-binder-card,
+  .friend-binder-preview-card{
+    content-visibility:auto;
+    contain-intrinsic-size:120px 168px;
+  }
+
+  .set-block,
+  .rarity-block{
+    content-visibility:auto;
+    contain-intrinsic-size:300px 600px;
+  }
+
+  img{
+    decoding:async;
+  }
+
+  .cards-grid{
+    contain:layout paint style;
+  }
+
+  .card-item img{
+    will-change:auto !important;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{
+      animation-duration:.01ms !important;
+      animation-iteration-count:1 !important;
+      transition-duration:.01ms !important;
+      scroll-behavior:auto !important;
+    }
+  }
+</style>
+
+<script id="nakama-performance-boost-js">
+(function(){
+  const ric = window.requestIdleCallback || function(cb){ return setTimeout(() => cb({timeRemaining:()=>1}), 80); };
+
+  function optimizeImages(root){
+    try{
+      (root || document).querySelectorAll('img').forEach(img => {
+        if(!img.hasAttribute('loading')) img.setAttribute('loading', 'lazy');
+        if(!img.hasAttribute('decoding')) img.setAttribute('decoding', 'async');
+        img.setAttribute('fetchpriority', 'low');
+      });
+    }catch(e){}
+  }
+
+  function debounce(fn, wait){
+    let t;
+    return function(){
+      const ctx = this;
+      const args = arguments;
+      clearTimeout(t);
+      t = setTimeout(() => fn.apply(ctx, args), wait);
+    };
+  }
+
+  function debounceSearchInputs(){
+    try{
+      document.querySelectorAll('input[type="search"], .fsearch, input[placeholder*="Rechercher"], input[placeholder*="rechercher"]').forEach(input => {
+        if(input.dataset.nakamaDebounced) return;
+        input.dataset.nakamaDebounced = '1';
+
+        const oldOnInput = input.oninput;
+        if(typeof oldOnInput === 'function'){
+          input.oninput = debounce(oldOnInput, 220);
+        }
+
+        input.addEventListener('input', debounce(function(){
+          if(typeof window.applyFilters === 'function'){
+            window.applyFilters();
+          }
+        }, 240), {passive:true});
+      });
+    }catch(e){}
+  }
+
+  function patchRenderFunction(name, after){
+    try{
+      const old = window[name];
+      if(typeof old !== 'function' || old.__nakamaPerfPatched) return;
+
+      const patched = function(){
+        const result = old.apply(this, arguments);
+        ric(() => after());
+        setTimeout(after, 120);
+        return result;
+      };
+
+      patched.__nakamaPerfPatched = true;
+      window[name] = patched;
+    }catch(e){}
+  }
+
+  function afterRender(){
+    optimizeImages(document);
+    debounceSearchInputs();
+  }
+
+  function patchCommonRenders(){
+    [
+      'renderCards',
+      'renderCollectionTab',
+      'renderFriends',
+      'renderWishlist',
+      'renderDecks',
+      'applyFilters'
+    ].forEach(name => patchRenderFunction(name, afterRender));
+  }
+
+  function reduceInitialJank(){
+    try{
+      document.querySelectorAll('.card-item img').forEach((img, i) => {
+        if(i > 80) img.setAttribute('loading', 'lazy');
+      });
+    }catch(e){}
+  }
+
+  const mo = new MutationObserver(function(muts){
+    let should = false;
+    for(const m of muts){
+      if(m.addedNodes && m.addedNodes.length){ should = true; break; }
+    }
+    if(should){
+      ric(() => optimizeImages(document));
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', function(){
+    optimizeImages(document);
+    debounceSearchInputs();
+    patchCommonRenders();
+    reduceInitialJank();
+
+    try{
+      mo.observe(document.body, {childList:true, subtree:true});
+    }catch(e){}
+  });
+
+  window.addEventListener('load', function(){
+    optimizeImages(document);
+    debounceSearchInputs();
+    patchCommonRenders();
+    reduceInitialJank();
+
+    setTimeout(function(){
+      try{
+        if('caches' in window){
+          caches.keys().then(keys => {
+            keys.forEach(k => {
+              if(String(k).toLowerCase().includes('old') || String(k).toLowerCase().includes('v1')){
+                caches.delete(k);
+              }
+            });
+          });
+        }
+      }catch(e){}
+    }, 2000);
+  });
+})();
+</script>
+<!-- END NAKAMABINDER PERFORMANCE BOOST PATCH -->
+
 </body>
 </html>
