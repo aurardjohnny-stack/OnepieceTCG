@@ -3824,20 +3824,25 @@ body.visitor-mode #visitor-signup-banner{
 </style>
 
 
-<style id="nakama-v111-friend-showcase-css">
-/* V111 - Vitrine classeur ami */
 
+<style id="nakama-vitrine-ami-clean-css">
+.friend-card{
+  overflow:hidden !important;
+}
+.friend-card .friend-binder-preview:not(:first-of-type){
+  display:none !important;
+}
 .friend-binder-preview{
   margin-top:12px !important;
   padding:12px !important;
   border-radius:16px !important;
   border:1px solid rgba(242,182,62,.18) !important;
-  background:
-    radial-gradient(circle at 15% 0%,rgba(242,182,62,.10),transparent 36%),
-    rgba(255,255,255,.035) !important;
+  background:radial-gradient(circle at 15% 0%,rgba(242,182,62,.10),transparent 36%),rgba(255,255,255,.035) !important;
   width:100% !important;
+  max-width:100% !important;
+  overflow:hidden !important;
+  box-sizing:border-box !important;
 }
-
 .friend-binder-preview-title{
   display:flex !important;
   justify-content:space-between !important;
@@ -3848,87 +3853,61 @@ body.visitor-mode #visitor-signup-banner{
   font-size:12px !important;
   margin-bottom:10px !important;
 }
-
 .friend-binder-preview-stats{
   display:grid !important;
   grid-template-columns:repeat(3,minmax(0,1fr)) !important;
   gap:8px !important;
   margin-bottom:10px !important;
 }
-
 .friend-binder-stat{
   border-radius:12px !important;
   padding:8px !important;
   background:rgba(255,255,255,.045) !important;
   border:1px solid rgba(255,255,255,.07) !important;
 }
-
 .friend-binder-stat b{
   display:block !important;
   color:#fff !important;
   font-size:15px !important;
 }
-
 .friend-binder-stat span{
   display:block !important;
   color:#8ea0b3 !important;
   font-size:10px !important;
   margin-top:2px !important;
 }
-
 .friend-binder-preview-grid{
+  width:100% !important;
+  max-width:100% !important;
   display:grid !important;
-  grid-template-columns:repeat(9,42px) !important;
-  gap:6px !important;
-  align-items:start !important;
+  grid-template-columns:repeat(auto-fit,minmax(36px,1fr)) !important;
+  gap:7px !important;
+  overflow:hidden !important;
+  box-sizing:border-box !important;
 }
-
 .friend-binder-preview-card{
-  width:42px !important;
-  height:60px !important;
+  width:100% !important;
+  min-width:0 !important;
+  aspect-ratio:.717 !important;
   border-radius:8px !important;
   overflow:hidden !important;
   background:rgba(255,255,255,.06) !important;
   border:1px solid rgba(255,255,255,.08) !important;
-  box-shadow:0 6px 14px rgba(0,0,0,.18) !important;
 }
-
 .friend-binder-preview-card img{
   width:100% !important;
   height:100% !important;
   object-fit:cover !important;
   display:block !important;
+  opacity:1 !important;
 }
-
-.friend-binder-preview-empty{
-  color:#8ea0b3 !important;
-  font-size:12px !important;
-  line-height:1.4 !important;
-}
-
 @media(max-width:900px){
-  .friend-binder-preview-grid{
-    grid-template-columns:repeat(6,38px) !important;
-  }
-
-  .friend-binder-preview-card{
-    width:38px !important;
-    height:54px !important;
-  }
-}
-
-@media(max-width:520px){
   .friend-binder-preview-stats{
     grid-template-columns:1fr !important;
   }
-
   .friend-binder-preview-grid{
-    grid-template-columns:repeat(5,36px) !important;
-  }
-
-  .friend-binder-preview-card{
-    width:36px !important;
-    height:51px !important;
+    grid-template-columns:repeat(auto-fit,minmax(32px,1fr)) !important;
+    gap:6px !important;
   }
 }
 </style>
@@ -10214,150 +10193,6 @@ document.addEventListener('click', function(e){
 </script>
 
 
-<script id="nakama-v111-friend-showcase-js">
-(function(){
-  function getClient(){
-    try{
-      if(window.nakamaSupabase) return window.nakamaSupabase;
-      if(typeof nakamaSupabase !== 'undefined'){
-        window.nakamaSupabase = nakamaSupabase;
-        return nakamaSupabase;
-      }
-    }catch(e){}
-    return null;
-  }
-
-  function localCardImage(row){
-    try{
-      if(!window.ST || !Array.isArray(ST.cards)) return row.image_url || '';
-
-      const id = row.card_id || row.card_code;
-      const clean = String(id || '').replace(/x\d+$/i,'');
-
-      const card = ST.cards.find(c =>
-        c.id === clean ||
-        c.code === clean ||
-        String(c.id || '').includes(clean) ||
-        String(c.code || '').includes(String(clean || '').replace(/_p\d+$/i,''))
-      );
-
-      if(card){
-        if(typeof imgUrl === 'function'){
-          const url = imgUrl(card);
-          if(url) return url;
-        }
-        return card.image || card.original_image || card.image_url || card.img || row.image_url || '';
-      }
-    }catch(e){}
-
-    return row.image_url || '';
-  }
-
-  async function buildFriendShowcase(friendId){
-    const c = getClient();
-    if(!c || !friendId) return '';
-
-    try{
-      const { data, error } = await c
-        .from('user_cards')
-        .select('card_id,card_code,card_name,image_url,qty')
-        .eq('user_id', friendId)
-        .order('updated_at', { ascending:false })
-        .limit(9);
-
-      if(error || !data || !data.length){
-        return `
-          <div class="friend-binder-preview">
-            <div class="friend-binder-preview-title">
-              <span>Vitrine classeur</span><span>0 carte</span>
-            </div>
-            <div class="friend-binder-preview-empty">Ce joueur n’a pas encore synchronisé son classeur.</div>
-          </div>
-        `;
-      }
-
-      let totalQty = 0;
-      data.forEach(row => totalQty += Number(row.qty || 1));
-
-      const cards = data.map(row => {
-        const image = localCardImage(row);
-        const name = row.card_name || row.card_code || row.card_id || 'Carte';
-
-        return `
-          <div class="friend-binder-preview-card" title="${name}">
-            ${image ? `<img src="${image}" alt="${name}" loading="lazy">` : ''}
-          </div>
-        `;
-      }).join('');
-
-      return `
-        <div class="friend-binder-preview">
-          <div class="friend-binder-preview-title">
-            <span>Vitrine classeur</span><span>${data.length} cartes vues</span>
-          </div>
-
-          <div class="friend-binder-preview-stats">
-            <div class="friend-binder-stat"><b>${data.length}</b><span>cartes aperçu</span></div>
-            <div class="friend-binder-stat"><b>${totalQty}</b><span>exemplaires</span></div>
-            <div class="friend-binder-stat"><b>Cloud</b><span>synchronisé</span></div>
-          </div>
-
-          <div class="friend-binder-preview-grid">${cards}</div>
-        </div>
-      `;
-    }catch(e){
-      return '';
-    }
-  }
-
-  const previousRenderFriends = window.renderFriends;
-
-  window.renderFriends = async function(){
-    if(typeof previousRenderFriends === 'function'){
-      await previousRenderFriends();
-    }
-
-    try{
-      const friendCards = Array.from(document.querySelectorAll('.friend-card'));
-
-      for(const card of friendCards){
-        if(card.dataset.v111ShowcaseDone) continue;
-
-        const oldPreview = card.querySelector('.friend-binder-preview');
-        if(oldPreview) oldPreview.remove();
-
-        const binderBtn = Array.from(card.querySelectorAll('button')).find(btn =>
-          (btn.textContent || '').toLowerCase().includes('classeur')
-        );
-
-        if(!binderBtn) continue;
-
-        const onclick = binderBtn.getAttribute('onclick') || '';
-        const m = onclick.match(/openFriendBinderCloud\('([^']+)'/);
-
-        if(!m) continue;
-
-        const preview = await buildFriendShowcase(m[1]);
-
-        if(preview){
-          card.insertAdjacentHTML('beforeend', preview);
-          card.dataset.v111ShowcaseDone = '1';
-        }
-      }
-    }catch(e){
-      console.warn('showcase friend error', e);
-    }
-  };
-
-  window.addEventListener('load', () => {
-    setTimeout(() => {
-      if(typeof renderFriends === 'function') renderFriends();
-    }, 1000);
-  });
-})();
-</script>
-
-
 <script id="nakama-v116-clean-cache-rollback">
 (function(){
   async function cleanOldCache(){
@@ -11164,52 +10999,28 @@ document.addEventListener('click', function(e){
 <!-- END NAKAMABINDER CLOUD SYNC IMAGE_URL FIX -->
 
 
-<!-- NAKAMABINDER FRIEND SHOWCASE LAYOUT FIX -->
-<style id="nakama-friend-showcase-layout-fix">
-.friend-card{
-  overflow:hidden !important;
-}
 
-.friend-binder-preview{
-  width:100% !important;
-  max-width:100% !important;
-  overflow:hidden !important;
-  box-sizing:border-box !important;
-}
-
-.friend-binder-preview-grid{
-  width:100% !important;
-  max-width:100% !important;
-  display:grid !important;
-  grid-template-columns:repeat(auto-fit,minmax(42px,1fr)) !important;
-  gap:8px !important;
-  overflow:hidden !important;
-  box-sizing:border-box !important;
-}
-
-.friend-binder-preview-card{
-  width:100% !important;
-  min-width:0 !important;
-  aspect-ratio:.717 !important;
-  overflow:hidden !important;
-  border-radius:10px !important;
-}
-
-.friend-binder-preview-card img{
-  width:100% !important;
-  height:100% !important;
-  object-fit:cover !important;
-  display:block !important;
-}
-
-@media(max-width:900px){
-  .friend-binder-preview-grid{
-    grid-template-columns:repeat(auto-fit,minmax(34px,1fr)) !important;
-    gap:6px !important;
+<script id="nakama-vitrine-ami-dedupe-js">
+(function(){
+  function dedupe(){
+    document.querySelectorAll('.friend-card').forEach(card => {
+      const previews = Array.from(card.querySelectorAll('.friend-binder-preview'));
+      previews.slice(1).forEach(p => p.remove());
+    });
   }
-}
-</style>
-<!-- END NAKAMABINDER FRIEND SHOWCASE LAYOUT FIX -->
+  document.addEventListener('DOMContentLoaded', dedupe);
+  window.addEventListener('load', function(){
+    dedupe();
+    setTimeout(dedupe, 300);
+    setTimeout(dedupe, 1000);
+    setTimeout(dedupe, 2500);
+  });
+  const mo = new MutationObserver(dedupe);
+  window.addEventListener('load', function(){
+    try{ mo.observe(document.body, {childList:true, subtree:true}); }catch(e){}
+  });
+})();
+</script>
 
 </body>
 </html>
