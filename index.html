@@ -11163,5 +11163,53 @@ document.addEventListener('click', function(e){
 </script>
 <!-- END NAKAMABINDER CLOUD SYNC IMAGE_URL FIX -->
 
+
+<!-- NAKAMABINDER FRIEND SHOWCASE LAYOUT FIX -->
+<style id="nakama-friend-showcase-layout-fix">
+.friend-card{
+  overflow:hidden !important;
+}
+
+.friend-binder-preview{
+  width:100% !important;
+  max-width:100% !important;
+  overflow:hidden !important;
+  box-sizing:border-box !important;
+}
+
+.friend-binder-preview-grid{
+  width:100% !important;
+  max-width:100% !important;
+  display:grid !important;
+  grid-template-columns:repeat(auto-fit,minmax(42px,1fr)) !important;
+  gap:8px !important;
+  overflow:hidden !important;
+  box-sizing:border-box !important;
+}
+
+.friend-binder-preview-card{
+  width:100% !important;
+  min-width:0 !important;
+  aspect-ratio:.717 !important;
+  overflow:hidden !important;
+  border-radius:10px !important;
+}
+
+.friend-binder-preview-card img{
+  width:100% !important;
+  height:100% !important;
+  object-fit:cover !important;
+  display:block !important;
+}
+
+@media(max-width:900px){
+  .friend-binder-preview-grid{
+    grid-template-columns:repeat(auto-fit,minmax(34px,1fr)) !important;
+    gap:6px !important;
+  }
+}
+</style>
+<!-- END NAKAMABINDER FRIEND SHOWCASE LAYOUT FIX -->
+
 </body>
 </html>
