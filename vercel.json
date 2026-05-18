@@ -1,7 +1,16 @@
 {
+  "version": 2,
   "rewrites": [
     {
-      "source": "/card/:slug",
+      "source": "/sitemap.xml",
+      "destination": "/sitemap.xml"
+    },
+    {
+      "source": "/robots.txt",
+      "destination": "/robots.txt"
+    },
+    {
+      "source": "/card/:slug*",
       "destination": "/index.html"
     },
     {
@@ -10,6 +19,10 @@
     },
     {
       "source": "/sets",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/(.*)",
       "destination": "/index.html"
     }
   ]
