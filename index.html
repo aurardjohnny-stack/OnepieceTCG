@@ -10383,5 +10383,137 @@ document.addEventListener('click', function(e){
  applySeo();
 })();
 </script>
+
+
+<script id="nakama-seo-final-fix">
+(function(){
+  function esc(v){return String(v == null ? '' : v).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]})}
+  function norm(v){
+    return String(v||'')
+      .toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .replace(/&/g,'-and-')
+      .replace(/[^a-z0-9]+/g,'-')
+      .replace(/^-+|-+$/g,'');
+  }
+  function slugFromUrl(v){
+    const s=String(v||'');
+    const m=s.match(/\/card\/([^\/?#]+)/i);
+    return m ? decodeURIComponent(m[1]) : s;
+  }
+  function pick(o, keys){
+    for(const k of keys){
+      if(o && o[k] != null && String(o[k]).trim() !== '') return o[k];
+    }
+    return '';
+  }
+  function flattenData(data){
+    if(Array.isArray(data)) return data;
+    if(!data || typeof data !== 'object') return [];
+    for(const k of ['cards','items','data','urls','seoCards','seo_cards','results']){
+      if(Array.isArray(data[k])) return data[k];
+    }
+    const vals=Object.values(data);
+    if(vals.length && vals.every(v=>v && typeof v==='object')) return vals;
+    return [];
+  }
+  function cardSlugs(c){
+    const vals=[];
+    ['slug','seoSlug','seo_slug','urlSlug','url_slug','handle','id','path','url','loc','href','canonical','permalink'].forEach(k=>{
+      if(c && c[k]) vals.push(slugFromUrl(c[k]));
+    });
+    const code=pick(c,['code','cardCode','card_code','number','id']);
+    const name=pick(c,['name','cardName','card_name','title']);
+    const rarity=pick(c,['rarity','rarete','type','variant']);
+    const lang=pick(c,['lang','language','locale']);
+    if(code || name || rarity || lang) vals.push([code,name,rarity,lang].filter(Boolean).join('-'));
+    return vals.map(norm).filter(Boolean);
+  }
+  function findCard(list, slug){
+    const want=norm(slug);
+    let exact=list.find(c=>cardSlugs(c).includes(want));
+    if(exact) return exact;
+    const code=(want.match(/^((?:op|st|eb|prb)\d{2}-\d{3}|p-?\d{3})/)||[])[1];
+    const lang=(want.match(/-(fr|en|jap|jp|tc|cn-hk)$/)||[])[1];
+    let candidates=list.slice();
+    if(code) candidates=candidates.filter(c=>cardSlugs(c).some(s=>s.includes(code)) || norm(pick(c,['code','cardCode','card_code','number','id'])).includes(code));
+    if(lang && candidates.length>1) candidates=candidates.filter(c=>norm(pick(c,['lang','language','locale'])).includes(norm(lang)) || cardSlugs(c).some(s=>s.endsWith('-'+norm(lang))));
+    if(candidates.length) return candidates[0];
+    return null;
+  }
+  function buildFallback(slug){
+    const n=norm(slug);
+    const code=(n.match(/^((?:op|st|eb|prb)\d{2}-\d{3}|p-?\d{3})/)||[])[1]||'';
+    const lang=(n.match(/-(fr|en|jap|jp|tc|cn-hk)$/)||[])[1]||'';
+    let rest=n;
+    if(code) rest=rest.replace(code+'-','');
+    if(lang) rest=rest.replace(new RegExp('-'+lang+'$'),'');
+    const rarityWords=['treasurerare','treasure-rare','special','manga','leader','secret','superrare','super-rare','rare','uncommon','common','promo','don'];
+    let rarity='';
+    rarityWords.forEach(r=>{ if(!rarity && rest.includes(r)){ rarity=r.replace('-', ' '); rest=rest.replace('-'+r,'').replace(r+'-','').replace(r,''); }});
+    rest=rest.replace(/-p\d+$/,'').replace(/-+/g,'-').replace(/^-|-$/g,'');
+    const name=rest ? rest.split('-').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ') : 'Carte One Piece TCG';
+    return {name, code:code.toUpperCase(), lang:lang.toUpperCase(), rarity:rarity ? rarity.toUpperCase() : '', description:`Fiche One Piece Card Game ${name}${code?' '+code:''} sur Nakama Binder.`, url:location.origin+'/card/'+slug};
+  }
+  function setMeta(n,c,a){
+    if(!c) return;
+    a=a||'name';
+    let e=document.querySelector(`meta[${a}="${n}"]`);
+    if(!e){ e=document.createElement('meta'); e.setAttribute(a,n); document.head.appendChild(e); }
+    e.setAttribute('content', String(c));
+  }
+  function setCanonical(u){
+    let e=document.querySelector('link[rel="canonical"]');
+    if(!e){ e=document.createElement('link'); e.rel='canonical'; document.head.appendChild(e); }
+    e.href=u;
+  }
+  function render(card, slug, source){
+    const target=document.getElementById('main-content') || document.querySelector('.content') || document.body;
+    const name=pick(card,['name','cardName','card_name','title']) || buildFallback(slug).name;
+    const code=pick(card,['code','cardCode','card_code','number','id']) || buildFallback(slug).code;
+    const rarity=pick(card,['rarity','rarete','variant','type']) || buildFallback(slug).rarity;
+    const lang=pick(card,['lang','language','locale']) || buildFallback(slug).lang;
+    const img=pick(card,['image','img','imageUrl','image_url','thumbnail','thumbnailUrl','thumbnail_url','front','src']);
+    const desc=pick(card,['description','metaDescription','meta_description','effect','text']) || `Fiche One Piece Card Game ${name}${code?' '+code:''} sur Nakama Binder.`;
+    const url=pick(card,['url','loc','canonical','href','permalink']) || location.origin+'/card/'+slug;
+    document.title=`${name}${code?' '+code:''} | Nakama Binder`;
+    setMeta('description', desc);
+    setMeta('og:title', document.title, 'property');
+    setMeta('og:description', desc, 'property');
+    if(img) setMeta('og:image', img, 'property');
+    setMeta('twitter:card','summary_large_image');
+    setCanonical(url);
+    document.querySelectorAll('script[data-nakama-jsonld]').forEach(s=>s.remove());
+    const jsonld=document.createElement('script');
+    jsonld.type='application/ld+json';
+    jsonld.dataset.nakamaJsonld='1';
+    jsonld.textContent=JSON.stringify({"@context":"https://schema.org","@type":"Product","name":[name,code].filter(Boolean).join(' '),"description":desc,"image":img||undefined,"brand":{"@type":"Brand","name":"One Piece Card Game"},"category":"Trading Card","url":url});
+    document.head.appendChild(jsonld);
+    target.innerHTML=`<section id="seo-card-fallback" style="max-width:940px;margin:22px auto;padding:22px;background:#0e141c;border:1px solid rgba(212,160,23,.28);border-radius:18px;color:#e8edf2;font-family:DM Sans,Arial,sans-serif"><div style="display:grid;grid-template-columns:minmax(150px,260px) 1fr;gap:22px;align-items:start"><div>${img?`<img src="${esc(img)}" alt="${esc(name)}" style="width:100%;border-radius:14px;border:1px solid rgba(255,255,255,.18)">`:`<div style="aspect-ratio:.717;border-radius:14px;background:#141e2a;border:1px dashed rgba(212,160,23,.35);display:flex;align-items:center;justify-content:center;color:#f0c040;text-align:center;padding:16px">Image carte bientôt disponible</div>`}</div><div><p style="color:#f0c040;font-size:12px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Carte One Piece TCG</p><h1 style="font-family:Cinzel,serif;font-size:30px;margin:0 0 10px;color:#fff">${esc(name)}</h1><p style="color:#7a8a99;margin-bottom:14px">${esc([code,rarity,lang].filter(Boolean).join(' • '))}</p><p style="line-height:1.6;color:#cfd7df">${esc(desc)}</p><p style="font-size:12px;color:#4a5a6a;margin-top:14px">Source SEO : ${esc(source)}</p><p style="margin-top:18px"><a href="/" style="color:#f0c040;text-decoration:none;font-weight:700">Ouvrir Nakama Binder</a></p></div></div></section>`;
+  }
+  async function run(){
+    const m=location.pathname.match(/^\/card\/([^\/?#]+)/);
+    if(!m) return;
+    const slug=decodeURIComponent(m[1]);
+    let done=false;
+    const timeout=setTimeout(()=>{ if(!done) render(buildFallback(slug), slug, 'fallback slug'); }, 4500);
+    try{
+      const res=await fetch('/seo-cards.json?v=' + Date.now(), {cache:'no-store'});
+      const data=await res.json();
+      const list=flattenData(data);
+      const card=findCard(list, slug) || buildFallback(slug);
+      done=true; clearTimeout(timeout);
+      render(card, slug, findCard(list, slug) ? '/seo-cards.json' : 'fallback slug');
+    }catch(e){
+      done=true; clearTimeout(timeout);
+      render(buildFallback(slug), slug, 'fallback slug');
+    }
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
+  else run();
+  window.addEventListener('load', function(){ setTimeout(run, 800); });
+})();
+</script>
+
 </body>
 </html>
