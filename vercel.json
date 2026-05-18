@@ -1,5 +1,16 @@
 {
   "rewrites": [
-    { "source": "/api/proxy", "destination": "/api/proxy" }
+    {
+      "source": "/card/:slug",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/cards",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/sets",
+      "destination": "/index.html"
+    }
   ]
 }
