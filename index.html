@@ -3912,35 +3912,6 @@ body.visitor-mode #visitor-signup-banner{
 }
 </style>
 
-
-<!-- PATCH FINAL SAFE 2026-05-19: garde le site classique, neutralise uniquement l'ancien layout premium fantôme -->
-<style id="nakama-classic-layout-shield">
-  #main-screen.active{
-    display:flex !important;
-    flex-direction:column !important;
-    grid-template-columns:none !important;
-    grid-template-rows:none !important;
-    gap:0 !important;
-    min-height:100vh !important;
-  }
-  .nb-banner-real,
-  .nb-side-real,
-  .nb-panel-real,
-  .nb-menu-real,
-  .nb-search-real,
-  .nb-top-actions,
-  .nb-quick-stats-real,
-  .nb-page-tools{
-    display:none !important;
-  }
-  .topbar,.main-tabs,.tab-pane,.filters-bar,.lang-tabs,.stats-row,.content{
-    grid-column:auto !important;
-    grid-row:auto !important;
-  }
-  body.nakama-premium, body.nb-premium, body.nb-real-ui{
-    display:block !important;
-  }
-</style>
 </head>
 <body>
 
@@ -11812,261 +11783,148 @@ document.addEventListener('click', function(e){
 </script>
 
 
-<!-- NAKAMA V12: FINAL LANG FILTER + SUPPORT BUTTON SAFE PATCH -->
-<style id="nakama-v12-lang-support-css">
-  #nakama-support-btn{
-    display:inline-flex!important;align-items:center!important;gap:7px!important;
-    padding:7px 12px!important;border-radius:999px!important;
-    border:1px solid rgba(242,182,62,.35)!important;
-    background:linear-gradient(180deg,rgba(242,182,62,.14),rgba(242,182,62,.06))!important;
-    color:#f2b63e!important;font-size:12px!important;font-weight:900!important;
-    cursor:pointer!important;font-family:var(--font-body)!important;text-decoration:none!important;
-    white-space:nowrap!important;
+
+<!-- NAKAMA SAFE FINAL PATCH 2026-05-19: langue + anti-page-premium, sans toucher aux cartes/images/zoom -->
+<style id="nakama-safe-final-no-premium-page">
+  /* On neutralise seulement le vieux layout premium qui faisait apparaître la fausse page. */
+  #main-screen.active{
+    display:flex !important;
+    flex-direction:column !important;
+    grid-template-columns:none !important;
+    grid-template-rows:none !important;
+    gap:0 !important;
+    min-height:100vh !important;
   }
-  #nakama-support-btn:hover{border-color:#f2b63e!important;color:#fff!important;transform:translateY(-1px)!important}
-  #nakama-support-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.72);backdrop-filter:blur(5px);z-index:9999}
-  #nakama-support-modal.open{display:flex!important}
-  .nakama-support-card{width:min(420px,94vw);border-radius:20px;border:1px solid rgba(242,182,62,.28);background:linear-gradient(180deg,#101827,#07111f);box-shadow:0 24px 90px rgba(0,0,0,.65);padding:22px;color:#f4f7fb;position:relative}
-  .nakama-support-close{position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#fff;cursor:pointer;font-size:18px}
-  .nakama-support-title{font-family:var(--font-display);font-size:20px;font-weight:900;margin-bottom:8px;color:#f2b63e}
-  .nakama-support-text{font-size:13px;line-height:1.55;color:#9fb0c3;margin-bottom:16px}
-  .nakama-support-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-  .nakama-support-actions a,.nakama-support-actions button{height:42px;border-radius:12px;border:1px solid rgba(242,182,62,.30);background:rgba(242,182,62,.10);color:#f2b63e;font-weight:900;cursor:pointer;text-decoration:none;display:flex;align-items:center;justify-content:center;font-family:var(--font-body)}
-  .nakama-support-actions a:hover,.nakama-support-actions button:hover{background:rgba(242,182,62,.18);color:#fff}
-  @media(max-width:520px){.nakama-support-actions{grid-template-columns:1fr}#nakama-support-btn{padding:7px 10px!important;font-size:11px!important}}
+  #main-screen .nb-banner-real,
+  #nakama-welcome-info{
+    display:none !important;
+  }
+  #main-screen .tab-pane.active{
+    display:block !important;
+  }
+  #main-screen .content,
+  #main-content{
+    width:100% !important;
+  }
+  .filter-lang-inline button.active,
+  .filter-lang-inline button.lang-active{
+    background:linear-gradient(135deg,#f2b63e,#ffd978) !important;
+    color:#07111f !important;
+    border-color:#f2b63e !important;
+    box-shadow:0 0 20px rgba(242,182,62,.34) !important;
+  }
+  .nakama-support-btn-safe{
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:6px !important;
+    padding:7px 12px !important;
+    border-radius:999px !important;
+    border:1px solid rgba(242,182,62,.38) !important;
+    background:rgba(242,182,62,.12) !important;
+    color:#f0c040 !important;
+    font-size:12px !important;
+    font-weight:800 !important;
+    text-decoration:none !important;
+    cursor:pointer !important;
+    font-family:var(--font-body) !important;
+  }
 </style>
-<script id="nakama-v12-lang-support-js">
+<script id="nakama-safe-final-lang-and-support">
 (function(){
-  if(window.__NAKAMA_V12_LANG_SUPPORT__) return;
-  window.__NAKAMA_V12_LANG_SUPPORT__ = true;
+  if(window.__NAKAMA_SAFE_FINAL_LANG__) return;
+  window.__NAKAMA_SAFE_FINAL_LANG__ = true;
 
-  // Quand tu as ton vrai Payment Link Stripe, remplace l'URL ci-dessous.
-  const STRIPE_DONATION_LINK = 'REMPLACE_ICI_PAR_TON_LIEN_STRIPE_PAYMENT_LINK';
+  var STRIPE_DONATION_LINK = 'https://buy.stripe.com/test_aFa28kbSAcVG46S5ZaenS00';
 
-  function getState(){
-    try{ if(typeof ST !== 'undefined') return ST; }catch(e){}
-    return window.ST || null;
-  }
-
-  function exposeState(){
-    try{ if(typeof ST !== 'undefined' && !window.ST) window.ST = ST; }catch(e){}
-  }
-
-  function norm(v){
-    let x = String(v || 'ALL').trim().toUpperCase();
-    x = x.normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-    x = x.replace(/[._\s/]+/g,'-');
-    if(x === 'TOUTES' || x === 'TOUT' || x === 'ALL' || x === '*') return 'ALL';
-    if(x === 'JP' || x === 'JPN' || x === 'JA' || x === 'JAPANESE' || x === 'JAPONAIS') return 'JAP';
-    if(x === 'CN' || x === 'CNHK' || x === 'CN-HK' || x === 'HK' || x === 'TC' || x === 'ZH-HK' || x === 'ZHTW') return 'CN-HK';
-    if(x === 'AUTRES' || x === 'AUTRE' || x === 'OTHER' || x === 'OTHERS' || x === 'UNK' || x === 'UNKNOWN') return 'UNK';
-    if(x === 'FR' || x === 'FRA' || x === 'FRENCH' || x === 'FRANCAIS') return 'FR';
-    if(x === 'EN' || x === 'ENG' || x === 'ENGLISH' || x === 'US') return 'EN';
-    if(x === 'JAP') return 'JAP';
+  function normLang(v){
+    var x = String(v || 'ALL').trim().toUpperCase().replace(/[._\s/]+/g,'-');
+    if(x === 'TOUTES' || x === 'ALL') return 'ALL';
+    if(x === 'JP' || x === 'JPN' || x === 'JA' || x === 'JAPANESE') return 'JAP';
+    if(x === 'CN' || x === 'CNHK' || x === 'CN-HK' || x === 'HK' || x === 'TC' || x === 'ZH-HK') return 'CN-HK';
+    if(x === 'AUTRES' || x === 'OTHER' || x === 'OTHERS') return 'UNK';
+    if(x === 'FR' || x === 'EN' || x === 'JAP' || x === 'CN-HK' || x === 'UNK') return x;
     return x || 'ALL';
   }
 
   function langFromButton(btn){
     if(!btn) return 'ALL';
-    const data = btn.getAttribute('data-lang-choice') || btn.dataset.lang || btn.value;
-    if(data) return norm(data);
-    const oc = btn.getAttribute('onclick') || '';
-    const m = oc.match(/setLang\(['\"]([^'\"]+)['\"]\)/i);
-    if(m) return norm(m[1]);
-    return norm(btn.textContent || 'ALL');
+    var data = btn.getAttribute('data-lang-choice') || btn.getAttribute('data-lang') || '';
+    if(data) return normLang(data);
+    var txt = (btn.textContent || '').trim();
+    if(txt === 'JP') return 'JAP';
+    if(txt === 'CN/HK' || txt === 'CN-HK') return 'CN-HK';
+    return normLang(txt);
   }
 
-  function matchesLang(cardLang, wanted){
-    wanted = norm(wanted);
-    if(wanted === 'ALL') return true;
-    return norm(cardLang || 'UNK') === wanted;
-  }
-
-  function paintLangButtons(){
-    const st = getState();
-    if(!st) return;
-    const current = norm(st.lang || 'ALL');
-    document.querySelectorAll('.filter-lang-inline button, .lang-tabs .lang-tab').forEach(btn => {
-      const bLang = langFromButton(btn);
+  function paintLangButtons(lang){
+    lang = normLang(lang || (typeof ST !== 'undefined' && ST.lang) || 'ALL');
+    document.querySelectorAll('.filter-lang-inline button, .lang-tabs .lang-tab').forEach(function(btn){
+      var b = langFromButton(btn);
       btn.classList.add('lang-tab');
-      btn.setAttribute('data-lang-choice', bLang);
-      btn.type = 'button';
-      const active = bLang === current;
+      btn.setAttribute('data-lang-choice', b);
+      btn.setAttribute('type', 'button');
+      var active = b === lang;
       btn.classList.toggle('active', active);
       btn.classList.toggle('lang-active', active);
       btn.setAttribute('aria-pressed', active ? 'true' : 'false');
-      if(active){
-        btn.style.setProperty('background','linear-gradient(135deg,#f2b63e,#ffd978)','important');
-        btn.style.setProperty('color','#07111f','important');
-        btn.style.setProperty('border-color','#f2b63e','important');
-        btn.style.setProperty('box-shadow','0 0 20px rgba(242,182,62,.34)','important');
-      }else{
-        btn.style.removeProperty('background');
-        btn.style.removeProperty('color');
-        btn.style.removeProperty('border-color');
-        btn.style.removeProperty('box-shadow');
-      }
     });
   }
 
-  function resetPagination(){
-    const st = getState();
-    if(!st) return;
-    if(typeof st.renderLimit !== 'undefined') st.renderLimit = 50;
-    st.cardsSortedCache = null;
-    st.cardsSortedKey = '';
-  }
-
-  function applyAllFilters(){
-    const st = getState();
-    if(!st || !Array.isArray(st.cards)) return;
-    let owned = {};
-    try{ owned = (typeof ud === 'function' ? ud().owned : {}) || {}; }catch(e){}
-
-    const set = document.getElementById('set-filter');
-    const rar = document.getElementById('rarity-filter');
-    const spe = document.getElementById('special-filter');
-    const search = document.getElementById('search-input') || document.querySelector('.fsearch');
-
-    if(set) st.filterSet = set.value || '';
-    if(rar) st.filterRarity = rar.value || '';
-    if(spe) st.filterSpecial = spe.value || '';
-    if(search) st.search = String(search.value || st.search || '').toLowerCase();
-
-    const wanted = norm(st.lang || 'ALL');
-    st.lang = wanted;
-
-    st.filtered = st.cards.filter(c => {
-      if(!matchesLang(c && c.lang, wanted)) return false;
-      if(st.filterSet && c.set !== st.filterSet) return false;
-      if(st.filterRarity && c.rarity !== st.filterRarity) return false;
-      if(st.filterSpecial && typeof matchesSpecialFilter === 'function' && !matchesSpecialFilter(c, st.filterSpecial)) return false;
-      if(st.onlyOwned && !owned[c.id]) return false;
-      const q = String(st.search || '').toLowerCase();
-      if(q){
-        const hay = [c.name,c.code,c.id,c.set,c.rarity,c.lang].filter(Boolean).join(' ').toLowerCase();
-        if(!hay.includes(q)) return false;
-      }
-      return true;
-    });
-
-    resetPagination();
-    const fc = document.getElementById('fcount');
-    if(fc) fc.textContent = st.filtered.length.toLocaleString('fr') + ' cartes';
-    if(typeof renderCards === 'function') renderCards();
-    if(typeof renderStats === 'function') renderStats();
-    if(typeof renderDashboardStats === 'function') renderDashboardStats();
-    if(typeof renderCollectionTab === 'function') renderCollectionTab();
-    paintLangButtons();
-  }
-
-  window.setLang = function(lang){
-    exposeState();
-    const st = getState();
-    if(!st) return;
-    st.lang = norm(lang);
-    applyAllFilters();
-  };
-
-  window.onSearch = function(v){
-    exposeState();
-    const st = getState();
-    if(!st) return;
-    st.search = String(v || '').toLowerCase();
-    applyAllFilters();
-  };
-
-  window.onFilter = function(){
-    exposeState();
-    applyAllFilters();
-  };
-
-  window.toggleOwned = function(){
-    exposeState();
-    const st = getState();
-    if(!st) return;
-    st.onlyOwned = !st.onlyOwned;
-    const btn = document.getElementById('toggle-owned');
-    if(btn) btn.classList.toggle('on', st.onlyOwned);
-    applyAllFilters();
-  };
-
-  function bindLang(){
-    exposeState();
-    document.querySelectorAll('.filter-lang-inline button, .lang-tabs .lang-tab').forEach(btn => {
-      btn.onclick = null;
-      btn.type = 'button';
-      btn.setAttribute('data-lang-choice', langFromButton(btn));
-    });
-    const wraps = document.querySelectorAll('.filter-lang-inline, .lang-tabs');
-    wraps.forEach(wrap => {
-      if(wrap.dataset.v12LangBound) return;
-      wrap.dataset.v12LangBound = '1';
-      wrap.addEventListener('click', function(e){
-        const btn = e.target.closest('button, .lang-tab');
-        if(!btn || !wrap.contains(btn)) return;
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-        window.setLang(langFromButton(btn));
-      }, true);
-    });
-    paintLangButtons();
-  }
-
-  function openSupport(){
-    const url = STRIPE_DONATION_LINK;
-    if(url && !url.includes('REMPLACE_ICI')){
-      window.open(url, '_blank', 'noopener,noreferrer');
-      return;
+  function runLangFilter(lang){
+    lang = normLang(lang);
+    if(typeof ST !== 'undefined'){
+      ST.lang = lang;
+      ST.cardsSortedCache = null;
+      ST.cardsSortedKey = '';
+      if(ST.renderLimit) ST.renderLimit = 50;
     }
-    const modal = document.getElementById('nakama-support-modal');
-    if(modal) modal.classList.add('open');
+    if(typeof applyFilters === 'function') applyFilters();
+    else if(typeof renderCards === 'function') renderCards();
+    paintLangButtons(lang);
   }
 
-  function injectSupportButton(){
-    if(document.getElementById('nakama-support-btn')) return;
-    const right = document.querySelector('.topbar-right') || document.querySelector('.nb-top-actions') || document.querySelector('.topbar');
-    if(!right) return;
-    const btn = document.createElement('button');
-    btn.id = 'nakama-support-btn';
-    btn.type = 'button';
-    btn.textContent = '❤️ Soutenir';
-    btn.addEventListener('click', openSupport);
-    right.prepend(btn);
-
-    if(!document.getElementById('nakama-support-modal')){
-      const modal = document.createElement('div');
-      modal.id = 'nakama-support-modal';
-      modal.innerHTML = `
-        <div class="nakama-support-card" role="dialog" aria-modal="true" aria-label="Soutenir Nakama Binder">
-          <button class="nakama-support-close" type="button" aria-label="Fermer">×</button>
-          <div class="nakama-support-title">Soutenir Nakama Binder</div>
-          <div class="nakama-support-text">
-            Le bouton est prêt. Il reste juste à coller ton lien <b>Stripe Payment Link</b> dans la variable <code>STRIPE_DONATION_LINK</code> du fichier HTML.
-          </div>
-          <div class="nakama-support-actions">
-            <button type="button" data-copy-stripe>Copier l’endroit à modifier</button>
-            <button type="button" data-close-support>Compris</button>
-          </div>
-        </div>`;
-      document.body.appendChild(modal);
-      modal.addEventListener('click', function(e){ if(e.target === modal || e.target.closest('[data-close-support], .nakama-support-close')) modal.classList.remove('open'); });
-      const copy = modal.querySelector('[data-copy-stripe]');
-      if(copy) copy.addEventListener('click', function(){
-        navigator.clipboard && navigator.clipboard.writeText("STRIPE_DONATION_LINK = 'TON_LIEN_STRIPE_ICI'").catch(()=>{});
-        if(typeof showToast === 'function') showToast('Ligne Stripe copiée');
-      });
+  try{
+    if(typeof ST !== 'undefined' && !('ST' in window)){
+      Object.defineProperty(window, 'ST', { configurable:true, get:function(){ return ST; } });
     }
+  }catch(e){}
+
+  window.setLang = runLangFilter;
+
+  document.addEventListener('click', function(e){
+    var btn = e.target && e.target.closest ? e.target.closest('.filter-lang-inline button, .lang-tabs .lang-tab') : null;
+    if(!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    runLangFilter(langFromButton(btn));
+  }, true);
+
+  function addSupportButton(){
+    if(document.getElementById('nakama-support-btn-safe')) return;
+    var target = document.querySelector('.topbar-right') || document.querySelector('.main-tabs') || document.querySelector('.filters-bar');
+    if(!target) return;
+    var a = document.createElement('a');
+    a.id = 'nakama-support-btn-safe';
+    a.className = 'nakama-support-btn-safe';
+    a.href = STRIPE_DONATION_LINK;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.textContent = '❤️ Soutenir';
+    target.appendChild(a);
   }
 
-  document.addEventListener('DOMContentLoaded', function(){ bindLang(); injectSupportButton(); });
-  window.addEventListener('load', function(){
-    bindLang(); injectSupportButton();
-    setTimeout(bindLang, 300);
-    setTimeout(bindLang, 1000);
+  document.addEventListener('DOMContentLoaded', function(){
+    paintLangButtons();
+    addSupportButton();
   });
-  try{ new MutationObserver(function(){ setTimeout(function(){ bindLang(); injectSupportButton(); },0); }).observe(document.documentElement,{childList:true,subtree:true}); }catch(e){}
+  window.addEventListener('load', function(){
+    paintLangButtons();
+    addSupportButton();
+    setTimeout(paintLangButtons, 300);
+    setTimeout(addSupportButton, 500);
+  });
 })();
 </script>
 
