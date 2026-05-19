@@ -11098,5 +11098,222 @@ document.addEventListener('click', function(e){
 })();
 </script>
 
+
+<!-- NAKAMA PERFORMANCE PATCH: paginated card rendering + lighter cards.json cache -->
+<style id="nakama-performance-pagination-css">
+.nb-page-tools{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:18px auto 26px;padding:14px;border:1px solid var(--border);border-radius:14px;background:rgba(255,255,255,.025);max-width:720px}
+.nb-page-info{font-size:12px;color:var(--muted);font-weight:700;text-align:center}
+.nb-load-more{padding:11px 16px;border-radius:10px;border:1px solid rgba(212,160,23,.35);background:rgba(212,160,23,.10);color:var(--gold2);font-family:var(--font-body);font-size:13px;font-weight:900;cursor:pointer}
+.nb-load-more:hover{border-color:var(--gold);background:rgba(212,160,23,.16);color:#fff}
+.nb-perf-note{font-size:11px;color:var(--muted2);width:100%;text-align:center;margin-top:2px}
+</style>
+<script id="nakama-performance-pagination-js">
+(function(){
+  if (window.__NAKAMA_PERF_PAGINATION__) return;
+  window.__NAKAMA_PERF_PAGINATION__ = true;
+
+  const FIRST_BATCH = 70;
+  const NEXT_BATCH = 70;
+
+  function ensurePerfState(){
+    if (typeof ST === 'undefined') return;
+    if (!ST.renderLimit) ST.renderLimit = FIRST_BATCH;
+    if (!ST.cardsSortedCache) ST.cardsSortedCache = null;
+    if (!ST.cardsSortedKey) ST.cardsSortedKey = '';
+  }
+
+  function resetCardPage(){
+    ensurePerfState();
+    ST.renderLimit = FIRST_BATCH;
+    ST.cardsSortedCache = null;
+    ST.cardsSortedKey = '';
+  }
+
+  function sortedFilteredCards(){
+    ensurePerfState();
+    const key = [ST.filtered.length, ST.lang, ST.onlyOwned, ST.search, ST.filterSet, ST.filterRarity, ST.filterSpecial].join('|');
+    if (!ST.cardsSortedCache || ST.cardsSortedKey !== key) {
+      ST.cardsSortedCache = ST.filtered.slice().sort(cardSort);
+      ST.cardsSortedKey = key;
+    }
+    return ST.cardsSortedCache;
+  }
+
+  window.nbLoadMoreCards = function(){
+    ensurePerfState();
+    ST.renderLimit += NEXT_BATCH;
+    renderCards();
+    const tools = document.getElementById('nb-page-tools');
+    if (tools) tools.scrollIntoView({behavior:'smooth', block:'center'});
+  };
+
+  window.nbShowAllCards = function(){
+    ensurePerfState();
+    ST.renderLimit = ST.filtered.length;
+    renderCards();
+  };
+
+  const previousLoadCards = typeof loadCards === 'function' ? loadCards : null;
+  window.loadCards = async function(){
+    try {
+      const res = await fetch('/cards.json', { cache: 'force-cache' });
+      const data = await res.json();
+      ST.cards = (data.cards || [])
+        .map(normalizeCard)
+        .filter(c => c.set !== 'AUTRE');
+      mergeManualCards();
+      buildSetFilter();
+      resetCardPage();
+      applyFilters();
+      if (typeof nbMaybeOpenSeoCardWhenReady === 'function') nbMaybeOpenSeoCardWhenReady();
+    } catch(e) {
+      if (previousLoadCards) return previousLoadCards();
+      const el = document.getElementById('main-content');
+      if (el) el.innerHTML = `<div class="empty-state" style="color:#e05c5c">Erreur de chargement de cards.json.<br>Vérifie que le fichier est bien à la racine de ton site.</div>`;
+    }
+  };
+
+  window.applyFilters = function(){
+    const owned = ud().owned || {};
+    ST.filtered = ST.cards.filter(c => {
+      if (ST.lang !== 'ALL' && c.lang !== ST.lang) return false;
+      if (ST.filterSet && c.set !== ST.filterSet) return false;
+      if (ST.filterRarity && c.rarity !== ST.filterRarity) return false;
+      if (ST.filterSpecial && !matchesSpecialFilter(c, ST.filterSpecial)) return false;
+      if (ST.onlyOwned && !owned[c.id]) return false;
+      if (ST.search && !String(c.name || '').toLowerCase().includes(ST.search) && !String(c.code || '').toLowerCase().includes(ST.search)) return false;
+      return true;
+    });
+    resetCardPage();
+    const fc = document.getElementById('fcount');
+    if (fc) fc.textContent = ST.filtered.length.toLocaleString('fr') + ' cartes';
+    renderCards();
+    if (typeof renderStats === 'function') renderStats();
+    if (typeof renderDashboardStats === 'function') renderDashboardStats();
+    if (typeof renderCollectionTab === 'function') renderCollectionTab();
+    if (typeof renderDashboardStats === 'function') renderDashboardStats();
+  };
+
+  window.renderCards = function(){
+    const mc = document.getElementById('main-content');
+    if (!mc) return;
+    ensurePerfState();
+
+    const allCards = sortedFilteredCards();
+    if (!allCards.length) {
+      mc.innerHTML = '<div class="empty-state">Aucune carte trouvée 🏴‍☠️</div>';
+      return;
+    }
+
+    const limit = Math.min(ST.renderLimit || FIRST_BATCH, allCards.length);
+    const cards = allCards.slice(0, limit);
+    const owned = ud().owned || {};
+    const bySet = groupBy(cards, c => c.set || 'AUTRE');
+    const sortedSets = Object.keys(bySet).sort(setSort);
+    let html = '';
+
+    for (const key of sortedSets) {
+      const setCards = bySet[key].slice().sort(cardSort);
+      const totalVisible = setCards.length;
+      const totalAllSet = allCards.filter(c => (c.set || 'AUTRE') === key).length;
+      const ownedN = setCards.reduce((sum,c)=>sum+Math.min(1, ownedQty(owned[c.id])),0);
+      const ownedAllSet = allCards.filter(c => (c.set || 'AUTRE') === key).reduce((sum,c)=>sum+Math.min(1, ownedQty(owned[c.id])),0);
+      const pct = totalAllSet ? Math.round(ownedAllSet/totalAllSet*100) : 0;
+      const isOpen = !ST.collapsed[key];
+      const byLang = groupBy(setCards, c => c.lang || 'UNK');
+
+      let bodyHtml = '';
+      const sortedLangs = Object.keys(byLang).sort((a,b)=>orderIndex(LANG_ORDER,a)-orderIndex(LANG_ORDER,b) || a.localeCompare(b));
+      for (const lang of sortedLangs) {
+        const langCards = byLang[lang].slice().sort(cardSort);
+        const byType = groupBy(langCards, c => c._type || 'OTHER');
+        let langHtml = '';
+
+        const sortedTypes = Object.keys(byType).sort((a,b)=>orderIndex(TYPE_ORDER,a)-orderIndex(TYPE_ORDER,b) || a.localeCompare(b));
+        for (const type of sortedTypes) {
+          const typeCards = byType[type].slice().sort(cardSort);
+          const byRarity = groupBy(typeCards, c => c.rarity || '');
+          let typeHtml = '';
+
+          const sortedRar = Object.keys(byRarity).sort((a,b)=>orderIndex(RARITY_ORDER,a)-orderIndex(RARITY_ORDER,b) || a.localeCompare(b));
+          for (const rar of sortedRar) {
+            const rc = byRarity[rar].slice().sort(cardSort);
+            const color = RC[rar] || '#7a8a99';
+            const ownedRar = rc.reduce((sum,c)=>sum+Math.min(1, ownedQty(owned[c.id])),0);
+            const thumbs = rc.map(card => {
+              const qtyOwned = ownedQty(owned[card.id]);
+              const isOwned = qtyOwned > 0;
+              const info = owned[card.id] || {};
+              const url = imgUrl(card);
+              const safeName = escapeHtml(card.name || card.code || card.id || 'Carte');
+              const safeCode = String(card.id||card.code||'').replace(/'/g,"\\'");
+              const safeUrl = String(url||'').replace(/'/g,"\\'");
+              const safeName2 = String(card.name||'Carte').replace(/'/g,"\\'");
+              return `<div class="card-item${isOwned?' owned':''}" onclick="openModal('${safeCode}','${safeUrl}','${safeName2}')" title="${safeName}">
+                ${cardImgHtml(card, safeName)}
+                ${isOwned?'<div class="owned-badge">✓</div>':''}
+                ${qtyOwned>1?`<div class="qty-badge">x${qtyOwned}</div>`:''}
+                ${ownedValue(info)>0?`<div class="price-badge">${ownedValue(info).toFixed(2)}€</div>`:''}
+              </div>`;
+            }).join('');
+
+            typeHtml += `<div class="rarity-block">
+              <div class="rarity-head">
+                <span class="r-dot" style="background:${color}"></span>
+                <span style="color:${color}">${RL[rar]||rar||'Inconnu'}</span>
+                <span class="rarity-count">${ownedRar}/${rc.length}</span>
+              </div>
+              <div class="cards-grid">${thumbs}</div>
+            </div>`;
+          }
+
+          langHtml += `<div class="rarity-block">
+            <div class="rarity-head">
+              <span>${TYPE_LABEL[type] || type}</span>
+              <span class="rarity-count">${typeCards.length}</span>
+            </div>
+            ${typeHtml}
+          </div>`;
+        }
+
+        bodyHtml += `<div class="rarity-block">
+          <div class="rarity-head">
+            <span>${LANG_LABEL[lang] || lang}</span>
+            <span class="rarity-count">${langCards.length}</span>
+          </div>
+          ${langHtml}
+        </div>`;
+      }
+
+      html += `<div class="set-block">
+        <div class="set-head" onclick="toggleSet('${key.replace(/'/g,"\\'")}')">
+          <span class="set-label">${key}</span>
+          <span class="set-pill">${ownedAllSet}/${totalAllSet} · ${pct}% · ${totalVisible} affichées</span>
+          <div class="set-bar"><div class="set-bar-fill" style="width:${pct}%"></div></div>
+          <span class="set-chev${isOpen?' open':''}">▾</span>
+        </div>
+        <div class="set-body${isOpen?' open':''}">${bodyHtml}</div>
+      </div>`;
+    }
+
+    if (limit < allCards.length) {
+      html += `<div class="nb-page-tools" id="nb-page-tools">
+        <div class="nb-page-info">${limit.toLocaleString('fr')} / ${allCards.length.toLocaleString('fr')} cartes affichées</div>
+        <button type="button" class="nb-load-more" onclick="nbLoadMoreCards()">Afficher ${Math.min(NEXT_BATCH, allCards.length - limit)} cartes de plus</button>
+        <button type="button" class="nb-load-more" onclick="nbShowAllCards()">Tout afficher</button>
+        <div class="nb-perf-note">Mode léger : les images des cartes non affichées ne sont pas chargées, donc beaucoup moins de data consommée.</div>
+      </div>`;
+    } else {
+      html += `<div class="nb-page-tools" id="nb-page-tools"><div class="nb-page-info">Toutes les cartes filtrées sont affichées.</div></div>`;
+    }
+
+    mc.innerHTML = html;
+  };
+
+  resetCardPage();
+})();
+</script>
+<!-- END NAKAMA PERFORMANCE PATCH -->
+
 </body>
 </html>
