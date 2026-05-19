@@ -3,13 +3,19 @@
     {
       "source": "/cards.json",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=86400, s-maxage=604800, stale-while-revalidate=604800" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, s-maxage=604800, stale-while-revalidate=604800"
+        }
       ]
     },
     {
-      "source": "/(.*)\.(webp|png|jpg|jpeg|gif|svg|ico|css|js)",
+      "source": "/(.*)\\.(webp|png|jpg|jpeg|gif|svg|ico|css|js)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
       ]
     }
   ]
