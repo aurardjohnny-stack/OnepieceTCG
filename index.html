@@ -5039,7 +5039,9 @@ function renderCards() {
             const safeCode = (card.id||card.code).replace(/'/g,"\\'");
             const safeUrl = url.replace(/'/g,"\\'");
             const safeName2 = card.name.replace(/'/g,"\\'");
-            return `<div class="card-item${isOwned?' owned':''}" onclick="openModal('${safeCode}','${safeUrl}','${safeName2}')" title="${safeName}">
+            const dataIndex = ST.filtered.indexOf(card);
+              const dataId = String(card.id || card.code || '').replace(/"/g,'&quot;');
+              return `<div class="card-item${isOwned?' owned':''}" data-index="${dataIndex}" data-card-id="${dataId}" onclick="openModal('${safeCode}','${safeUrl}','${safeName2}')" title="${safeName}">
               ${cardImgHtml(card, safeName)}
               ${isOwned?'<div class="owned-badge">✓</div>':''}
               ${qtyOwned>1?`<div class="qty-badge">x${qtyOwned}</div>`:''}
@@ -11477,6 +11479,154 @@ document.addEventListener('click', function(e){
       if (typeof renderFriends === 'function' && ST && ST.mainTab === 'friends') renderFriends();
     } catch(e) {}
   }, 50);
+})();
+</script>
+
+
+
+<!-- NAKAMA FINAL REPAIR: zoom + premium zoom + filters after pagination/image patches -->
+<script id="nakama-v121-zoom-filter-repair">
+(function(){
+  if(window.__NAKAMA_V121_REPAIR__) return;
+  window.__NAKAMA_V121_REPAIR__ = true;
+
+  function proxyUrl(url){
+    if(!url || String(url).startsWith('data:') || String(url).startsWith('blob:')) return '';
+    if(String(url).includes('/api/proxy?url=')) return String(url);
+    return '/api/proxy?url=' + encodeURIComponent(String(url));
+  }
+
+  function cardOriginalImage(card){
+    return String(card && (card.original_image || card.image || card.img || '') || '');
+  }
+
+  function bestCardImage(card, fallback){
+    if(card && typeof imgUrl === 'function'){
+      try{
+        const u = imgUrl(card);
+        if(u) return u;
+      }catch(e){}
+    }
+    return fallback || cardOriginalImage(card) || '';
+  }
+
+  window.openZoom = function(src, label){
+    const overlay = document.getElementById('zoom-overlay');
+    const img = document.getElementById('zoom-img');
+    if(!overlay || !img || !src) return;
+    img.style.display = '';
+    img.classList.remove('loaded');
+    img.setAttribute('data-nakama-step','0');
+    img.setAttribute('data-fallback-1', src);
+    img.setAttribute('data-fallback-2', proxyUrl(src));
+    img.onload = function(){ this.classList.add('loaded'); };
+    img.onerror = function(){
+      if(typeof nakamaImgError === 'function') nakamaImgError(this);
+      else this.style.display = 'none';
+    };
+    img.src = src;
+    overlay.classList.add('open');
+  };
+
+  window.zoomModal = function(){
+    let src = '';
+    const mImg = document.getElementById('m-img');
+    if(mImg && mImg.currentSrc) src = mImg.currentSrc;
+    if(!src && mImg && mImg.src) src = mImg.src;
+    const card = window.ST && ST.selCode && ST.cards ? ST.cards.find(c => c.id === ST.selCode || c.code === ST.selCode) : null;
+    if(card) src = bestCardImage(card, src);
+    if(src) window.openZoom(src, ST && ST.selCode ? ST.selCode : 'Carte');
+  };
+
+  window.premiumZoomCard = function(){
+    const card = window.__premiumCurrentCard;
+    let src = '';
+    const pImg = document.getElementById('premium-card-img');
+    if(pImg && pImg.currentSrc) src = pImg.currentSrc;
+    if(!src && pImg && pImg.src) src = pImg.src;
+    if(card) src = bestCardImage(card, src);
+    if(src) window.openZoom(src, card && (card.code || card.id || card.name));
+  };
+
+  // Quand la pagination régénère les cartes, on redonne les bons attributs au premium modal.
+  function hydrateCardItems(){
+    if(!window.ST || !Array.isArray(ST.filtered)) return;
+    document.querySelectorAll('.card-item').forEach(el => {
+      if(el.dataset.cardId && el.dataset.index) return;
+      const title = (el.getAttribute('title') || '').toLowerCase();
+      const img = el.querySelector('img');
+      const src = img ? (img.getAttribute('src') || '') : '';
+      const card = ST.filtered.find(c =>
+        (c.name && String(c.name).toLowerCase() === title) ||
+        (c.id && src.includes(String(c.id))) ||
+        (c.code && src.includes(String(c.code)))
+      );
+      if(card){
+        el.dataset.cardId = card.id || card.code || '';
+        el.dataset.index = String(ST.filtered.indexOf(card));
+      }
+    });
+  }
+
+  // Répare les filtres, même si un ancien onclick ou select ne déclenche plus le bon handler.
+  window.onFilter = function(){
+    if(!window.ST) return;
+    const set = document.getElementById('set-filter');
+    const rar = document.getElementById('rarity-filter');
+    const spe = document.getElementById('special-filter');
+    if(set) ST.filterSet = set.value || '';
+    if(rar) ST.filterRarity = rar.value || '';
+    if(spe) ST.filterSpecial = spe.value || '';
+    if(typeof applyFilters === 'function') applyFilters();
+    setTimeout(hydrateCardItems, 0);
+  };
+
+  window.onSearch = function(v){
+    if(!window.ST) return;
+    ST.search = String(v || '').toLowerCase();
+    if(typeof applyFilters === 'function') applyFilters();
+    setTimeout(hydrateCardItems, 0);
+  };
+
+  window.toggleOwned = function(){
+    if(!window.ST) return;
+    ST.onlyOwned = !ST.onlyOwned;
+    const btn = document.getElementById('toggle-owned');
+    if(btn) btn.classList.toggle('on', ST.onlyOwned);
+    if(typeof applyFilters === 'function') applyFilters();
+    setTimeout(hydrateCardItems, 0);
+  };
+
+  function bindFilters(){
+    const set = document.getElementById('set-filter');
+    const rar = document.getElementById('rarity-filter');
+    const spe = document.getElementById('special-filter');
+    [set, rar, spe].forEach(el => {
+      if(el && !el.dataset.v121Bound){
+        el.dataset.v121Bound = '1';
+        el.addEventListener('change', window.onFilter, true);
+      }
+    });
+    const search = document.getElementById('search-input') || document.querySelector('.fsearch');
+    if(search && !search.dataset.v121Bound){
+      search.dataset.v121Bound = '1';
+      search.addEventListener('input', function(){ window.onSearch(this.value); }, true);
+    }
+    hydrateCardItems();
+  }
+
+  document.addEventListener('click', function(e){
+    const zoomBtn = e.target.closest('.premium-zoom-btn, [onclick*="premiumZoomCard"], [onclick*="zoomModal"]');
+    if(zoomBtn){
+      setTimeout(function(){
+        if(zoomBtn.classList.contains('premium-zoom-btn') || (zoomBtn.getAttribute('onclick')||'').includes('premiumZoomCard')) window.premiumZoomCard();
+      }, 0);
+    }
+  }, true);
+
+  document.addEventListener('DOMContentLoaded', bindFilters);
+  window.addEventListener('load', function(){ bindFilters(); setTimeout(bindFilters, 300); setTimeout(hydrateCardItems, 800); });
+  try{ new MutationObserver(function(){ setTimeout(bindFilters, 0); }).observe(document.documentElement, {childList:true, subtree:true}); }catch(e){}
 })();
 </script>
 
