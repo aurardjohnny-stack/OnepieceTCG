@@ -11782,5 +11782,107 @@ document.addEventListener('click', function(e){
 })();
 </script>
 
+
+<!-- NAKAMA FINAL SAFE PATCH: tri langue uniquement, sans toucher aux cartes/images/zoom -->
+<script id="nakama-final-lang-only-fix">
+(function(){
+  if (window.__NAKAMA_FINAL_LANG_ONLY_FIX__) return;
+  window.__NAKAMA_FINAL_LANG_ONLY_FIX__ = true;
+
+  function nbNormLang(v){
+    var x = String(v || 'ALL').trim().toUpperCase().replace(/[._\s/]+/g, '-');
+    if (x === 'TOUTES' || x === 'TOUT' || x === 'ALL') return 'ALL';
+    if (x === 'JP' || x === 'JPN' || x === 'JA' || x === 'JAPANESE' || x === 'JAPONAIS') return 'JAP';
+    if (x === 'CN' || x === 'CNHK' || x === 'CN-HK' || x === 'HK' || x === 'TC') return 'CN-HK';
+    if (x === 'AUTRES' || x === 'OTHER' || x === 'OTHERS') return 'UNK';
+    if (x === 'FR' || x === 'EN' || x === 'JAP' || x === 'CN-HK' || x === 'UNK') return x;
+    return x || 'ALL';
+  }
+
+  function nbLangFromButton(btn){
+    if (!btn) return 'ALL';
+    var data = btn.getAttribute('data-lang-choice') || btn.getAttribute('data-lang') || '';
+    if (data) return nbNormLang(data);
+    var oc = btn.getAttribute('onclick') || '';
+    var m = oc.match(/setLang\(['"]([^'"]+)['"]\)/);
+    if (m) return nbNormLang(m[1]);
+    return nbNormLang(btn.textContent || 'ALL');
+  }
+
+  function nbPaintLangButtons(){
+    try {
+      var current = nbNormLang(ST.lang || 'ALL');
+      document.querySelectorAll('.filter-lang-inline button, .lang-tabs .lang-tab, button.lang-tab').forEach(function(btn){
+        var bLang = nbLangFromButton(btn);
+        btn.setAttribute('data-lang-choice', bLang);
+        btn.type = 'button';
+        var active = bLang === current;
+        btn.classList.toggle('active', active);
+        btn.classList.toggle('lang-active', active);
+        btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+      });
+    } catch(e) {}
+  }
+
+  function nbApplyLang(lang){
+    try {
+      lang = nbNormLang(lang);
+      ST.lang = lang;
+
+      // Reset pagination si le patch perf existe, sinon aucun effet.
+      if (typeof window.nbVisibleCards !== 'undefined') window.nbVisibleCards = 50;
+      if (typeof window.resetCardPage === 'function') {
+        try { window.resetCardPage(); } catch(e) {}
+      }
+
+      if (typeof applyFilters === 'function') applyFilters();
+      else if (typeof renderCards === 'function') renderCards();
+
+      nbPaintLangButtons();
+      setTimeout(nbPaintLangButtons, 50);
+      setTimeout(nbPaintLangButtons, 250);
+    } catch(err) {
+      console.error('[Nakama] Erreur tri langue:', err);
+    }
+  }
+
+  // IMPORTANT : ST est un const global, pas window.ST.
+  // On expose seulement setLang pour les boutons HTML onclick.
+  window.setLang = nbApplyLang;
+
+  function nbBindLangButtons(){
+    document.querySelectorAll('.filter-lang-inline button, .lang-tabs .lang-tab, button.lang-tab').forEach(function(btn){
+      var lang = nbLangFromButton(btn);
+      btn.setAttribute('data-lang-choice', lang);
+      btn.type = 'button';
+      btn.onclick = function(ev){
+        if (ev) {
+          ev.preventDefault();
+          ev.stopPropagation();
+        }
+        nbApplyLang(lang);
+        return false;
+      };
+    });
+    nbPaintLangButtons();
+  }
+
+  document.addEventListener('click', function(ev){
+    var btn = ev.target && ev.target.closest && ev.target.closest('.filter-lang-inline button, .lang-tabs .lang-tab, button.lang-tab');
+    if (!btn) return;
+    ev.preventDefault();
+    ev.stopPropagation();
+    nbApplyLang(nbLangFromButton(btn));
+  }, true);
+
+  document.addEventListener('DOMContentLoaded', nbBindLangButtons);
+  window.addEventListener('load', function(){
+    nbBindLangButtons();
+    setTimeout(nbBindLangButtons, 300);
+    setTimeout(nbBindLangButtons, 1000);
+  });
+})();
+</script>
+
 </body>
 </html>
