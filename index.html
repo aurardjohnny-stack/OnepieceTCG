@@ -11687,102 +11687,113 @@ document.addEventListener('click', function(e){
 
 
 
-<!-- NAKAMA V7: patch minimal tri langue, basé sur la version stable V5 -->
-<script id="nakama-v7-lang-only-safe-fix">
+<script id="nakama-v8-lang-only-stable-fix">
 (function(){
-  if (window.__NAKAMA_V7_LANG_ONLY_SAFE_FIX__) return;
-  window.__NAKAMA_V7_LANG_ONLY_SAFE_FIX__ = true;
-
   function normLang(v){
-    v = String(v || 'ALL').trim().toUpperCase().replace(/\s+/g,'').replace(/_/g,'-');
-    if (v === 'TOUTES' || v === 'TOUS' || v === 'ALL') return 'ALL';
-    if (v === 'JP' || v === 'JPN' || v === 'JA' || v === 'JAPAN' || v === 'JAPONAIS') return 'JAP';
-    if (v === 'CN' || v === 'HK' || v === 'CNHK' || v === 'CN-HK') return 'CN-HK';
-    if (v === 'AUTRES' || v === 'AUTRE' || v === 'OTHER' || v === 'OTHERS' || v === 'UNK') return 'UNK';
-    if (v === 'FR' || v === 'EN') return v;
-    return v || 'ALL';
+    var x = String(v || '').trim().toUpperCase();
+    x = x.normalize ? x.normalize('NFD').replace(/[\u0300-\u036f]/g,'') : x;
+    x = x.replace(/[._\s]/g,'-');
+    if(!x) return 'UNK';
+    if(['FR','FRA','FRENCH','FRANCAIS'].indexOf(x) >= 0) return 'FR';
+    if(['EN','ENG','ENGLISH','US','UK'].indexOf(x) >= 0) return 'EN';
+    if(['JP','JAP','JA','JPN','JAPANESE','JAPONAIS'].indexOf(x) >= 0) return 'JAP';
+    if(['CN-HK','CNHK','C-HK','HK','TC','ZH-HK','ZHTW','ZH-TW','CHINESE','CHINOIS'].indexOf(x) >= 0) return 'CN-HK';
+    return x;
   }
 
-  function getLangFromButton(btn){
-    if (!btn) return 'ALL';
-    if (btn.dataset && btn.dataset.langChoice) return normLang(btn.dataset.langChoice);
-    const txt = String(btn.textContent || '').trim().toUpperCase();
-    if (txt.includes('TOUTES')) return 'ALL';
-    if (txt === 'FR') return 'FR';
-    if (txt === 'EN') return 'EN';
-    if (txt === 'JP' || txt === 'JAP') return 'JAP';
-    if (txt.includes('CN') || txt.includes('HK')) return 'CN-HK';
-    if (txt.includes('AUTRES')) return 'UNK';
-    return 'ALL';
+  function langFromButton(btn){
+    var val = btn.getAttribute('data-lang-choice');
+    if(val) return normLang(val) === 'UNK' && val === 'ALL' ? 'ALL' : val;
+    var txt = (btn.textContent || '').trim().toUpperCase();
+    if(txt === 'TOUTES' || txt === 'ALL') return 'ALL';
+    if(txt === 'JP') return 'JAP';
+    if(txt === 'CN/HK' || txt === 'CN-HK') return 'CN-HK';
+    if(txt === 'AUTRES') return 'UNK';
+    return normLang(txt);
   }
 
-  function prepareLangButtons(){
-    document.querySelectorAll('.filter-lang-inline button').forEach(function(btn){
-      const lang = getLangFromButton(btn);
-      btn.dataset.langChoice = lang;
-      btn.classList.add('lang-tab');
-      btn.type = 'button';
-      btn.removeAttribute('onclick');
-    });
-  }
-
-  function paintLangButtons(lang){
-    const current = normLang(lang || (typeof ST !== 'undefined' && ST.lang) || 'ALL');
-    document.querySelectorAll('.filter-lang-inline button').forEach(function(btn){
-      const active = normLang(btn.dataset.langChoice || getLangFromButton(btn)) === current;
+  function paintLang(lang){
+    lang = lang || (window.ST && ST.lang) || 'ALL';
+    document.querySelectorAll('.filter-lang-inline button, .lang-tabs button').forEach(function(btn){
+      var bLang = langFromButton(btn);
+      var active = bLang === lang;
       btn.classList.toggle('active', active);
-      btn.classList.toggle('lang-active', active);
       btn.setAttribute('aria-pressed', active ? 'true' : 'false');
-      if(active){
-        btn.style.setProperty('background','linear-gradient(135deg,#f2b63e,#ffd978)','important');
-        btn.style.setProperty('color','#07111f','important');
-        btn.style.setProperty('border-color','#f2b63e','important');
-        btn.style.setProperty('box-shadow','0 0 20px rgba(242,182,62,.34)','important');
-      }else{
-        btn.style.removeProperty('background');
-        btn.style.removeProperty('color');
-        btn.style.removeProperty('border-color');
-        btn.style.removeProperty('box-shadow');
-      }
     });
   }
+
+  function langMatches(card, wanted){
+    if(!wanted || wanted === 'ALL') return true;
+    var raw = card && (card.lang || card.language || card.locale || card.card_lang || card.version || '');
+    var got = normLang(raw);
+    if(wanted === 'UNK') return !['FR','EN','JAP','CN-HK'].includes(got);
+    return got === wanted;
+  }
+
+  window.applyFilters = function(){
+    if(!window.ST || !Array.isArray(ST.cards)) return;
+    var owned = (typeof ud === 'function' && ud().owned) ? ud().owned : {};
+    var wantedLang = ST.lang || 'ALL';
+    ST.filtered = ST.cards.filter(function(c){
+      if(!langMatches(c, wantedLang)) return false;
+      if(ST.filterSet && c.set !== ST.filterSet) return false;
+      if(ST.filterRarity && c.rarity !== ST.filterRarity) return false;
+      if(ST.filterSpecial && typeof matchesSpecialFilter === 'function' && !matchesSpecialFilter(c, ST.filterSpecial)) return false;
+      if(ST.onlyOwned && !owned[c.id]) return false;
+      if(ST.search){
+        var q = String(ST.search).toLowerCase();
+        var blob = [c.name, c.code, c.id, c.set, c.rarity, c.type].filter(Boolean).join(' ').toLowerCase();
+        if(blob.indexOf(q) === -1) return false;
+      }
+      return true;
+    });
+    var fcount = document.getElementById('fcount');
+    if(fcount) fcount.textContent = ST.filtered.length.toLocaleString('fr') + ' cartes';
+    if(typeof renderCards === 'function') renderCards();
+    if(typeof renderStats === 'function') renderStats();
+    if(typeof renderDashboardStats === 'function') renderDashboardStats();
+    if(typeof renderCollectionTab === 'function') renderCollectionTab();
+    paintLang(wantedLang);
+  };
 
   window.setLang = function(lang){
-    lang = normLang(lang);
-    try {
-      if (typeof ST !== 'undefined') {
-        ST.lang = lang;
-        window.ST = ST;
-      }
-    } catch(e) {}
-
-    if (typeof applyFilters === 'function') {
-      try { applyFilters(); } catch(e) { console.error('Nakama lang filter error', e); }
-    }
-    paintLangButtons(lang);
+    lang = lang || 'ALL';
+    if(lang === 'JP') lang = 'JAP';
+    if(window.ST) ST.lang = lang;
+    window.applyFilters();
   };
 
   function bindLangButtons(){
-    prepareLangButtons();
-    const wrap = document.querySelector('.filter-lang-inline');
-    if (wrap && !wrap.dataset.v7LangBound) {
-      wrap.dataset.v7LangBound = '1';
-      wrap.addEventListener('click', function(e){
-        const btn = e.target.closest('button');
-        if (!btn || !wrap.contains(btn)) return;
-        e.preventDefault();
-        e.stopPropagation();
-        window.setLang(btn.dataset.langChoice || getLangFromButton(btn));
-      }, true);
-    }
-    paintLangButtons(typeof ST !== 'undefined' ? ST.lang : 'ALL');
+    var wrap = document.querySelector('.filter-lang-inline');
+    if(!wrap || wrap.dataset.v8LangBound) return;
+    wrap.dataset.v8LangBound = '1';
+
+    // Corrige les boutons au chargement, sans toucher au reste du site.
+    wrap.querySelectorAll('button').forEach(function(btn){
+      var lang = langFromButton(btn);
+      btn.setAttribute('data-lang-choice', lang);
+      btn.classList.add('lang-tab');
+      btn.removeAttribute('onclick');
+      btn.type = 'button';
+    });
+
+    wrap.addEventListener('click', function(e){
+      var btn = e.target.closest('button');
+      if(!btn || !wrap.contains(btn)) return;
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      window.setLang(langFromButton(btn));
+    }, true);
+
+    paintLang(window.ST && ST.lang ? ST.lang : 'ALL');
   }
 
   document.addEventListener('DOMContentLoaded', bindLangButtons);
   window.addEventListener('load', function(){
     bindLangButtons();
-    setTimeout(bindLangButtons, 250);
-    setTimeout(function(){ paintLangButtons(typeof ST !== 'undefined' ? ST.lang : 'ALL'); }, 600);
+    setTimeout(bindLangButtons, 300);
+    setTimeout(function(){ paintLang(window.ST && ST.lang ? ST.lang : 'ALL'); }, 500);
   });
 })();
 </script>
