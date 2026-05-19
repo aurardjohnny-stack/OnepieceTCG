@@ -4411,11 +4411,13 @@ function cardCropStyle(card) {
   return `object-position:${x}% ${y}%;transform:scale(${z});transform-origin:${x}% ${y}%;`;
 }
 function cardImgHtml(card, safeName) {
-  const url = imgUrl(card);
-  if (!url) return `<div class="card-placeholder"><span>🃏</span><small>${escapeHtml(card.code || card.id || '')}</small></div>`;
+  const candidates = imgCandidates(card);
+  if (!candidates.length) return `<div class="card-placeholder"><span>🃏</span><small>${escapeHtml(card.code || card.id || '')}</small></div>`;
   const style = cardCropStyle(card);
-  return `<img src="${url}" alt="${safeName}" loading="lazy" style="${style}" onload="this.classList.add('loaded')" onerror="this.style.display='none'">`;
+  const data = escapeHtml(JSON.stringify(candidates));
+  return `<img src="${escapeHtml(candidates[0])}" alt="${safeName}" loading="lazy" decoding="async" data-img-step="0" data-img-candidates="${data}" style="${style}" onload="this.classList.add('loaded')" onerror="nbImgFallback(this)">`;
 }
+
 function manualUpdateCropPreview() {
   ['x','y','z'].forEach(k => {
     const el = document.getElementById('manual-'+k), out = document.getElementById('manual-'+k+'v');
@@ -4610,23 +4612,73 @@ async function loadCards() {
   }
 }
 
-function imgUrl(card) {
-  if (card.manualImage) return card.manualImage;
-  const orig = card.original_image || card.image || card.img || '';
-  if (!orig) return '';
+function nbUniqueUrls(list) {
+  const seen = new Set();
+  return list.filter(u => {
+    u = String(u || '').trim();
+    if (!u || seen.has(u)) return false;
+    seen.add(u);
+    return true;
+  });
+}
 
-  // DATA SAVER IMPORTANT:
-  // Ne jamais faire passer les images par /api/proxy.
-  // Sinon Vercel télécharge puis renvoie chaque image, ce qui explose le Fast Origin Transfer
-  // et déclenche beaucoup de Function Invocations.
-  if (card.lang === 'FR') {
-    const filename = orig.split('/').pop().replace(/\.png$/, '.webp').replace(/\.jpg$/, '.webp');
-    return 'https://raw.githubusercontent.com/aurardjohnny-stack/op-tcg-images/main/' + filename;
+function imgCandidates(card) {
+  if (!card) return [];
+  if (card.manualImage) return [card.manualImage];
+  const orig = String(card.original_image || card.image || card.img || '').trim();
+  if (!orig) return [];
+
+  const out = [];
+  const filename = orig.split('/').pop().split('?')[0];
+
+  // 1) Version GitHub légère pour les cartes FR quand elle existe.
+  if (card.lang === 'FR' && filename) {
+    const base = filename.replace(/\.(png|jpg|jpeg|webp)$/i, '');
+    out.push('https://raw.githubusercontent.com/aurardjohnny-stack/op-tcg-images/main/' + base + '.webp');
+    out.push('https://raw.githubusercontent.com/aurardjohnny-stack/op-tcg-images/main/' + filename);
   }
 
-  // Pour les autres langues, une balise <img> peut charger l'URL externe directement.
-  // Pas besoin de CORS pour afficher une image.
-  return orig;
+  // 2) URL originale directe. Beaucoup moins cher que Vercel proxy.
+  out.push(orig);
+
+  // 3) Dernier secours seulement : proxy Vercel, pour les sources qui refusent l'affichage direct.
+  if (!orig.startsWith('data:') && !orig.startsWith('/api/proxy')) {
+    out.push('/api/proxy?url=' + encodeURIComponent(orig));
+  }
+
+  return nbUniqueUrls(out);
+}
+
+function imgUrl(card) {
+  const list = imgCandidates(card);
+  return list[0] || '';
+}
+
+function nbImgFallback(img) {
+  try {
+    const raw = img.getAttribute('data-img-candidates') || '[]';
+    const candidates = JSON.parse(raw);
+    let step = parseInt(img.getAttribute('data-img-step') || '0', 10);
+    step += 1;
+    if (step < candidates.length) {
+      img.setAttribute('data-img-step', String(step));
+      img.src = candidates[step];
+      return;
+    }
+  } catch(e) {}
+  img.style.display = 'none';
+  const ph = img.parentElement && img.parentElement.querySelector('.card-placeholder');
+  if (ph) ph.style.display = 'flex';
+}
+
+function nbPrepareImgElement(img, card, fallbackUrl) {
+  if (!img) return;
+  const candidates = card ? imgCandidates(card) : nbUniqueUrls([fallbackUrl]);
+  img.setAttribute('data-img-candidates', JSON.stringify(candidates));
+  img.setAttribute('data-img-step', '0');
+  img.onerror = function(){ nbImgFallback(this); };
+  img.onload = function(){ this.classList.add('loaded'); this.style.opacity = 1; };
+  img.src = candidates[0] || '';
 }
 
 // ─── SEO CARD ROUTES /card/:slug ──────────────────────────────────
@@ -5207,18 +5259,17 @@ function openModal(id, img, name) {
   const card = ST.cards.find(c=>c.id===id);
   ST.selCard = card || { id, code:id, name:name || id };
   const realImg = card ? imgUrl(card) : img;
-  mImg.src = realImg || '';
   mImg.style.opacity = 0;
   mImg.style.objectPosition = '';
   mImg.style.transform = '';
   mImg.style.transformOrigin = '';
+  nbPrepareImgElement(mImg, card, realImg);
   if (card && card.manualCrop) {
     const crop = card.manualCrop;
     mImg.style.objectPosition = `${crop.x ?? 50}% ${crop.y ?? 50}%`;
     mImg.style.transform = `scale(${(crop.z ?? 100)/100})`;
     mImg.style.transformOrigin = `${crop.x ?? 50}% ${crop.y ?? 50}%`;
   }
-  mImg.onload = () => { mImg.style.opacity=1; };
   document.getElementById('m-name').textContent = name;
 
   document.getElementById('m-meta').textContent = card ? card.code + ' · ' + (card.lang||'') + ' · ' + (card.set||'') : id;
@@ -5319,7 +5370,11 @@ function zoomModal() {
 
 function openZoom(src, label) {
   if (!src) return;
-  document.getElementById('zoom-img').src = src;
+  const zi = document.getElementById('zoom-img');
+  const card = ST.cards.find(c=>c.id===label) || ST.selCard || null;
+  zi.classList.remove('loaded');
+  zi.style.display = '';
+  nbPrepareImgElement(zi, card, src);
   document.getElementById('zoom-overlay').classList.add('open');
 }
 function closeZoom() {
