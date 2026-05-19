@@ -11812,7 +11812,7 @@ document.addEventListener('click', function(e){
   window.__NAKAMA_V12_LANG_SUPPORT__ = true;
 
   // Quand tu as ton vrai Payment Link Stripe, remplace l'URL ci-dessous.
-  const STRIPE_DONATION_LINK = 'REMPLACE_ICI_PAR_TON_LIEN_STRIPE_PAYMENT_LINK';
+  const STRIPE_DONATION_LINK = 'https://buy.stripe.com/test_aFa28kbSAcVG46S5ZaenS00';
 
   function getState(){
     try{ if(typeof ST !== 'undefined') return ST; }catch(e){}
@@ -12038,6 +12038,151 @@ document.addEventListener('click', function(e){
     setTimeout(bindLang, 1000);
   });
   try{ new MutationObserver(function(){ setTimeout(function(){ bindLang(); injectSupportButton(); },0); }).observe(document.documentElement,{childList:true,subtree:true}); }catch(e){}
+})();
+</script>
+
+
+<!-- NAKAMA V13 FINAL CLEAN PATCH: garde tri langue + soutien, retire la fausse UI premium -->
+<style id="nakama-v13-clean-final-no-premium-page">
+  /* Neutralise uniquement le layout premium/faux écran */
+  .nb-banner-real,
+  .nb-banner-img,
+  .nb-side-real,
+  .nb-panel-real,
+  .nb-menu-real,
+  .nb-search-real,
+  .nb-lang-real,
+  .nb-quick-stats-real,
+  #tab-browse .nb-quick-stats-real,
+  .sidebar-user-box,
+  .sidebar-user-avatar,
+  .sidebar-user-label,
+  .sidebar-user-name{
+    display:none !important;
+  }
+
+  /* Retour au layout simple vertical du site stable */
+  #main-screen.screen.active,
+  #main-screen.active{
+    display:flex !important;
+    flex-direction:column !important;
+    grid-template-columns:none !important;
+    grid-template-rows:none !important;
+    gap:0 !important;
+    min-height:100vh !important;
+    background:var(--bg) !important;
+  }
+
+  /* Répare les onglets horizontaux */
+  #main-screen .main-tabs{
+    grid-column:auto !important;
+    grid-row:auto !important;
+    position:static !important;
+    top:auto !important;
+    height:auto !important;
+    min-height:0 !important;
+    display:flex !important;
+    flex-direction:row !important;
+    align-items:center !important;
+    gap:0 !important;
+    padding:0 20px !important;
+    margin:0 !important;
+    background:var(--surface) !important;
+    border-right:0 !important;
+    border-bottom:1px solid var(--border) !important;
+    overflow-x:auto !important;
+    overflow-y:hidden !important;
+  }
+  #main-screen .main-tabs::before,
+  #main-screen .main-tabs::after{
+    content:none !important;
+    display:none !important;
+  }
+
+  #main-screen .main-tab,
+  #main-screen .profile-menu-btn{
+    width:auto !important;
+    min-height:0 !important;
+    height:auto !important;
+    padding:10px 20px !important;
+    margin:0 !important;
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    flex:0 0 auto !important;
+    position:relative !important;
+    overflow:visible !important;
+    border:0 !important;
+    border-radius:0 !important;
+    border-bottom:2px solid transparent !important;
+    background:transparent !important;
+    box-shadow:none !important;
+    color:var(--muted) !important;
+    font-family:var(--font-body) !important;
+    font-size:13px !important;
+    font-weight:500 !important;
+    text-align:center !important;
+  }
+  #main-screen .main-tab::before,
+  #main-screen .main-tab::after,
+  #main-screen .profile-menu-btn::before,
+  #main-screen .profile-menu-btn::after{
+    content:none !important;
+    display:none !important;
+  }
+  #main-screen .main-tab:hover,
+  #main-screen .profile-menu-btn:hover{
+    color:var(--text) !important;
+    background:transparent !important;
+    border-bottom-color:transparent !important;
+  }
+  #main-screen .main-tab.active{
+    color:var(--gold2) !important;
+    border-bottom-color:var(--gold) !important;
+    background:transparent !important;
+    box-shadow:none !important;
+  }
+
+  /* Répare l’empilement normal des panneaux */
+  #main-screen .tab-pane{
+    grid-column:auto !important;
+    grid-row:auto !important;
+    min-width:0 !important;
+    width:100% !important;
+    padding:0 !important;
+    margin:0 !important;
+    background:transparent !important;
+  }
+  #main-screen .tab-pane.active{display:block !important;}
+
+  /* Sécurise les barres et le contenu */
+  #tab-browse .filters-bar,
+  #tab-browse .lang-tabs,
+  #tab-browse .stats-row{
+    position:relative !important;
+    left:auto !important;
+    right:auto !important;
+    top:auto !important;
+    width:100% !important;
+    max-width:none !important;
+  }
+  .content{
+    width:100% !important;
+    max-width:1400px !important;
+    margin:0 auto !important;
+  }
+</style>
+<script id="nakama-v13-remove-premium-nodes">
+(function(){
+  function cleanPremiumNodes(){
+    document.querySelectorAll('.nb-banner-real,.nb-banner-img,.nb-side-real,.nb-panel-real,.nb-menu-real,.nb-search-real,.nb-lang-real,.sidebar-user-box').forEach(function(el){
+      el.setAttribute('aria-hidden','true');
+      el.style.display = 'none';
+    });
+  }
+  document.addEventListener('DOMContentLoaded', cleanPremiumNodes);
+  window.addEventListener('load', cleanPremiumNodes);
+  try{ new MutationObserver(cleanPremiumNodes).observe(document.documentElement,{childList:true,subtree:true}); }catch(e){}
 })();
 </script>
 
