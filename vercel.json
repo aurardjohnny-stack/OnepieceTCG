@@ -1,21 +1,16 @@
 {
-  "version": 2,
-  "rewrites": [
+  "headers": [
     {
-      "source": "/card/:slug*",
-      "destination": "/index.html"
+      "source": "/cards.json",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=86400, s-maxage=604800, stale-while-revalidate=604800" }
+      ]
     },
     {
-      "source": "/cards",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/sets",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/((?!sitemap\\.xml|robots\\.txt|cards\\.json|seo-cards\\.json).*)",
-      "destination": "/index.html"
+      "source": "/(.*)\.(webp|png|jpg|jpeg|gif|svg|ico|css|js)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
     }
   ]
 }

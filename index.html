@@ -4612,13 +4612,21 @@ async function loadCards() {
 
 function imgUrl(card) {
   if (card.manualImage) return card.manualImage;
-  const orig = card.original_image || '';
+  const orig = card.original_image || card.image || card.img || '';
   if (!orig) return '';
+
+  // DATA SAVER IMPORTANT:
+  // Ne jamais faire passer les images par /api/proxy.
+  // Sinon Vercel télécharge puis renvoie chaque image, ce qui explose le Fast Origin Transfer
+  // et déclenche beaucoup de Function Invocations.
   if (card.lang === 'FR') {
     const filename = orig.split('/').pop().replace(/\.png$/, '.webp').replace(/\.jpg$/, '.webp');
     return 'https://raw.githubusercontent.com/aurardjohnny-stack/op-tcg-images/main/' + filename;
   }
-  return PROXY + encodeURIComponent(orig);
+
+  // Pour les autres langues, une balise <img> peut charger l'URL externe directement.
+  // Pas besoin de CORS pour afficher une image.
+  return orig;
 }
 
 // ─── SEO CARD ROUTES /card/:slug ──────────────────────────────────
@@ -11112,8 +11120,8 @@ document.addEventListener('click', function(e){
   if (window.__NAKAMA_PERF_PAGINATION__) return;
   window.__NAKAMA_PERF_PAGINATION__ = true;
 
-  const FIRST_BATCH = 70;
-  const NEXT_BATCH = 70;
+  const FIRST_BATCH = 50;
+  const NEXT_BATCH = 50;
 
   function ensurePerfState(){
     if (typeof ST === 'undefined') return;
@@ -11156,7 +11164,22 @@ document.addEventListener('click', function(e){
   const previousLoadCards = typeof loadCards === 'function' ? loadCards : null;
   window.loadCards = async function(){
     try {
-      const res = await fetch('/cards.json', { cache: 'force-cache' });
+      const cacheName = 'nakama-cards-json-v1';
+      const req = new Request('/cards.json', { cache: 'force-cache' });
+      let res = null;
+
+      // Cache navigateur persistant : si cards.json est déjà là, on évite un nouvel aller-retour origine.
+      if ('caches' in window) {
+        const cache = await caches.open(cacheName);
+        res = await cache.match(req);
+        if (!res) {
+          res = await fetch(req);
+          if (res && res.ok) cache.put(req, res.clone()).catch(()=>{});
+        }
+      } else {
+        res = await fetch(req);
+      }
+
       const data = await res.json();
       ST.cards = (data.cards || [])
         .map(normalizeCard)
@@ -11300,8 +11323,7 @@ document.addEventListener('click', function(e){
       html += `<div class="nb-page-tools" id="nb-page-tools">
         <div class="nb-page-info">${limit.toLocaleString('fr')} / ${allCards.length.toLocaleString('fr')} cartes affichées</div>
         <button type="button" class="nb-load-more" onclick="nbLoadMoreCards()">Afficher ${Math.min(NEXT_BATCH, allCards.length - limit)} cartes de plus</button>
-        <button type="button" class="nb-load-more" onclick="nbShowAllCards()">Tout afficher</button>
-        <div class="nb-perf-note">Mode léger : les images des cartes non affichées ne sont pas chargées, donc beaucoup moins de data consommée.</div>
+        <div class="nb-perf-note">Mode économique : 50 cartes par page, images hors page non chargées, et plus aucun passage par le proxy Vercel.</div>
       </div>`;
     } else {
       html += `<div class="nb-page-tools" id="nb-page-tools"><div class="nb-page-info">Toutes les cartes filtrées sont affichées.</div></div>`;
@@ -11314,6 +11336,53 @@ document.addEventListener('click', function(e){
 })();
 </script>
 <!-- END NAKAMA PERFORMANCE PATCH -->
+
+
+<!-- NAKAMA DATA SAVER HARD PATCH: no Vercel image proxy + safer lazy images -->
+<script id="nakama-data-saver-hard-patch">
+(function(){
+  window.__NAKAMA_DATA_SAVER_HARD__ = true;
+
+  // Sécurité globale : même si un vieux morceau de code génère encore /api/proxy?url=..., on le court-circuite.
+  const oldImgUrl = window.imgUrl;
+  window.imgUrl = function(card){
+    if (card && card.manualImage) return card.manualImage;
+    const orig = card && (card.original_image || card.image || card.img || '');
+    if (!orig) return '';
+    if (card && card.lang === 'FR') {
+      const filename = String(orig).split('/').pop().replace(/\.png$/, '.webp').replace(/\.jpg$/, '.webp');
+      return 'https://raw.githubusercontent.com/aurardjohnny-stack/op-tcg-images/main/' + filename;
+    }
+    return orig;
+  };
+
+  const oldCardImgHtml = window.cardImgHtml;
+  window.cardImgHtml = function(card, safeName){
+    const url = window.imgUrl(card);
+    if (!url) return `<div class="card-placeholder"><span>🃏</span><small>${escapeHtml(card && (card.code || card.id) || '')}</small></div>`;
+    const style = typeof cardCropStyle === 'function' ? cardCropStyle(card) : '';
+    return `<img src="${String(url).replace(/"/g,'&quot;')}" alt="${safeName || ''}" loading="lazy" decoding="async" fetchpriority="low" referrerpolicy="no-referrer" style="${style}" onload="this.classList.add('loaded')" onerror="this.style.display='none'">`;
+  };
+
+  // Répare les images déjà injectées si elles pointent vers le proxy.
+  function unproxyImages(root){
+    (root || document).querySelectorAll('img[src^="/api/proxy?url="]').forEach(img => {
+      try {
+        const u = new URL(img.getAttribute('src'), location.origin);
+        const real = u.searchParams.get('url');
+        if (real) img.src = decodeURIComponent(real);
+      } catch(e) {}
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      img.referrerPolicy = 'no-referrer';
+      img.fetchPriority = 'low';
+    });
+  }
+  document.addEventListener('DOMContentLoaded', () => unproxyImages(document));
+  const mo = new MutationObserver(muts => muts.forEach(m => unproxyImages(m.target)));
+  try { mo.observe(document.documentElement, { childList:true, subtree:true }); } catch(e) {}
+})();
+</script>
 
 </body>
 </html>
