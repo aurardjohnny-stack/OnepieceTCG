@@ -11384,5 +11384,101 @@ document.addEventListener('click', function(e){
 })();
 </script>
 
+
+
+<!-- NAKAMA HYBRID IMAGE FALLBACK PATCH: direct image first, Vercel proxy only if broken -->
+<script id="nakama-hybrid-image-fallback-patch">
+(function(){
+  window.__NAKAMA_HYBRID_IMAGE_FALLBACK__ = true;
+
+  function escAttr(v){
+    return String(v || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+  function originalImage(card){
+    return String(card && (card.original_image || card.image || card.img || '') || '');
+  }
+  function githubWebpUrl(card){
+    const orig = originalImage(card);
+    if (!orig) return '';
+    const filename = orig.split('/').pop().replace(/\.png(\?.*)?$/i,'.webp').replace(/\.jpg(\?.*)?$/i,'.webp').replace(/\.jpeg(\?.*)?$/i,'.webp');
+    return 'https://raw.githubusercontent.com/aurardjohnny-stack/op-tcg-images/main/' + filename;
+  }
+  function proxyUrl(url){
+    if (!url || String(url).startsWith('data:') || String(url).startsWith('blob:')) return '';
+    if (String(url).includes('/api/proxy?url=')) return String(url);
+    return '/api/proxy?url=' + encodeURIComponent(String(url));
+  }
+  function directImageUrl(card){
+    if (card && card.manualImage) return card.manualImage;
+    const orig = originalImage(card);
+    if (!orig) return '';
+    // FR : on tente d'abord le dépôt webp léger.
+    if (card && card.lang === 'FR') return githubWebpUrl(card) || orig;
+    // Autres langues : URL originale directe, sans passer par Vercel.
+    return orig;
+  }
+
+  window.imgUrl = directImageUrl;
+
+  window.nakamaImgError = function(img){
+    if (!img) return;
+    const step = Number(img.getAttribute('data-nakama-step') || '0');
+    const fb1 = img.getAttribute('data-fallback-1') || '';
+    const fb2 = img.getAttribute('data-fallback-2') || '';
+    img.setAttribute('data-nakama-step', String(step + 1));
+    img.classList.remove('loaded');
+
+    if (step === 0 && fb1 && img.src !== fb1) {
+      img.src = fb1;
+      return;
+    }
+    if (step <= 1 && fb2 && img.src !== fb2) {
+      img.src = fb2;
+      return;
+    }
+    img.style.display = 'none';
+  };
+
+  window.cardImgHtml = function(card, safeName){
+    const primary = directImageUrl(card);
+    const orig = originalImage(card);
+    if (!primary) return `<div class="card-placeholder"><span>🃏</span><small>${escapeHtml(card && (card.code || card.id) || '')}</small></div>`;
+    const style = typeof cardCropStyle === 'function' ? cardCropStyle(card) : '';
+    const fb1 = (orig && orig !== primary) ? orig : '';
+    const fb2 = proxyUrl(orig || primary);
+    return `<img src="${escAttr(primary)}" alt="${escAttr(safeName || '')}" loading="lazy" decoding="async" fetchpriority="low" referrerpolicy="no-referrer" data-fallback-1="${escAttr(fb1)}" data-fallback-2="${escAttr(fb2)}" style="${style}" onload="this.classList.add('loaded')" onerror="nakamaImgError(this)">`;
+  };
+
+  function prepareExistingImages(root){
+    const scope = root || document;
+    const imgs = scope.querySelectorAll ? scope.querySelectorAll('.card-item img, .friend-binder-preview-card img, .cloud-binder-card img, .deck-card img, #m-img, #zoom-img') : [];
+    imgs.forEach(img => {
+      const src = img.getAttribute('src') || '';
+      if (!src || src.startsWith('data:') || src.startsWith('blob:')) return;
+      img.loading = img.loading || 'lazy';
+      img.decoding = 'async';
+      img.referrerPolicy = 'no-referrer';
+      try { img.fetchPriority = 'low'; } catch(e) {}
+      if (!img.getAttribute('data-fallback-2')) img.setAttribute('data-fallback-2', proxyUrl(src));
+      img.onerror = function(){ window.nakamaImgError(this); };
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', () => prepareExistingImages(document));
+  try {
+    new MutationObserver(muts => muts.forEach(m => prepareExistingImages(m.target)))
+      .observe(document.documentElement, {childList:true, subtree:true});
+  } catch(e) {}
+
+  // Si les cartes sont déjà affichées, on force un petit rendu pour appliquer la nouvelle génération d'images.
+  setTimeout(() => {
+    try {
+      if (typeof renderCards === 'function' && document.getElementById('main-content')) renderCards();
+      if (typeof renderFriends === 'function' && ST && ST.mainTab === 'friends') renderFriends();
+    } catch(e) {}
+  }, 50);
+})();
+</script>
+
 </body>
 </html>
