@@ -9766,7 +9766,7 @@ document.addEventListener('click', function(e){
       if(!document.body.classList.contains('visitor-mode')) return;
 
       const blocked = e.target.closest(
-        '#tab-friends, #tab-messages, #tab-collection, #tab-wishlist, #tab-decks, .owned-badge, .wishlist, .trade, .profile-menu-btn'
+        '#tab-friends, #tab-messages, #tab-collection, #tab-wishlist, #tab-decks, .owned-badge, .wishlist, .trade'
       );
 
       if(blocked){
@@ -9839,6 +9839,82 @@ document.addEventListener('click', function(e){
   document.addEventListener('DOMContentLoaded', () => {
     setTimeout(bootVisitorInstant, 120);
   });
+})();
+</script>
+
+
+<script id="nakama-v101-visitor-profile-login-fix">
+(function(){
+  const VISITOR_KEY = 'nakama_visitor_mode';
+  let lastProfileOpen = null;
+
+  function isVisitorMode(){
+    try{
+      return document.body.classList.contains('visitor-mode') || localStorage.getItem(VISITOR_KEY) === '1' || (window.ST && ST.user === '__visitor__');
+    }catch(e){
+      return document.body.classList.contains('visitor-mode') || localStorage.getItem(VISITOR_KEY) === '1';
+    }
+  }
+
+  function notify(msg){
+    if(typeof showToast === 'function') showToast(msg);
+    else if(typeof toast === 'function') toast(msg);
+    else console.log(msg);
+  }
+
+  window.nakamaRequireLoginForProfile = function(){
+    try{ localStorage.removeItem(VISITOR_KEY); }catch(e){}
+    try{ if(window.ST && ST.user === '__visitor__') ST.user = null; }catch(e){}
+
+    document.body.classList.remove('visitor-mode');
+
+    const badge = document.getElementById('visitor-badge-inline');
+    if(badge) badge.remove();
+
+    const main = document.getElementById('main-screen');
+    const auth = document.getElementById('auth-screen');
+    if(main) main.classList.remove('active');
+    if(auth) auth.classList.add('active');
+
+    if(typeof switchAuthTab === 'function') switchAuthTab('login');
+
+    const loginInput = document.getElementById('login-user');
+    if(loginInput){
+      setTimeout(function(){ loginInput.focus(); }, 80);
+    }
+
+    notify('Connecte-toi pour accéder à ton profil ⚓');
+  };
+
+  function hookProfile(){
+    if(typeof window.openProfileModal === 'function' && window.openProfileModal !== lastProfileOpen){
+      const realOpenProfileModal = window.openProfileModal;
+      lastProfileOpen = function(){
+        if(isVisitorMode()){
+          window.nakamaRequireLoginForProfile();
+          return false;
+        }
+        return realOpenProfileModal.apply(this, arguments);
+      };
+      window.openProfileModal = lastProfileOpen;
+    }
+
+    document.querySelectorAll('.profile-menu-btn').forEach(function(btn){
+      if(btn.dataset.visitorProfileFix === '1') return;
+      btn.dataset.visitorProfileFix = '1';
+      btn.addEventListener('click', function(e){
+        if(!isVisitorMode()) return;
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        window.nakamaRequireLoginForProfile();
+      }, true);
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', hookProfile);
+  window.addEventListener('load', hookProfile);
+  setTimeout(hookProfile, 500);
 })();
 </script>
 
