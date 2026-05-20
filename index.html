@@ -4796,9 +4796,21 @@ function nbOpenCardFromCurrentUrl() {
 }
 
 function nbMaybeOpenSeoCardWhenReady() {
-  if (!window.__nbSeoCardOpened && /^\/card\/[^\/?#]+/.test(window.location.pathname)) {
+  if (window.__nbSeoCardOpened) return;
+  if (/^\/card\/[^\/?#]+/.test(window.location.pathname)) {
     window.__nbSeoCardOpened = true;
     nbOpenCardFromCurrentUrl();
+    return;
+  }
+  const paramCard = new URLSearchParams(window.location.search).get('card');
+  if (paramCard) {
+    window.__nbSeoCardOpened = true;
+    const card = ST.cards.find(c => c.id === paramCard || c.code === paramCard);
+    if (card) {
+      setTimeout(() => {
+        try { openModal(card.id || card.code, imgUrl(card), card.name || card.code); } catch(e) {}
+      }, 250);
+    }
   }
 }
 
@@ -5250,6 +5262,7 @@ function ebaySearchUrl(card, fallbackName, fallbackId) {
 
 function openModal(id, img, name) {
   ST.selCode = id;
+  history.replaceState(null, '', '/?card=' + encodeURIComponent(id));
   ST.selImg = img;
   const u = ud();
   const entry = normalizeOwnedEntry(u, id);
