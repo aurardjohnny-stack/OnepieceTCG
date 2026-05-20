@@ -6132,21 +6132,7 @@ function premiumZoomCard(){
 }
 
 /* Rend les cartes cliquables premium */
-document.addEventListener('click', function(e){
-  const cardEl = e.target.closest('.card-item');
-  if(!cardEl) return;
-
-  const idx =
-    cardEl.dataset.index ||
-    cardEl.getAttribute('data-index');
-
-  if(typeof idx !== 'undefined' &&
-     window.ST &&
-     Array.isArray(ST.filtered) &&
-     ST.filtered[idx]){
-      openPremiumCard(ST.filtered[idx]);
-  }
-});
+/* Premium card overlay désactivé */
 </script>
 
 
