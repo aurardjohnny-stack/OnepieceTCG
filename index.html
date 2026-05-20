@@ -4601,7 +4601,7 @@ async function loadCards() {
     const data = await res.json();
     ST.cards = (data.cards || [])
       .map(normalizeCard)
-      .filter(c => c.set !== 'RIEN');
+      .filter(c => c.set !== 'AUTRE');
     mergeManualCards();
     buildSetFilter();
     applyFilters();
