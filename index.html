@@ -11879,5 +11879,125 @@ function premiumZoomCard(){
 })();
 </script>
 
+
+<!-- NAKAMA SUPABASE CLASSEUR SYNC — sauvegarde/charge le classeur depuis Supabase -->
+<script id="nakama-supabase-classeur-sync">
+(function(){
+  if(window.__NAKAMA_CLASSEUR_SYNC__) return;
+  window.__NAKAMA_CLASSEUR_SYNC__ = true;
+
+  function getClient(){
+    try{ return window.nakamaSupabase || nakamaSupabase; }catch(e){ return null; }
+  }
+
+  async function getSupabaseUser(){
+    const c = getClient();
+    if(!c) return null;
+    try{
+      const { data } = await c.auth.getUser();
+      return data && data.user ? data.user : null;
+    }catch(e){ return null; }
+  }
+
+  // ── SAUVEGARDE vers Supabase ──────────────────────────────────────
+  async function saveToSupabase(){
+    const user = await getSupabaseUser();
+    if(!user) return; // pas connecté Supabase, on laisse le localStorage
+    const c = getClient();
+    const owned = (typeof ud === 'function') ? (ud().owned || {}) : {};
+    const cards = Object.entries(owned);
+    if(!cards.length) return;
+
+    // Upsert chaque carte
+    const rows = cards.map(([card_id, info]) => {
+      const copies = Array.isArray(info && info.copies) ? info.copies : [];
+      const qty = copies.length || 1;
+      const price = copies[0] && copies[0].price ? parseFloat(copies[0].price) || 0 : 0;
+      // Extraire card_code depuis card_id (ex: FR_OP09-004_base_OP09-004 -> OP09-004)
+      const parts = card_id.split('_');
+      const card_code = parts.length >= 2 ? parts[1] : card_id;
+      return {
+        user_id: user.id,
+        card_id,
+        card_code,
+        qty,
+        updated_at: new Date().toISOString()
+      };
+    });
+
+    try{
+      await c.from('user_cards').upsert(rows, { onConflict: 'user_id,card_id' });
+    }catch(e){ console.warn('[Nakama] Erreur sauvegarde Supabase:', e); }
+  }
+
+  // ── CHARGEMENT depuis Supabase ────────────────────────────────────
+  async function loadFromSupabase(){
+    const user = await getSupabaseUser();
+    if(!user) return false;
+    const c = getClient();
+
+    try{
+      const { data, error } = await c.from('user_cards').select('card_id,qty').eq('user_id', user.id);
+      if(error || !data || !data.length) return false;
+
+      // Reconstruire le format owned
+      const owned = {};
+      data.forEach(row => {
+        const copies = [];
+        for(let i = 0; i < (row.qty || 1); i++){
+          copies.push({ id: 'sb_' + row.card_id + '_' + i, price: '', date: '', source: 'cloud' });
+        }
+        owned[row.card_id] = { copies };
+      });
+
+      // Injecter dans ST
+      if(window.ST && ST.user){
+        if(!ST.users[ST.user]) ST.users[ST.user] = {};
+        ST.users[ST.user].owned = owned;
+        if(typeof applyFilters === 'function') applyFilters();
+        if(typeof renderCollectionTab === 'function') renderCollectionTab();
+        console.log('[Nakama] Classeur chargé depuis Supabase:', data.length, 'cartes');
+        return true;
+      }
+    }catch(e){ console.warn('[Nakama] Erreur chargement Supabase:', e); }
+    return false;
+  }
+
+  // ── OVERRIDE save() ──────────────────────────────────────────────
+  const _originalSave = window.save;
+  window.save = function(){
+    if(typeof _originalSave === 'function') _originalSave();
+    saveToSupabase(); // sauvegarde aussi dans Supabase en arrière-plan
+  };
+
+  // ── CHARGEMENT AUTO au login Supabase ────────────────────────────
+  const c = getClient();
+  if(c){
+    c.auth.onAuthStateChange(async function(event, session){
+      if(event === 'SIGNED_IN' && session && session.user){
+        // Attendre que l'app soit prête
+        setTimeout(async function(){
+          const loaded = await loadFromSupabase();
+          if(loaded && typeof showToast === 'function'){
+            showToast('✅ Classeur chargé depuis le cloud !');
+          }
+        }, 1000);
+      }
+    });
+
+    // Charger aussi au démarrage si déjà connecté
+    setTimeout(async function(){
+      const user = await getSupabaseUser();
+      if(user){
+        await loadFromSupabase();
+      }
+    }, 2000);
+  }
+
+  // Exposer pour debug
+  window.nakamaCloudSave = saveToSupabase;
+  window.nakamaCloudLoad = loadFromSupabase;
+})();
+</script>
 </body>
 </html>
