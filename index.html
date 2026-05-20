@@ -5261,6 +5261,42 @@ function ebaySearchUrl(card, fallbackName, fallbackId) {
   return 'https://www.ebay.fr/sch/i.html?_nkw=' + q;
 }
 
+/* URL_CARD_ZOOM_PATCH_2026_05_20
+   Quand une carte est ouverte/zoomée, l'URL redevient partageable : /card/slug.
+   Patch volontairement isolé pour ne pas toucher au reste du HTML. */
+function nbCardUrlSlug(card, fallbackId, fallbackName) {
+  const raw = [
+    (card && (card.code || card.id)) || fallbackId || '',
+    (card && card.name) || fallbackName || ''
+  ].filter(Boolean).join('-');
+
+  if (typeof nbSeoSlugPart === 'function') return nbSeoSlugPart(raw);
+
+  return String(raw || 'carte')
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/&/g, '-and-')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+function nbSetCardUrl(card, fallbackId, fallbackName) {
+  if (!window.history || !history.replaceState) return;
+  const slug = nbCardUrlSlug(card, fallbackId, fallbackName);
+  if (!slug) return;
+  const nextUrl = '/card/' + encodeURIComponent(slug);
+  if (window.location.pathname !== nextUrl) {
+    history.replaceState({ nakamaCard: (card && (card.id || card.code)) || fallbackId || slug }, '', nextUrl);
+  }
+}
+
+function nbResetCardUrl() {
+  if (!window.history || !history.replaceState) return;
+  if (/^\/card\/[^\/?#]+/.test(window.location.pathname) || new URLSearchParams(window.location.search).has('card')) {
+    history.replaceState({ nakamaHome: true }, '', '/');
+  }
+}
+
 function openModal(id, img, name) {
   ST.selCode = id;
   ST.selImg = img;
@@ -5271,6 +5307,7 @@ function openModal(id, img, name) {
   const mImg = document.getElementById('m-img');
   const card = ST.cards.find(c=>c.id===id);
   ST.selCard = card || { id, code:id, name:name || id };
+  nbSetCardUrl(card || ST.selCard, id, name);
   const realImg = card ? imgUrl(card) : img;
   mImg.style.opacity = 0;
   mImg.style.objectPosition = '';
@@ -5334,6 +5371,7 @@ function renderCopiesList(copies) {
 
 function closeModal() {
   document.getElementById('card-modal').classList.remove('open');
+  nbResetCardUrl();
   ST.selCode = null;
   ST.selCard = null;
 }
@@ -5385,6 +5423,7 @@ function openZoom(src, label) {
   if (!src) return;
   const zi = document.getElementById('zoom-img');
   const card = ST.cards.find(c=>c.id===label) || ST.selCard || null;
+  nbSetCardUrl(card, label, card && card.name);
   zi.classList.remove('loaded');
   zi.style.display = '';
   nbPrepareImgElement(zi, card, src);
