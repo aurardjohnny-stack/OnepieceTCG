@@ -11234,22 +11234,18 @@ document.addEventListener('click', function(e){
   const previousLoadCards = typeof loadCards === 'function' ? loadCards : null;
   window.loadCards = async function(){
     try {
-      const cacheName = 'nakama-cards-json-v1';
-      const req = new Request('/cards.json', { cache: 'force-cache' });
-      let res = null;
-
-      // Cache navigateur persistant : si cards.json est déjà là, on évite un nouvel aller-retour origine.
+      // Vider le cache service worker pour cards.json au cas où
       if ('caches' in window) {
-        const cache = await caches.open(cacheName);
-        res = await cache.match(req);
-        if (!res) {
-          res = await fetch(req);
-          if (res && res.ok) cache.put(req, res.clone()).catch(()=>{});
-        }
-      } else {
-        res = await fetch(req);
+        try {
+          const keys = await caches.keys();
+          for (const key of keys) {
+            const cache = await caches.open(key);
+            await cache.delete('/cards.json');
+          }
+        } catch(e) {}
       }
-
+      // Toujours charger la version fraîche depuis le serveur
+      const res = await fetch('/cards.json?v=' + Date.now(), { cache: 'no-store' });
       const data = await res.json();
       ST.cards = (data.cards || [])
         .map(normalizeCard)
