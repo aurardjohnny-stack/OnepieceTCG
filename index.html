@@ -11234,17 +11234,17 @@ document.addEventListener('click', function(e){
   const previousLoadCards = typeof loadCards === 'function' ? loadCards : null;
   window.loadCards = async function(){
     try {
-      // Vider le cache service worker pour cards.json au cas où
+      // Vider le cache service worker pour cards.json
       if ('caches' in window) {
         try {
           const keys = await caches.keys();
           for (const key of keys) {
-            const cache = await caches.open(key);
-            await cache.delete('/cards.json');
+            const c = await caches.open(key);
+            await c.delete('/cards.json');
           }
         } catch(e) {}
       }
-      // Toujours charger la version fraîche depuis le serveur
+      // Toujours charger la version fraîche
       const res = await fetch('/cards.json?v=' + Date.now(), { cache: 'no-store' });
       const data = await res.json();
       ST.cards = (data.cards || [])
