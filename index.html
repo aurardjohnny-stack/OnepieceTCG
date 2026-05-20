@@ -5263,7 +5263,6 @@ function ebaySearchUrl(card, fallbackName, fallbackId) {
 
 function openModal(id, img, name) {
   ST.selCode = id;
-  history.replaceState(null, '', '/?card=' + encodeURIComponent(id));
   ST.selImg = img;
   const u = ud();
   const entry = normalizeOwnedEntry(u, id);
