@@ -12038,5 +12038,39 @@ function premiumZoomCard(){
   window.nakamaCloudLoad = loadFromSupabase;
 })();
 </script>
+<!-- NAKAMA PAGE TRANSLATOR — Google Translate multilingue -->
+<div id="google_translate_element" style="position:fixed;bottom:20px;right:20px;z-index:9999"></div>
+
+<script type="text/javascript">
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({
+    pageLanguage: 'fr',
+    includedLanguages: 'ar,de,en,es,fr,ja,ko,ms,pt,ru,th,zh-CN',
+    layout: google.translate.TranslateElement.InlineLayout.VERTICAL
+  }, 'google_translate_element');
+  
+  // Customiser le style
+  setTimeout(function(){
+    const frame = document.querySelector('.goog-te-banner-frame');
+    if(frame) frame.style.display = 'none';
+    const wrapper = document.querySelector('.goog-te-gadget');
+    if(wrapper){
+      wrapper.style.fontFamily = 'var(--font-body)';
+      wrapper.style.fontSize = '12px';
+    }
+    const combo = document.querySelector('.goog-te-combo');
+    if(combo){
+      combo.style.background = 'var(--surface2)';
+      combo.style.border = '1px solid var(--border)';
+      combo.style.borderRadius = '8px';
+      combo.style.color = 'var(--text)';
+      combo.style.padding = '6px 8px';
+      combo.style.cursor = 'pointer';
+    }
+  }, 100);
+}
+</script>
+<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
 </body>
 </html>
