@@ -6618,6 +6618,7 @@ function premiumZoomCard(){
 </script>
 
 <div id="nakama-bottom-dock">
+  <button id="nakama-bottom-lang" type="button">🌐 Langue</button>
   <button id="nakama-bottom-settings" type="button">⚙️ Paramètres</button>
   <button id="nakama-bottom-logout" type="button">⏻ Déconnexion</button>
 </div>
@@ -6647,9 +6648,15 @@ function premiumZoomCard(){
       </div>
 
       <div class="nakama-setting-tile">
-        <div class="nakama-setting-tile-title">Collection cloud</div>
-        <div class="nakama-setting-tile-help">Synchronise ton classeur pour que tes amis puissent le voir.</div>
-        <button type="button" id="nakama-sync-collection-cloud">Synchroniser</button>
+        <div class="nakama-setting-tile-title" data-i18n="settings_sync_title">Collection cloud</div>
+        <div class="nakama-setting-tile-help" data-i18n="settings_sync_help">Synchronise ton classeur pour que tes amis puissent le voir.</div>
+        <button type="button" id="nakama-sync-collection-cloud" data-i18n="settings_sync_btn">Synchroniser</button>
+      </div>
+
+      <div class="nakama-setting-tile" id="nakama-donate-tile">
+        <div class="nakama-setting-tile-title" data-i18n="donate_title">❤️ Soutenir</div>
+        <div class="nakama-setting-tile-help" data-i18n="donate_help">Offre un café pour soutenir le développement de NakamaBinder !</div>
+        <button type="button" id="nakama-stripe-donate" data-i18n="donate_btn">Faire un don ☕</button>
       </div>
     </div>
 
@@ -12038,39 +12045,971 @@ function premiumZoomCard(){
   window.nakamaCloudLoad = loadFromSupabase;
 })();
 </script>
-<!-- NAKAMA PAGE TRANSLATOR — Google Translate multilingue -->
-<div id="google_translate_element" style="position:fixed;bottom:20px;right:20px;z-index:9999"></div>
 
-<script type="text/javascript">
-function googleTranslateElementInit() {
-  new google.translate.TranslateElement({
-    pageLanguage: 'fr',
-    includedLanguages: 'ar,de,en,es,fr,ja,ko,ms,pt,ru,th,zh-CN',
-    layout: google.translate.TranslateElement.InlineLayout.VERTICAL
-  }, 'google_translate_element');
-  
-  // Customiser le style
-  setTimeout(function(){
-    const frame = document.querySelector('.goog-te-banner-frame');
-    if(frame) frame.style.display = 'none';
-    const wrapper = document.querySelector('.goog-te-gadget');
-    if(wrapper){
-      wrapper.style.fontFamily = 'var(--font-body)';
-      wrapper.style.fontSize = '12px';
-    }
-    const combo = document.querySelector('.goog-te-combo');
-    if(combo){
-      combo.style.background = 'var(--surface2)';
-      combo.style.border = '1px solid var(--border)';
-      combo.style.borderRadius = '8px';
-      combo.style.color = 'var(--text)';
-      combo.style.padding = '6px 8px';
-      combo.style.cursor = 'pointer';
-    }
-  }, 100);
+
+<!-- ═══════════════════════════════════════════════════════════════
+     NAKAMA UI LANGUAGE SYSTEM — FR / EN / JP / IT / MY
+     Traduit l'intégralité de l'interface sans toucher au code existant
+     ═══════════════════════════════════════════════════════════════ -->
+
+<style id="nakama-lang-picker-css">
+#nb-lang-picker-panel {
+  position: fixed;
+  left: 14px;
+  bottom: 118px;
+  width: 190px;
+  z-index: 2147483640;
+  background: rgba(7,17,31,.99);
+  border: 1px solid rgba(242,182,62,.38);
+  border-radius: 18px;
+  padding: 8px;
+  box-shadow: 0 24px 60px rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.03);
+  display: none;
+  flex-direction: column;
+  gap: 3px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
+#nb-lang-picker-panel.open {
+  display: flex !important;
+  animation: nbLangPop .16s ease;
+}
+@keyframes nbLangPop {
+  from { opacity:0; transform:translateY(8px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.nb-lang-opt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 11px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #dce6f3;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-body, 'DM Sans', sans-serif);
+  transition: .14s ease;
+  width: 100%;
+}
+.nb-lang-opt:hover {
+  background: rgba(242,182,62,.09);
+  border-color: rgba(242,182,62,.26);
+  color: #f2b63e;
+}
+.nb-lang-opt.active {
+  background: rgba(242,182,62,.14);
+  border-color: rgba(242,182,62,.52);
+  color: #f2b63e;
+}
+.nb-lang-flag { font-size: 17px; line-height: 1; }
+
+/* Donate button style */
+#nakama-stripe-donate {
+  background: linear-gradient(135deg, rgba(242,182,62,.14), rgba(255,217,120,.08)) !important;
+  border: 1px solid rgba(242,182,62,.45) !important;
+  color: #f2b63e !important;
+}
+#nakama-stripe-donate:hover {
+  background: rgba(242,182,62,.22) !important;
+  border-color: rgba(242,182,62,.72) !important;
+  box-shadow: 0 0 18px rgba(242,182,62,.16) !important;
+}
+
+@media(max-width:900px) {
+  #nb-lang-picker-panel {
+    left: 10px;
+    right: 10px;
+    bottom: 76px;
+    width: auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .nb-lang-opt { flex: 1 1 auto; justify-content: center; }
+}
+</style>
+
+<!-- Language picker floating panel -->
+<div id="nb-lang-picker-panel" role="listbox" aria-label="Interface language">
+  <button class="nb-lang-opt active" data-ui-lang="fr" type="button"><span class="nb-lang-flag">🇫🇷</span>Français</button>
+  <button class="nb-lang-opt" data-ui-lang="en" type="button"><span class="nb-lang-flag">🇺🇸</span>English</button>
+  <button class="nb-lang-opt" data-ui-lang="jp" type="button"><span class="nb-lang-flag">🇯🇵</span>日本語</button>
+  <button class="nb-lang-opt" data-ui-lang="it" type="button"><span class="nb-lang-flag">🇮🇹</span>Italiano</button>
+  <button class="nb-lang-opt" data-ui-lang="my" type="button"><span class="nb-lang-flag">🇲🇾</span>Bahasa Melayu</button>
+</div>
+
+<script id="nakama-ui-lang-system">
+(function(){
+  if(window.__NAKAMA_LANG_SYSTEM__) return;
+  window.__NAKAMA_LANG_SYSTEM__ = true;
+
+  const STORAGE_KEY = 'nakama_ui_lang_v1';
+
+  /* ─── DICTIONNAIRE COMPLET ──────────────────────────────────────── */
+  const T = {
+    fr: {
+      lang_btn: '🌐 Langue',
+      settings_btn: '⚙️ Paramètres',
+      logout_btn: '⏻ Déconnexion',
+      tab_profile: 'Profil',
+      tab_browse: 'Parcourir',
+      tab_binder: 'Classeur',
+      tab_friends: 'Amis',
+      tab_messages: 'Messages',
+      tab_wishlist: 'Wishlist',
+      tab_decks: 'Decks',
+      sidebar_connected: 'Connecté',
+      search_placeholder: 'Rechercher une carte, un personnage, un code...',
+      filter_all_sets: 'Tous les sets',
+      filter_all_rarities: 'Toutes raretés',
+      filter_all_special: 'Toutes catégories spéciales',
+      filter_owned_only: '★ Possédées seulement',
+      filter_manual_card: '＋ Carte manuelle',
+      stat_owned: 'Cartes possédées',
+      stat_unique: 'Cartes uniques',
+      stat_value: 'Valeur estimée',
+      stat_wishlist: 'Wishlist',
+      stat_decks: 'Decks',
+      welcome_kicker: '⚓ Bienvenue sur Nakama Binder',
+      welcome_title: 'Ton classeur One Piece Card Game en ligne',
+      welcome_sub: 'Parcours les cartes, suis les prix en temps réel, construis ton binder, partage ta collection avec tes amis et prépare tes futurs échanges. Tu peux visiter librement, et créer un compte seulement si tu veux sauvegarder.',
+      welcome_hide: 'Masquer',
+      welcome_see_cards: 'Voir les cartes',
+      welcome_create_account: 'Créer / connecter un compte',
+      welcome_card1_title: 'Explorer les cartes',
+      welcome_card1_text: 'Recherche par set, rareté, langue et variantes. Clique une carte pour ouvrir sa fiche premium.',
+      welcome_card2_title: 'Voir les prix',
+      welcome_card2_text: 'Consulte les prix des cartes et repère les pépites de ta collection.',
+      welcome_card3_title: 'Gérer ton binder',
+      welcome_card3_text: 'Ajoute tes cartes, suis ta progression et synchronise ton classeur cloud.',
+      welcome_card4_title: 'Amis & messages',
+      welcome_card4_text: 'Ajoute tes amis, accepte les demandes et discute pour préparer les échanges.',
+      welcome_card5_title: 'Profil custom',
+      welcome_card5_text: 'Choisis ton pseudo, ton avatar et ton identité de collectionneur.',
+      welcome_card6_title: 'Mode visiteur',
+      welcome_card6_text: "Pas besoin de compte pour regarder les cartes et découvrir le site.",
+      loading_cards: 'Chargement des cartes...',
+      settings_title: 'Paramètres',
+      settings_sub: 'Réglages utiles de Nakama Binder.',
+      settings_profile_title: 'Profil',
+      settings_profile_help: 'Modifier ton pseudo et ton avatar.',
+      settings_profile_btn: 'Ouvrir le profil',
+      settings_password_title: 'Mot de passe',
+      settings_password_help: 'Modifier ton mot de passe.',
+      settings_password_btn: 'Modifier',
+      settings_filters_title: 'Filtres',
+      settings_filters_help: 'Réinitialiser recherche, langue, set et rareté.',
+      settings_filters_btn: 'Réinitialiser',
+      settings_sync_title: 'Collection cloud',
+      settings_sync_help: 'Synchronise ton classeur pour que tes amis puissent le voir.',
+      settings_sync_btn: 'Synchroniser',
+      donate_title: '❤️ Soutenir',
+      donate_help: 'Offre un café pour soutenir le développement de NakamaBinder !',
+      donate_btn: 'Faire un don ☕',
+      settings_account_title: 'Compte',
+      settings_account_sub: 'Quitter ta session sur cet appareil.',
+      settings_account_logout: 'Déconnexion',
+      settings_close: 'Fermer',
+      pwd_title: 'Changer le mot de passe',
+      pwd_sub: 'Choisis un nouveau mot de passe pour ton compte.',
+      pwd_new_label: 'Nouveau mot de passe',
+      pwd_new_ph: 'Minimum 6 caractères',
+      pwd_confirm_label: 'Confirmer',
+      pwd_confirm_ph: 'Répète le mot de passe',
+      pwd_save: 'Sauvegarder',
+      pwd_close: 'Fermer',
+      feedback_btn: 'Avis / Suggestions',
+      legal_btn: 'Mentions légales',
+      feedback_title: '⭐ Avis & améliorations',
+      feedback_intro: 'Un bug, une carte incorrecte, une idée ou une amélioration ? Ton retour aide NakamaBinder à devenir plus solide pour tous les collectionneurs.',
+      feedback_name_ph: 'Pseudo ou nom (optionnel)',
+      feedback_email_ph: 'Email de réponse (optionnel)',
+      feedback_type_general: 'Avis général',
+      feedback_type_bug: 'Bug',
+      feedback_type_suggestion: 'Suggestion',
+      feedback_type_feature: 'Demande de fonctionnalité',
+      feedback_type_card: 'Carte manquante ou incorrecte',
+      feedback_msg_ph: 'Votre message...',
+      feedback_submit: 'Envoyer mon retour ✨',
+      feedback_success: 'Merci pour ton retour 💚',
+      visitor_banner: 'Mode visiteur : tu peux parcourir les cartes et les prix. Crée un compte pour sauvegarder ton classeur.',
+      visitor_signup: 'Créer / connecter un compte',
+      auth_login_tab: 'Connexion',
+      auth_register_tab: 'Inscription',
+      auth_login_submit: 'Se connecter',
+      auth_register_submit: 'Créer mon compte',
+      auth_visitor_btn: '👀 Continuer en visiteur',
+      friends_add_placeholder: 'Pseudo de ton ami...',
+      friends_send: 'Envoyer',
+      friends_title: 'Ajouter un ami',
+      friends_list_title: 'Mes amis',
+      msg_title: 'Messages',
+      msg_sub: 'Messages privés entre Nakamas connectés.',
+      msg_input_ph: 'Écris un message...',
+      msg_send: 'Envoyer',
+      binder_empty: 'Ton classeur est vide 🏴‍☠️',
+      binder_add_manual: '＋ Ajouter une carte manuelle',
+      deck_create_ph: 'Nom du deck ex : Luffy Rouge',
+      deck_create_btn: '＋ Créer un deck',
+      deck_list_title: 'Tes decks',
+      wishlist_kicker: 'Chasse au trésor',
+      wishlist_title: 'Wishlist Pirate',
+      wishlist_sub: 'Ajoute les cartes que tu recherches pour suivre tes futures trouvailles, boosters et trades.',
+      wishlist_count_label: 'Cartes suivies',
+    },
+
+    en: {
+      lang_btn: '🌐 Language',
+      settings_btn: '⚙️ Settings',
+      logout_btn: '⏻ Sign out',
+      tab_profile: 'Profile',
+      tab_browse: 'Browse',
+      tab_binder: 'Binder',
+      tab_friends: 'Friends',
+      tab_messages: 'Messages',
+      tab_wishlist: 'Wishlist',
+      tab_decks: 'Decks',
+      sidebar_connected: 'Connected',
+      search_placeholder: 'Search a card, character, code...',
+      filter_all_sets: 'All sets',
+      filter_all_rarities: 'All rarities',
+      filter_all_special: 'All special categories',
+      filter_owned_only: '★ Owned only',
+      filter_manual_card: '＋ Manual card',
+      stat_owned: 'Cards owned',
+      stat_unique: 'Unique cards',
+      stat_value: 'Estimated value',
+      stat_wishlist: 'Wishlist',
+      stat_decks: 'Decks',
+      welcome_kicker: '⚓ Welcome to Nakama Binder',
+      welcome_title: 'Your One Piece Card Game binder online',
+      welcome_sub: 'Browse cards, track prices in real time, build your binder, share your collection with friends and plan future trades. You can browse freely and create an account only if you want to save.',
+      welcome_hide: 'Hide',
+      welcome_see_cards: 'View cards',
+      welcome_create_account: 'Create / connect an account',
+      welcome_card1_title: 'Explore cards',
+      welcome_card1_text: 'Search by set, rarity, language and variants. Click a card to open its premium sheet.',
+      welcome_card2_title: 'View prices',
+      welcome_card2_text: 'Check card prices and spot the gems of your collection.',
+      welcome_card3_title: 'Manage your binder',
+      welcome_card3_text: 'Add your cards, track your progress and sync your cloud binder.',
+      welcome_card4_title: 'Friends & messages',
+      welcome_card4_text: 'Add friends, accept requests and chat to plan trades.',
+      welcome_card5_title: 'Custom profile',
+      welcome_card5_text: 'Choose your username, avatar and collector identity.',
+      welcome_card6_title: 'Visitor mode',
+      welcome_card6_text: 'No account needed to browse cards and discover the site.',
+      loading_cards: 'Loading cards...',
+      settings_title: 'Settings',
+      settings_sub: 'Useful Nakama Binder settings.',
+      settings_profile_title: 'Profile',
+      settings_profile_help: 'Edit your username and avatar.',
+      settings_profile_btn: 'Open profile',
+      settings_password_title: 'Password',
+      settings_password_help: 'Change your password.',
+      settings_password_btn: 'Change',
+      settings_filters_title: 'Filters',
+      settings_filters_help: 'Reset search, language, set and rarity.',
+      settings_filters_btn: 'Reset',
+      settings_sync_title: 'Cloud sync',
+      settings_sync_help: 'Sync your binder so your friends can see it.',
+      settings_sync_btn: 'Sync',
+      donate_title: '❤️ Support',
+      donate_help: 'Buy us a coffee to support NakamaBinder development!',
+      donate_btn: 'Donate ☕',
+      settings_account_title: 'Account',
+      settings_account_sub: 'Sign out from this device.',
+      settings_account_logout: 'Sign out',
+      settings_close: 'Close',
+      pwd_title: 'Change password',
+      pwd_sub: 'Choose a new password for your account.',
+      pwd_new_label: 'New password',
+      pwd_new_ph: 'Minimum 6 characters',
+      pwd_confirm_label: 'Confirm',
+      pwd_confirm_ph: 'Repeat password',
+      pwd_save: 'Save',
+      pwd_close: 'Close',
+      feedback_btn: 'Reviews / Suggestions',
+      legal_btn: 'Legal Notice',
+      feedback_title: '⭐ Reviews & feedback',
+      feedback_intro: 'A bug, incorrect card, idea or improvement? Your feedback helps NakamaBinder get better for all collectors.',
+      feedback_name_ph: 'Nickname or name (optional)',
+      feedback_email_ph: 'Reply email (optional)',
+      feedback_type_general: 'General review',
+      feedback_type_bug: 'Bug',
+      feedback_type_suggestion: 'Suggestion',
+      feedback_type_feature: 'Feature request',
+      feedback_type_card: 'Missing or incorrect card',
+      feedback_msg_ph: 'Your message...',
+      feedback_submit: 'Send feedback ✨',
+      feedback_success: 'Thanks for your feedback 💚',
+      visitor_banner: 'Visitor mode: you can browse cards and prices. Create an account to save your binder.',
+      visitor_signup: 'Create / connect an account',
+      auth_login_tab: 'Login',
+      auth_register_tab: 'Register',
+      auth_login_submit: 'Sign in',
+      auth_register_submit: 'Create account',
+      auth_visitor_btn: '👀 Continue as visitor',
+      friends_add_placeholder: "Your friend's username...",
+      friends_send: 'Send',
+      friends_title: 'Add a friend',
+      friends_list_title: 'My friends',
+      msg_title: 'Messages',
+      msg_sub: 'Private messages between connected Nakamas.',
+      msg_input_ph: 'Write a message...',
+      msg_send: 'Send',
+      binder_empty: 'Your binder is empty 🏴‍☠️',
+      binder_add_manual: '＋ Add a manual card',
+      deck_create_ph: 'Deck name e.g.: Red Luffy',
+      deck_create_btn: '＋ Create a deck',
+      deck_list_title: 'Your decks',
+      wishlist_kicker: 'Treasure Hunt',
+      wishlist_title: 'Pirate Wishlist',
+      wishlist_sub: 'Add the cards you are looking for to track your future finds, boosters and trades.',
+      wishlist_count_label: 'Tracked cards',
+    },
+
+    jp: {
+      lang_btn: '🌐 言語',
+      settings_btn: '⚙️ 設定',
+      logout_btn: '⏻ ログアウト',
+      tab_profile: 'プロフィール',
+      tab_browse: 'カード一覧',
+      tab_binder: 'バインダー',
+      tab_friends: 'フレンド',
+      tab_messages: 'メッセージ',
+      tab_wishlist: 'ウィッシュリスト',
+      tab_decks: 'デッキ',
+      sidebar_connected: 'ログイン中',
+      search_placeholder: 'カード・キャラ・コードを検索...',
+      filter_all_sets: '全セット',
+      filter_all_rarities: '全レアリティ',
+      filter_all_special: '全スペシャルカテゴリ',
+      filter_owned_only: '★ 所持カードのみ',
+      filter_manual_card: '＋ 手動追加',
+      stat_owned: '所持カード',
+      stat_unique: 'ユニーク枚数',
+      stat_value: '推定価値',
+      stat_wishlist: 'ウィッシュリスト',
+      stat_decks: 'デッキ',
+      welcome_kicker: '⚓ Nakama Binderへようこそ',
+      welcome_title: 'ワンピースカードゲーム コレクション管理',
+      welcome_sub: 'カードを閲覧し、リアルタイム価格を確認して、バインダーを作りましょう。アカウント不要で自由に閲覧できます。',
+      welcome_hide: '閉じる',
+      welcome_see_cards: 'カードを見る',
+      welcome_create_account: 'アカウント作成 / ログイン',
+      welcome_card1_title: 'カードを探す',
+      welcome_card1_text: 'セット・レアリティ・言語・バリアントで検索。カードをクリックして詳細を確認。',
+      welcome_card2_title: '価格を確認',
+      welcome_card2_text: 'カードの価格をチェックして、コレクションの価値を把握。',
+      welcome_card3_title: 'バインダー管理',
+      welcome_card3_text: 'カードを追加し、進捗を追跡してクラウドに同期。',
+      welcome_card4_title: 'フレンド&メッセージ',
+      welcome_card4_text: 'フレンドを追加して、トレード計画を話し合おう。',
+      welcome_card5_title: 'カスタムプロフィール',
+      welcome_card5_text: 'ニックネーム・アバターを選んで自分らしく。',
+      welcome_card6_title: 'ビジターモード',
+      welcome_card6_text: 'アカウントなしでカードを閲覧できます。',
+      loading_cards: 'カード読み込み中...',
+      settings_title: '設定',
+      settings_sub: 'Nakama Binderの設定。',
+      settings_profile_title: 'プロフィール',
+      settings_profile_help: 'ニックネームとアバターを変更。',
+      settings_profile_btn: 'プロフィールを開く',
+      settings_password_title: 'パスワード',
+      settings_password_help: 'パスワードを変更。',
+      settings_password_btn: '変更',
+      settings_filters_title: 'フィルター',
+      settings_filters_help: '検索・言語・セット・レアリティをリセット。',
+      settings_filters_btn: 'リセット',
+      settings_sync_title: 'クラウド同期',
+      settings_sync_help: 'バインダーを同期してフレンドに見せよう。',
+      settings_sync_btn: '同期',
+      donate_title: '❤️ サポート',
+      donate_help: 'Nakama Binderの開発を支援してください！',
+      donate_btn: '寄付する ☕',
+      settings_account_title: 'アカウント',
+      settings_account_sub: 'このデバイスからログアウト。',
+      settings_account_logout: 'ログアウト',
+      settings_close: '閉じる',
+      pwd_title: 'パスワード変更',
+      pwd_sub: '新しいパスワードを設定してください。',
+      pwd_new_label: '新しいパスワード',
+      pwd_new_ph: '最低6文字',
+      pwd_confirm_label: '確認',
+      pwd_confirm_ph: 'パスワードを繰り返す',
+      pwd_save: '保存',
+      pwd_close: '閉じる',
+      feedback_btn: 'レビュー / 提案',
+      legal_btn: '法的表記',
+      feedback_title: '⭐ レビュー & フィードバック',
+      feedback_intro: 'バグ・誤情報・アイデアがあればお知らせください。',
+      feedback_name_ph: 'ニックネーム（任意）',
+      feedback_email_ph: '返信メール（任意）',
+      feedback_type_general: '一般的なレビュー',
+      feedback_type_bug: 'バグ',
+      feedback_type_suggestion: '提案',
+      feedback_type_feature: '機能リクエスト',
+      feedback_type_card: '不足・誤りのカード',
+      feedback_msg_ph: 'メッセージ...',
+      feedback_submit: 'フィードバックを送る ✨',
+      feedback_success: 'ありがとうございます 💚',
+      visitor_banner: 'ビジターモード：カードや価格を閲覧できます。バインダーを保存するにはアカウントを作成してください。',
+      visitor_signup: 'アカウント作成 / ログイン',
+      auth_login_tab: 'ログイン',
+      auth_register_tab: '新規登録',
+      auth_login_submit: 'ログイン',
+      auth_register_submit: 'アカウント作成',
+      auth_visitor_btn: '👀 ビジターとして続ける',
+      friends_add_placeholder: 'フレンドのニックネーム...',
+      friends_send: '送る',
+      friends_title: 'フレンド追加',
+      friends_list_title: 'フレンド一覧',
+      msg_title: 'メッセージ',
+      msg_sub: '仲間との非公開メッセージ。',
+      msg_input_ph: 'メッセージを書く...',
+      msg_send: '送信',
+      binder_empty: 'バインダーは空です 🏴‍☠️',
+      binder_add_manual: '＋ 手動でカード追加',
+      deck_create_ph: 'デッキ名（例：赤ルフィ）',
+      deck_create_btn: '＋ デッキ作成',
+      deck_list_title: 'マイデッキ',
+      wishlist_kicker: '宝探し',
+      wishlist_title: '海賊ウィッシュリスト',
+      wishlist_sub: '欲しいカードを追加して、今後の購入・ブースター・トレードを管理。',
+      wishlist_count_label: '追跡中のカード',
+    },
+
+    it: {
+      lang_btn: '🌐 Lingua',
+      settings_btn: '⚙️ Impostazioni',
+      logout_btn: '⏻ Disconnetti',
+      tab_profile: 'Profilo',
+      tab_browse: 'Sfoglia',
+      tab_binder: 'Raccoglitore',
+      tab_friends: 'Amici',
+      tab_messages: 'Messaggi',
+      tab_wishlist: 'Wishlist',
+      tab_decks: 'Mazzi',
+      sidebar_connected: 'Connesso',
+      search_placeholder: 'Cerca una carta, personaggio, codice...',
+      filter_all_sets: 'Tutti i set',
+      filter_all_rarities: 'Tutte le rarità',
+      filter_all_special: 'Tutte le categorie speciali',
+      filter_owned_only: '★ Solo possedute',
+      filter_manual_card: '＋ Carta manuale',
+      stat_owned: 'Carte possedute',
+      stat_unique: 'Carte uniche',
+      stat_value: 'Valore stimato',
+      stat_wishlist: 'Wishlist',
+      stat_decks: 'Mazzi',
+      welcome_kicker: '⚓ Benvenuto su Nakama Binder',
+      welcome_title: 'Il tuo raccoglitore One Piece Card Game online',
+      welcome_sub: 'Sfoglia le carte, segui i prezzi in tempo reale, costruisci il tuo binder e condividi la tua collezione con gli amici. Puoi visitare liberamente e creare un account solo se vuoi salvare.',
+      welcome_hide: 'Nascondi',
+      welcome_see_cards: 'Vedi le carte',
+      welcome_create_account: 'Crea / connetti un account',
+      welcome_card1_title: 'Esplora le carte',
+      welcome_card1_text: 'Cerca per set, rarità, lingua e varianti. Clicca una carta per aprire la sua scheda premium.',
+      welcome_card2_title: 'Vedi i prezzi',
+      welcome_card2_text: 'Consulta i prezzi delle carte e individua i gioielli della tua collezione.',
+      welcome_card3_title: 'Gestisci il tuo binder',
+      welcome_card3_text: 'Aggiungi le tue carte, tieni traccia dei progressi e sincronizza il tuo raccoglitore cloud.',
+      welcome_card4_title: 'Amici & messaggi',
+      welcome_card4_text: 'Aggiungi amici, accetta le richieste e chatta per pianificare gli scambi.',
+      welcome_card5_title: 'Profilo personalizzato',
+      welcome_card5_text: 'Scegli il tuo nickname, avatar e identità da collezionista.',
+      welcome_card6_title: 'Modalità visitatore',
+      welcome_card6_text: "Non serve un account per guardare le carte e scoprire il sito.",
+      loading_cards: 'Caricamento carte...',
+      settings_title: 'Impostazioni',
+      settings_sub: 'Impostazioni utili di Nakama Binder.',
+      settings_profile_title: 'Profilo',
+      settings_profile_help: 'Modifica il tuo nickname e avatar.',
+      settings_profile_btn: 'Apri profilo',
+      settings_password_title: 'Password',
+      settings_password_help: 'Cambia la tua password.',
+      settings_password_btn: 'Modifica',
+      settings_filters_title: 'Filtri',
+      settings_filters_help: 'Reimposta ricerca, lingua, set e rarità.',
+      settings_filters_btn: 'Reimposta',
+      settings_sync_title: 'Sync cloud',
+      settings_sync_help: 'Sincronizza il tuo raccoglitore così gli amici possono vederlo.',
+      settings_sync_btn: 'Sincronizza',
+      donate_title: '❤️ Supporta',
+      donate_help: 'Offrici un caffè per supportare lo sviluppo di NakamaBinder!',
+      donate_btn: 'Dona ☕',
+      settings_account_title: 'Account',
+      settings_account_sub: 'Esci dalla sessione su questo dispositivo.',
+      settings_account_logout: 'Disconnetti',
+      settings_close: 'Chiudi',
+      pwd_title: 'Cambia password',
+      pwd_sub: 'Scegli una nuova password per il tuo account.',
+      pwd_new_label: 'Nuova password',
+      pwd_new_ph: 'Minimo 6 caratteri',
+      pwd_confirm_label: 'Conferma',
+      pwd_confirm_ph: 'Ripeti la password',
+      pwd_save: 'Salva',
+      pwd_close: 'Chiudi',
+      feedback_btn: 'Recensioni / Suggerimenti',
+      legal_btn: 'Note legali',
+      feedback_title: '⭐ Recensioni & miglioramenti',
+      feedback_intro: 'Un bug, una carta errata, un\'idea o un miglioramento? Il tuo feedback aiuta NakamaBinder a migliorare per tutti i collezionisti.',
+      feedback_name_ph: 'Nickname o nome (opzionale)',
+      feedback_email_ph: 'Email di risposta (opzionale)',
+      feedback_type_general: 'Recensione generale',
+      feedback_type_bug: 'Bug',
+      feedback_type_suggestion: 'Suggerimento',
+      feedback_type_feature: 'Richiesta funzionalità',
+      feedback_type_card: 'Carta mancante o errata',
+      feedback_msg_ph: 'Il tuo messaggio...',
+      feedback_submit: 'Invia feedback ✨',
+      feedback_success: 'Grazie per il tuo feedback 💚',
+      visitor_banner: 'Modalità visitatore: puoi sfogliare carte e prezzi. Crea un account per salvare il tuo raccoglitore.',
+      visitor_signup: 'Crea / connetti un account',
+      auth_login_tab: 'Accedi',
+      auth_register_tab: 'Registrati',
+      auth_login_submit: 'Accedi',
+      auth_register_submit: 'Crea account',
+      auth_visitor_btn: '👀 Continua come visitatore',
+      friends_add_placeholder: "Nickname del tuo amico...",
+      friends_send: 'Invia',
+      friends_title: 'Aggiungi un amico',
+      friends_list_title: 'I miei amici',
+      msg_title: 'Messaggi',
+      msg_sub: 'Messaggi privati tra Nakama connessi.',
+      msg_input_ph: 'Scrivi un messaggio...',
+      msg_send: 'Invia',
+      binder_empty: 'Il tuo raccoglitore è vuoto 🏴‍☠️',
+      binder_add_manual: '＋ Aggiungi carta manuale',
+      deck_create_ph: 'Nome mazzo es.: Luffy Rosso',
+      deck_create_btn: '＋ Crea un mazzo',
+      deck_list_title: 'I tuoi mazzi',
+      wishlist_kicker: 'Caccia al tesoro',
+      wishlist_title: 'Wishlist Pirata',
+      wishlist_sub: 'Aggiungi le carte che cerchi per tenere traccia delle tue future trovate, booster e scambi.',
+      wishlist_count_label: 'Carte tracciate',
+    },
+
+    my: {
+      lang_btn: '🌐 Bahasa',
+      settings_btn: '⚙️ Tetapan',
+      logout_btn: '⏻ Log keluar',
+      tab_profile: 'Profil',
+      tab_browse: 'Semak',
+      tab_binder: 'Binder',
+      tab_friends: 'Rakan',
+      tab_messages: 'Mesej',
+      tab_wishlist: 'Senarai Ingin',
+      tab_decks: 'Dek',
+      sidebar_connected: 'Bersambung',
+      search_placeholder: 'Cari kad, watak, kod...',
+      filter_all_sets: 'Semua set',
+      filter_all_rarities: 'Semua kelangkaan',
+      filter_all_special: 'Semua kategori khas',
+      filter_owned_only: '★ Dimiliki sahaja',
+      filter_manual_card: '＋ Kad manual',
+      stat_owned: 'Kad dimiliki',
+      stat_unique: 'Kad unik',
+      stat_value: 'Nilai anggaran',
+      stat_wishlist: 'Senarai Ingin',
+      stat_decks: 'Dek',
+      welcome_kicker: '⚓ Selamat datang ke Nakama Binder',
+      welcome_title: 'Binder One Piece Card Game anda dalam talian',
+      welcome_sub: 'Semak kad, pantau harga masa nyata, bina binder anda, kongsi koleksi dengan rakan dan rancang pertukaran masa hadapan. Anda boleh melayari secara bebas dan buat akaun hanya jika mahu menyimpan.',
+      welcome_hide: 'Sembunyi',
+      welcome_see_cards: 'Lihat kad',
+      welcome_create_account: 'Buat / sambung akaun',
+      welcome_card1_title: 'Terokai kad',
+      welcome_card1_text: 'Cari mengikut set, kelangkaan, bahasa dan varian. Klik kad untuk buka maklumat premium.',
+      welcome_card2_title: 'Lihat harga',
+      welcome_card2_text: 'Semak harga kad dan temui permata dalam koleksi anda.',
+      welcome_card3_title: 'Urus binder anda',
+      welcome_card3_text: 'Tambah kad, jejaki kemajuan dan selaraskan binder cloud anda.',
+      welcome_card4_title: 'Rakan & mesej',
+      welcome_card4_text: 'Tambah rakan, terima permintaan dan berbual untuk merancang pertukaran.',
+      welcome_card5_title: 'Profil tersuai',
+      welcome_card5_text: 'Pilih nama pengguna, avatar dan identiti pengumpul anda.',
+      welcome_card6_title: 'Mod pelawat',
+      welcome_card6_text: 'Tidak perlu akaun untuk melayari kad dan meneroka laman.',
+      loading_cards: 'Memuatkan kad...',
+      settings_title: 'Tetapan',
+      settings_sub: 'Tetapan berguna Nakama Binder.',
+      settings_profile_title: 'Profil',
+      settings_profile_help: 'Edit nama pengguna dan avatar anda.',
+      settings_profile_btn: 'Buka profil',
+      settings_password_title: 'Kata laluan',
+      settings_password_help: 'Tukar kata laluan anda.',
+      settings_password_btn: 'Tukar',
+      settings_filters_title: 'Penapis',
+      settings_filters_help: 'Set semula carian, bahasa, set dan kelangkaan.',
+      settings_filters_btn: 'Set semula',
+      settings_sync_title: 'Selaras cloud',
+      settings_sync_help: 'Selaraskan binder anda supaya rakan dapat melihatnya.',
+      settings_sync_btn: 'Selaras',
+      donate_title: '❤️ Sokong',
+      donate_help: 'Belanja kami kopi untuk menyokong pembangunan NakamaBinder!',
+      donate_btn: 'Derma ☕',
+      settings_account_title: 'Akaun',
+      settings_account_sub: 'Log keluar dari peranti ini.',
+      settings_account_logout: 'Log keluar',
+      settings_close: 'Tutup',
+      pwd_title: 'Tukar kata laluan',
+      pwd_sub: 'Pilih kata laluan baharu untuk akaun anda.',
+      pwd_new_label: 'Kata laluan baharu',
+      pwd_new_ph: 'Minimum 6 aksara',
+      pwd_confirm_label: 'Sahkan',
+      pwd_confirm_ph: 'Ulang kata laluan',
+      pwd_save: 'Simpan',
+      pwd_close: 'Tutup',
+      feedback_btn: 'Ulasan / Cadangan',
+      legal_btn: 'Notis Undang-undang',
+      feedback_title: '⭐ Ulasan & penambahbaikan',
+      feedback_intro: 'Ada pepijat, kad salah, idea atau penambahbaikan? Maklum balas anda membantu NakamaBinder lebih baik.',
+      feedback_name_ph: 'Nama pengguna (pilihan)',
+      feedback_email_ph: 'E-mel balas (pilihan)',
+      feedback_type_general: 'Ulasan umum',
+      feedback_type_bug: 'Pepijat',
+      feedback_type_suggestion: 'Cadangan',
+      feedback_type_feature: 'Permintaan ciri',
+      feedback_type_card: 'Kad hilang atau salah',
+      feedback_msg_ph: 'Mesej anda...',
+      feedback_submit: 'Hantar maklum balas ✨',
+      feedback_success: 'Terima kasih atas maklum balas anda 💚',
+      visitor_banner: 'Mod pelawat: anda boleh semak kad dan harga. Buat akaun untuk simpan binder anda.',
+      visitor_signup: 'Buat / sambung akaun',
+      auth_login_tab: 'Log masuk',
+      auth_register_tab: 'Daftar',
+      auth_login_submit: 'Log masuk',
+      auth_register_submit: 'Buat akaun',
+      auth_visitor_btn: '👀 Teruskan sebagai pelawat',
+      friends_add_placeholder: 'Nama pengguna rakan anda...',
+      friends_send: 'Hantar',
+      friends_title: 'Tambah rakan',
+      friends_list_title: 'Rakan saya',
+      msg_title: 'Mesej',
+      msg_sub: 'Mesej peribadi antara Nakama bersambung.',
+      msg_input_ph: 'Tulis mesej...',
+      msg_send: 'Hantar',
+      binder_empty: 'Binder anda kosong 🏴‍☠️',
+      binder_add_manual: '＋ Tambah kad manual',
+      deck_create_ph: 'Nama dek cth: Luffy Merah',
+      deck_create_btn: '＋ Buat dek',
+      deck_list_title: 'Dek anda',
+      wishlist_kicker: 'Memburu harta',
+      wishlist_title: 'Senarai Ingin Bajak Laut',
+      wishlist_sub: 'Tambah kad yang anda cari untuk jejaki penemuan, booster dan pertukaran masa depan.',
+      wishlist_count_label: 'Kad dijejaki',
+    }
+  };
+
+  /* ─── CIBLE → CLÉ DE TRADUCTION ────────────────────────────────── */
+  function applyTranslations(lang) {
+    const t = T[lang] || T.fr;
+
+    function setText(sel, key) {
+      const el = document.querySelector(sel);
+      if (el && t[key] !== undefined) el.textContent = t[key];
+    }
+    function setHTML(sel, key) {
+      const el = document.querySelector(sel);
+      if (el && t[key] !== undefined) el.innerHTML = t[key];
+    }
+    function setAttr(sel, attr, key) {
+      const el = document.querySelector(sel);
+      if (el && t[key] !== undefined) el.setAttribute(attr, t[key]);
+    }
+    function setAll(sel, key) {
+      document.querySelectorAll(sel).forEach(el => {
+        if (t[key] !== undefined) el.textContent = t[key];
+      });
+    }
+
+    /* ── Dock ── */
+    setText('#nakama-bottom-lang', 'lang_btn');
+    setText('#nakama-bottom-settings', 'settings_btn');
+    setText('#nakama-bottom-logout', 'logout_btn');
+
+    /* ── Sidebar tabs ── */
+    const tabs = document.querySelectorAll('#main-screen .main-tab');
+    tabs.forEach(btn => {
+      const txt = (btn.textContent || '').trim();
+      if (txt === T.fr.tab_profile || txt === T.en.tab_profile || txt === T.jp.tab_profile || txt === T.it.tab_profile || txt === T.my.tab_profile) btn.textContent = t.tab_profile;
+      else if (btn.onclick && btn.getAttribute('onclick') && btn.getAttribute('onclick').includes("'browse'")) btn.childNodes[0] && (btn.childNodes[0].textContent = t.tab_browse);
+      else if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes("'collection'")) btn.textContent = t.tab_binder;
+      else if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes("'friends'")) btn.textContent = t.tab_friends;
+      else if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes("'wishlist'")) btn.textContent = t.tab_wishlist;
+      else if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes("'decks'")) btn.textContent = t.tab_decks;
+      else if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes("'messages'")) {
+        const notif = btn.querySelector('#messages-notif');
+        btn.childNodes[0] && (btn.childNodes[0].textContent = t.tab_messages + ' ');
+        if (notif && !btn.contains(notif)) btn.appendChild(notif);
+      }
+    });
+
+    /* ── Sidebar connected label ── */
+    setText('.sidebar-user-label', 'sidebar_connected');
+
+    /* ── Filtres ── */
+    setAttr('#search-input', 'placeholder', 'search_placeholder');
+
+    const setFilter = document.querySelector('#set-filter option[value=""]');
+    if (setFilter) setFilter.textContent = t.filter_all_sets;
+    const rarityFilter = document.querySelector('#rarity-filter option[value=""]');
+    if (rarityFilter) rarityFilter.textContent = t.filter_all_rarities;
+    const specialFilter = document.querySelector('#special-filter option[value=""]');
+    if (specialFilter) specialFilter.textContent = t.filter_all_special;
+
+    setText('#toggle-owned', 'filter_owned_only');
+    const manualBtns = document.querySelectorAll('.filters-bar .manual-btn, .filters-line-final .manual-btn');
+    manualBtns.forEach(b => { if (t.filter_manual_card) b.textContent = t.filter_manual_card; });
+
+    /* ── Quick stats ── */
+    const qreals = document.querySelectorAll('#tab-browse .nb-qreal small');
+    if (qreals[0]) qreals[0].textContent = t.stat_owned;
+    if (qreals[1]) qreals[1].textContent = t.stat_unique;
+    if (qreals[2]) qreals[2].textContent = t.stat_value;
+    if (qreals[3]) qreals[3].textContent = t.stat_wishlist;
+    if (qreals[4]) qreals[4].textContent = t.stat_decks;
+
+    /* ── Welcome block ── */
+    setText('.nakama-welcome-kicker', 'welcome_kicker');
+    setText('.nakama-welcome-title', 'welcome_title');
+    setText('.nakama-welcome-sub', 'welcome_sub');
+    setText('.nakama-welcome-close', 'welcome_hide');
+    setText('.nakama-welcome-primary', 'welcome_see_cards');
+    setText('.nakama-welcome-secondary', 'welcome_create_account');
+    const wcards = document.querySelectorAll('.nakama-welcome-card');
+    if (wcards[0]) { wcards[0].querySelector('.nakama-welcome-card-title').textContent = t.welcome_card1_title; wcards[0].querySelector('.nakama-welcome-card-text').textContent = t.welcome_card1_text; }
+    if (wcards[1]) { wcards[1].querySelector('.nakama-welcome-card-title').textContent = t.welcome_card2_title; wcards[1].querySelector('.nakama-welcome-card-text').textContent = t.welcome_card2_text; }
+    if (wcards[2]) { wcards[2].querySelector('.nakama-welcome-card-title').textContent = t.welcome_card3_title; wcards[2].querySelector('.nakama-welcome-card-text').textContent = t.welcome_card3_text; }
+    if (wcards[3]) { wcards[3].querySelector('.nakama-welcome-card-title').textContent = t.welcome_card4_title; wcards[3].querySelector('.nakama-welcome-card-text').textContent = t.welcome_card4_text; }
+    if (wcards[4]) { wcards[4].querySelector('.nakama-welcome-card-title').textContent = t.welcome_card5_title; wcards[4].querySelector('.nakama-welcome-card-text').textContent = t.welcome_card5_text; }
+    if (wcards[5]) { wcards[5].querySelector('.nakama-welcome-card-title').textContent = t.welcome_card6_title; wcards[5].querySelector('.nakama-welcome-card-text').textContent = t.welcome_card6_text; }
+
+    /* ── Loading ── */
+    setText('.loading-txt', 'loading_cards');
+
+    /* ── Settings modal ── */
+    setText('#nakama-settings-modal-overlay .nakama-settings-title', 'settings_title');
+    setText('#nakama-settings-modal-overlay .nakama-settings-sub', 'settings_sub');
+    const tiles = document.querySelectorAll('.nakama-setting-tile');
+    tiles.forEach(tile => {
+      const titleEl = tile.querySelector('.nakama-setting-tile-title');
+      const helpEl = tile.querySelector('.nakama-setting-tile-help');
+      const btn = tile.querySelector('button');
+      const key = tile.dataset.i18nTile;
+      if (key) {
+        if (titleEl && t[key+'_title']) titleEl.textContent = t[key+'_title'];
+        if (helpEl && t[key+'_help']) helpEl.textContent = t[key+'_help'];
+        if (btn && t[key+'_btn']) btn.textContent = t[key+'_btn'];
+      }
+    });
+    /* Tiles par data-i18n sur les éléments individuels */
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (t[key] !== undefined) el.textContent = t[key];
+    });
+
+    /* Tiles sans data-i18n (ciblage par position dans la grille) */
+    const settingTiles = document.querySelectorAll('.nakama-settings-grid .nakama-setting-tile');
+    const tileMap = [
+      ['settings_profile_title','settings_profile_help','settings_profile_btn'],
+      ['settings_password_title','settings_password_help','settings_password_btn'],
+      ['settings_filters_title','settings_filters_help','settings_filters_btn'],
+      ['settings_sync_title','settings_sync_help','settings_sync_btn'],
+      ['donate_title','donate_help','donate_btn'],
+    ];
+    settingTiles.forEach((tile, i) => {
+      const keys = tileMap[i];
+      if (!keys) return;
+      const title = tile.querySelector('.nakama-setting-tile-title');
+      const help  = tile.querySelector('.nakama-setting-tile-help');
+      const btn   = tile.querySelector('button');
+      if (title && t[keys[0]]) title.textContent = t[keys[0]];
+      if (help  && t[keys[1]]) help.textContent  = t[keys[1]];
+      if (btn   && t[keys[2]]) btn.textContent   = t[keys[2]];
+    });
+
+    /* ── Account section ── */
+    setText('.nakama-account-clean-title', 'settings_account_title');
+    setText('.nakama-account-clean-sub', 'settings_account_sub');
+    setText('#nakama-clean-logout', 'settings_account_logout');
+    setText('#nakama-close-settings', 'settings_close');
+
+    /* ── Password modal ── */
+    setText('#password-overlay .password-title', 'pwd_title');
+    setText('#password-overlay .password-sub', 'pwd_sub');
+    const pwdFields = document.querySelectorAll('#password-overlay .password-field');
+    if (pwdFields[0]) { const lbl = pwdFields[0].querySelector('label'); if (lbl) lbl.textContent = t.pwd_new_label; const inp = pwdFields[0].querySelector('input'); if (inp) inp.placeholder = t.pwd_new_ph; }
+    if (pwdFields[1]) { const lbl = pwdFields[1].querySelector('label'); if (lbl) lbl.textContent = t.pwd_confirm_label; const inp = pwdFields[1].querySelector('input'); if (inp) inp.placeholder = t.pwd_confirm_ph; }
+    const pwdActions = document.querySelectorAll('#password-overlay .password-actions button');
+    if (pwdActions[0]) pwdActions[0].textContent = t.pwd_close;
+    if (pwdActions[1]) pwdActions[1].textContent = t.pwd_save;
+
+    /* ── Feedback modal ── */
+    const fbModal = document.getElementById('nakama-feedback-modal');
+    if (fbModal) {
+      const h2 = fbModal.querySelector('h2'); if (h2) h2.textContent = t.feedback_title;
+      const p = fbModal.querySelector('.nakama-info-panel > p'); if (p) p.textContent = t.feedback_intro;
+      setAttr('#nakama-feedback-form input[name="name"]', 'placeholder', 'feedback_name_ph');
+      setAttr('#nakama-feedback-form input[name="email"]', 'placeholder', 'feedback_email_ph');
+      const typeOpts = fbModal.querySelectorAll('select[name="type"] option');
+      const typeKeys = ['feedback_type_general','feedback_type_bug','feedback_type_suggestion','feedback_type_feature','feedback_type_card'];
+      typeOpts.forEach((o,i) => { if (t[typeKeys[i]]) o.textContent = t[typeKeys[i]]; });
+      setAttr('#nakama-feedback-form textarea', 'placeholder', 'feedback_msg_ph');
+      setText('#nakama-feedback-submit', 'feedback_submit');
+      setText('#nakama-feedback-success', 'feedback_success');
+    }
+
+    /* ── Discreet footer buttons ── */
+    const footerBtns = document.querySelectorAll('#nakama-discreet-footer button');
+    footerBtns.forEach(btn => {
+      const target = btn.getAttribute('data-nakama-open');
+      if (target === 'feedback') btn.textContent = t.feedback_btn;
+      if (target === 'legal') btn.textContent = t.legal_btn;
+    });
+
+    /* ── Visitor banner ── */
+    const visitorSpan = document.querySelector('#visitor-signup-banner span');
+    if (visitorSpan) visitorSpan.textContent = t.visitor_banner;
+    const visitorBtn = document.querySelector('#visitor-signup-banner button');
+    if (visitorBtn) visitorBtn.textContent = t.visitor_signup;
+
+    /* ── Auth screen ── */
+    const authTabs = document.querySelectorAll('.auth-tab');
+    if (authTabs[0]) authTabs[0].textContent = t.auth_login_tab;
+    if (authTabs[1]) authTabs[1].textContent = t.auth_register_tab;
+    setText('.btn-submit', 'auth_login_submit');
+    const visitorAuthBtn = document.querySelector('.auth-visitor-btn');
+    if (visitorAuthBtn) visitorAuthBtn.textContent = t.auth_visitor_btn;
+
+    /* ── Friends tab ── */
+    const friendsTitle = document.querySelector('#tab-friends .section-title');
+    if (friendsTitle) friendsTitle.textContent = t.friends_title;
+    setAttr('#friend-input', 'placeholder', 'friends_add_placeholder');
+    setText('.btn-send-req', 'friends_send');
+
+    /* ── Messages tab ── */
+    setText('#tab-messages .messages-hero h2', 'msg_title');
+    setText('#tab-messages .messages-hero p', 'msg_sub');
+    setAttr('#chat-input', 'placeholder', 'msg_input_ph');
+    const msgSendBtn = document.querySelector('.chat-input-row button');
+    if (msgSendBtn) msgSendBtn.textContent = t.msg_send;
+
+    /* ── Wishlist tab ── */
+    setText('#tab-wishlist .deck-kicker, #tab-wishlist [style*="letter-spacing"]', 'wishlist_kicker');
+    try {
+      const wlKicker = document.querySelector('#tab-wishlist div[style*="letter-spacing"]');
+      if (wlKicker) wlKicker.textContent = t.wishlist_kicker;
+    } catch(e) {}
+
+    /* ── Decks tab ── */
+    setAttr('#deck-name-input', 'placeholder', 'deck_create_ph');
+    setText('.deck-btn', 'deck_create_btn');
+    setText('.deck-list-title', 'deck_list_title');
+
+    /* ── Binder tab ── */
+    const binderAddBtn = document.querySelector('#tab-collection .manual-btn');
+    if (binderAddBtn) binderAddBtn.textContent = t.binder_add_manual;
+
+    /* ── Active button highlight ── */
+    document.querySelectorAll('#nb-lang-picker-panel .nb-lang-opt').forEach(btn => {
+      btn.classList.toggle('active', btn.getAttribute('data-ui-lang') === lang);
+    });
+
+    /* ── Persist ── */
+    try { localStorage.setItem(STORAGE_KEY, lang); } catch(e) {}
+    window.__nakama_ui_lang_current = lang;
+  }
+
+  /* ─── STRIPE DONATE PLACEHOLDER ────────────────────────────────── */
+  function bindDonatePlaceholder() {
+    const btn = document.getElementById('nakama-stripe-donate');
+    if (!btn || btn.dataset.stripeBound) return;
+    btn.dataset.stripeBound = '1';
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      /* 👉 Remplace l'URL ci-dessous par ton vrai lien Stripe Payment Link */
+      const STRIPE_URL = 'https://buy.stripe.com/XXXXXXXXXXXXXXXX';
+      if (STRIPE_URL.includes('XXXX')) {
+        if (typeof showToast === 'function') {
+          showToast('Lien Stripe à configurer dans le code 🛠️');
+        } else {
+          alert('Le lien Stripe n\'est pas encore configuré.');
+        }
+        return;
+      }
+      window.open(STRIPE_URL, '_blank', 'noopener,noreferrer');
+    });
+  }
+
+  /* ─── LANGUAGE PICKER TOGGLE ────────────────────────────────────── */
+  function bindLangBtn() {
+    const langBtn = document.getElementById('nakama-bottom-lang');
+    const panel = document.getElementById('nb-lang-picker-panel');
+    if (!langBtn || !panel || langBtn.dataset.langBound) return;
+    langBtn.dataset.langBound = '1';
+
+    langBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      panel.classList.toggle('open');
+    });
+
+    panel.querySelectorAll('.nb-lang-opt').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const lang = this.getAttribute('data-ui-lang');
+        if (lang) applyTranslations(lang);
+        panel.classList.remove('open');
+      });
+    });
+
+    document.addEventListener('click', function(e) {
+      if (!panel.contains(e.target) && e.target !== langBtn) {
+        panel.classList.remove('open');
+      }
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') panel.classList.remove('open');
+    });
+  }
+
+  /* ─── INIT ──────────────────────────────────────────────────────── */
+  function init() {
+    bindLangBtn();
+    bindDonatePlaceholder();
+    /* Restore saved language */
+    let saved = 'fr';
+    try { saved = localStorage.getItem(STORAGE_KEY) || 'fr'; } catch(e) {}
+    if (saved && saved !== 'fr') {
+      applyTranslations(saved);
+    }
+  }
+
+  /* Re-bind après renders dynamiques */
+  document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(init, 200);
+    setTimeout(bindDonatePlaceholder, 800);
+  });
+  window.addEventListener('load', function() {
+    init();
+    setTimeout(init, 600);
+    setTimeout(bindDonatePlaceholder, 1000);
+  });
+
+  /* Expose pour debug */
+  window.nakamaSetLang = applyTranslations;
+  window.nakamaLangTranslations = T;
+})();
 </script>
-<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+<!-- END NAKAMA UI LANGUAGE SYSTEM -->
 
 </body>
 </html>
