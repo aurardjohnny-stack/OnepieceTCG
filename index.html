@@ -12936,7 +12936,7 @@ function premiumZoomCard(){
       e.preventDefault();
       e.stopPropagation();
       /* 👉 Remplace l'URL ci-dessous par ton vrai lien Stripe Payment Link */
-      const STRIPE_URL = 'https://buy.stripe.com/3cIeVdgUGbn2eBWelydQQ01';
+      const STRIPE_URL = 'https://buy.stripe.com/XXXXXXXXXXXXXXXX';
       if (STRIPE_URL.includes('XXXX')) {
         if (typeof showToast === 'function') {
           showToast('Lien Stripe à configurer dans le code 🛠️');
@@ -13010,6 +13010,967 @@ function premiumZoomCard(){
 })();
 </script>
 <!-- END NAKAMA UI LANGUAGE SYSTEM -->
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     NAKAMA CARD SUGGESTION SYSTEM
+     Users : proposer une carte → envoyée dans Supabase (pending)
+     Admin  : valider / rejeter depuis un panel dans les Paramètres
+     Cartes validées : chargées automatiquement au démarrage pour tous
+
+     ── SUPABASE SQL À EXÉCUTER UNE SEULE FOIS ──────────────────
+     Copie-colle dans l'éditeur SQL de ton projet Supabase :
+
+     card_suggestions (
+       id           uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+       user_id      uuid,
+       display_name text,
+       card_name    text NOT NULL,
+       card_code    text,
+       card_set     text,
+       card_rarity  text,
+       card_lang    text DEFAULT 'FR',
+       card_type    text,
+       image_url    text,
+       notes        text,
+       status       text DEFAULT 'pending',
+       created_at   timestamptz DEFAULT now(),
+       reviewed_at  timestamptz
+     );
+
+     ALTER TABLE card_suggestions ENABLE ROW LEVEL SECURITY;
+     CREATE POLICY "anyone_insert"  ON card_suggestions FOR INSERT WITH CHECK (true);
+     CREATE POLICY "read_approved"  ON card_suggestions FOR SELECT USING (status = 'approved');
+     CREATE POLICY "admin_all"      ON card_suggestions FOR ALL  USING (true) WITH CHECK (true);
+
+     ────────────────────────────────────────────────────────────── -->
+
+<style id="nakama-suggest-system-css">
+
+/* ── Bouton "Proposer" dans les filtres ── */
+.nb-suggest-btn {
+  height: 42px !important;
+  min-height: 42px !important;
+  max-height: 42px !important;
+  padding: 0 14px !important;
+  border-radius: 10px !important;
+  border: 1px solid rgba(28,156,255,.45) !important;
+  background: rgba(28,156,255,.08) !important;
+  color: #6ec6ff !important;
+  font-weight: 900 !important;
+  font-size: 12px !important;
+  font-family: var(--font-body, 'DM Sans', sans-serif) !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: .15s ease !important;
+}
+.nb-suggest-btn:hover {
+  border-color: rgba(28,156,255,.75) !important;
+  background: rgba(28,156,255,.14) !important;
+  color: #9ed8ff !important;
+}
+
+/* ── Admin badge tile ── */
+.nb-admin-tile {
+  background: linear-gradient(145deg,rgba(242,182,62,.09),rgba(255,140,0,.05)) !important;
+  border-color: rgba(242,182,62,.35) !important;
+}
+.nb-admin-tile button {
+  background: linear-gradient(135deg,rgba(242,182,62,.15),rgba(255,140,0,.08)) !important;
+  border-color: rgba(242,182,62,.5) !important;
+  color: #f2b63e !important;
+}
+.nb-admin-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #e63946;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 900;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+/* ── Overlay générique partagé ── */
+#nb-suggest-overlay,
+#nb-admin-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 2147483647 !important;
+  display: none !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 20px !important;
+  background: rgba(2,6,12,.86) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+#nb-suggest-overlay.active,
+#nb-admin-overlay.active {
+  display: flex !important;
+}
+
+/* ── Suggestion box ── */
+.nb-suggest-box {
+  width: min(600px, 96vw);
+  max-height: 92vh;
+  overflow: auto;
+  background: linear-gradient(180deg,#0b1727,#07111f);
+  border: 1px solid rgba(28,156,255,.28);
+  border-radius: 24px;
+  padding: 26px;
+  color: #f4f7fb;
+  box-shadow: 0 30px 80px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.04);
+  position: relative;
+}
+.nb-suggest-title {
+  font-size: 24px;
+  font-weight: 900;
+  color: #fff;
+  margin-bottom: 4px;
+}
+.nb-suggest-sub {
+  color: #8ea0b3;
+  font-size: 13px;
+  margin-bottom: 20px;
+  line-height: 1.45;
+}
+.nb-suggest-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.nb-suggest-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.nb-suggest-field.wide { grid-column: 1 / -1; }
+.nb-suggest-field label {
+  font-size: 10px;
+  font-weight: 900;
+  color: #8ea0b3;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+}
+.nb-suggest-field input,
+.nb-suggest-field select,
+.nb-suggest-field textarea {
+  height: 42px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 12px;
+  background: rgba(5,9,16,.72);
+  color: #f4f7fb;
+  padding: 0 12px;
+  outline: none;
+  font-size: 13px;
+  font-family: var(--font-body, 'DM Sans', sans-serif);
+  transition: .14s ease;
+}
+.nb-suggest-field input:focus,
+.nb-suggest-field select:focus,
+.nb-suggest-field textarea:focus { border-color: rgba(28,156,255,.6); }
+.nb-suggest-field textarea { height: 80px; resize: vertical; padding: 10px 12px; }
+.nb-suggest-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+.nb-suggest-actions button {
+  flex: 1;
+  height: 46px;
+  border-radius: 13px;
+  border: 0;
+  cursor: pointer;
+  font-weight: 900;
+  font-size: 14px;
+  font-family: var(--font-body, 'DM Sans', sans-serif);
+  transition: .15s ease;
+}
+.nb-suggest-submit {
+  background: linear-gradient(135deg,#4da3ff,#8fd2ff);
+  color: #07111f;
+}
+.nb-suggest-submit:hover { opacity: .88; }
+.nb-suggest-cancel {
+  background: rgba(255,255,255,.08);
+  color: #f4f7fb;
+}
+.nb-suggest-msg {
+  margin-top: 10px;
+  min-height: 18px;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+}
+.nb-suggest-msg.ok  { color: #1ddf94; }
+.nb-suggest-msg.err { color: #ff6b81; }
+
+/* ── Admin panel ── */
+.nb-admin-box {
+  width: min(900px, 96vw);
+  max-height: 92vh;
+  overflow: auto;
+  background: linear-gradient(180deg,#0b1727,#07111f);
+  border: 1px solid rgba(242,182,62,.28);
+  border-radius: 24px;
+  padding: 26px;
+  color: #f4f7fb;
+  box-shadow: 0 30px 80px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.04);
+  position: relative;
+}
+.nb-admin-title {
+  font-size: 24px;
+  font-weight: 900;
+  color: #f2b63e;
+  margin-bottom: 4px;
+}
+.nb-admin-sub {
+  color: #8ea0b3;
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+.nb-admin-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.nb-admin-tab {
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.055);
+  color: #dce6f3;
+  font-weight: 900;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: var(--font-body, 'DM Sans', sans-serif);
+  transition: .14s ease;
+}
+.nb-admin-tab.active {
+  background: rgba(242,182,62,.14);
+  border-color: rgba(242,182,62,.55);
+  color: #f2b63e;
+}
+.nb-admin-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.nb-admin-card {
+  display: grid;
+  grid-template-columns: 90px minmax(0,1fr);
+  gap: 14px;
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,.08);
+  background: rgba(255,255,255,.03);
+  align-items: start;
+  transition: border .15s;
+}
+.nb-admin-card:hover { border-color: rgba(242,182,62,.28); }
+.nb-admin-thumb {
+  width: 90px;
+  aspect-ratio: .717;
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: #4a5a6a;
+  flex-shrink: 0;
+}
+.nb-admin-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.nb-admin-info-name {
+  font-size: 16px;
+  font-weight: 900;
+  color: #fff;
+  margin-bottom: 4px;
+}
+.nb-admin-info-meta {
+  font-size: 12px;
+  color: #8ea0b3;
+  margin-bottom: 8px;
+  line-height: 1.45;
+}
+.nb-admin-info-by {
+  font-size: 11px;
+  color: #6a7a8a;
+  margin-bottom: 10px;
+}
+.nb-admin-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.nb-admin-actions button {
+  height: 34px;
+  border-radius: 10px;
+  border: 0;
+  font-weight: 900;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 0 14px;
+  font-family: var(--font-body, 'DM Sans', sans-serif);
+  transition: .14s ease;
+}
+.nb-admin-approve {
+  background: linear-gradient(135deg,#1ddf94,#7dffc9);
+  color: #07111f;
+}
+.nb-admin-approve:hover { opacity: .88; }
+.nb-admin-reject {
+  background: rgba(190,38,38,.18);
+  border: 1px solid rgba(255,90,90,.30) !important;
+  color: #ffb3b3;
+}
+.nb-admin-reject:hover { background: rgba(190,38,38,.30) !important; }
+.nb-admin-view {
+  background: rgba(28,156,255,.12);
+  border: 1px solid rgba(28,156,255,.28) !important;
+  color: #6ec6ff;
+}
+.nb-admin-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: #6a7a8a;
+  font-size: 14px;
+}
+.nb-admin-close-btn {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 0;
+  background: rgba(255,255,255,.08);
+  color: #fff;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.nb-admin-close-btn:hover { background: rgba(255,255,255,.14); }
+.nb-suggest-close-btn {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 0;
+  background: rgba(255,255,255,.08);
+  color: #fff;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.nb-suggest-close-btn:hover { background: rgba(255,255,255,.14); }
+.nb-admin-notes-preview {
+  font-size: 11px;
+  color: #9fb0c2;
+  font-style: italic;
+  margin-top: 4px;
+}
+.nb-admin-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+  margin-left: 8px;
+}
+.nb-status-approved { background: rgba(29,223,148,.14); color: #1ddf94; border: 1px solid rgba(29,223,148,.28); }
+.nb-status-rejected { background: rgba(255,107,129,.14); color: #ff6b81; border: 1px solid rgba(255,107,129,.28); }
+.nb-status-pending  { background: rgba(242,182,62,.14);  color: #f2b63e;  border: 1px solid rgba(242,182,62,.28); }
+
+@media(max-width:700px) {
+  .nb-suggest-grid { grid-template-columns: 1fr; }
+  .nb-admin-card { grid-template-columns: 1fr; }
+  .nb-admin-thumb { width: 100%; aspect-ratio: 16/7; }
+  .nb-admin-thumb img { object-position: top; }
+  .nb-admin-box, .nb-suggest-box { padding: 16px; border-radius: 20px; }
+}
+</style>
+
+
+<!-- ── Modal : Proposer une carte ── -->
+<div id="nb-suggest-overlay" onclick="if(event.target===this)nbCloseSuggest()">
+  <div class="nb-suggest-box" onclick="event.stopPropagation()">
+    <button class="nb-suggest-close-btn" onclick="nbCloseSuggest()" type="button" aria-label="Fermer">✕</button>
+
+    <div class="nb-suggest-title">💡 Proposer une carte</div>
+    <div class="nb-suggest-sub">
+      La carte sera examinée avant d'être ajoutée pour tous les utilisateurs.
+      Remplis un maximum d'infos pour faciliter la validation.
+    </div>
+
+    <div class="nb-suggest-grid">
+      <div class="nb-suggest-field wide">
+        <label>Nom de la carte *</label>
+        <input id="nbs-name" type="text" placeholder="Ex : Monkey D. Luffy">
+      </div>
+      <div class="nb-suggest-field">
+        <label>Code / Numéro</label>
+        <input id="nbs-code" type="text" placeholder="Ex : OP09-001">
+      </div>
+      <div class="nb-suggest-field">
+        <label>Set</label>
+        <input id="nbs-set" type="text" placeholder="Ex : OP09">
+      </div>
+      <div class="nb-suggest-field">
+        <label>Langue</label>
+        <select id="nbs-lang">
+          <option value="FR">FR</option>
+          <option value="EN">EN</option>
+          <option value="JAP">JAP</option>
+          <option value="CN-HK">CN/HK</option>
+          <option value="UNK">Autre</option>
+        </select>
+      </div>
+      <div class="nb-suggest-field">
+        <label>Type</label>
+        <select id="nbs-type">
+          <option value="CHARACTER">Character</option>
+          <option value="LEADER">Leader</option>
+          <option value="EVENT">Event</option>
+          <option value="STAGE">Stage</option>
+          <option value="DON">DON!!</option>
+          <option value="OTHER">Autre</option>
+        </select>
+      </div>
+      <div class="nb-suggest-field">
+        <label>Rareté</label>
+        <select id="nbs-rarity">
+          <option value="COMMON">Common</option>
+          <option value="UNCOMMON">Uncommon</option>
+          <option value="RARE">Rare</option>
+          <option value="SUPERRARE">Super Rare</option>
+          <option value="SECRET">Secret Rare</option>
+          <option value="LEADER">Leader</option>
+          <option value="PROMO">Promo</option>
+          <option value="SPECIAL">Special / Alt Art</option>
+          <option value="TREASURE">Treasure Rare</option>
+          <option value="MANGA">Manga</option>
+          <option value="ANNIVERSARY">Anniversary</option>
+          <option value="OTHER">Autre</option>
+        </select>
+      </div>
+      <div class="nb-suggest-field wide">
+        <label>URL de l'image (lien direct vers une image .jpg / .png / .webp)</label>
+        <input id="nbs-image" type="url" placeholder="https://...">
+      </div>
+      <div class="nb-suggest-field wide">
+        <label>Notes / Infos supplémentaires</label>
+        <textarea id="nbs-notes" placeholder="Pourquoi cette carte est-elle manquante ? D'où vient-elle ?"></textarea>
+      </div>
+    </div>
+
+    <div class="nb-suggest-actions">
+      <button class="nb-suggest-cancel" type="button" onclick="nbCloseSuggest()">Annuler</button>
+      <button class="nb-suggest-submit" type="button" onclick="nbSubmitSuggestion()">Envoyer la proposition 💡</button>
+    </div>
+    <div class="nb-suggest-msg" id="nbs-msg"></div>
+  </div>
+</div>
+
+
+<!-- ── Modal : Panel admin ── -->
+<div id="nb-admin-overlay" onclick="if(event.target===this)nbCloseAdmin()">
+  <div class="nb-admin-box" onclick="event.stopPropagation()">
+    <button class="nb-admin-close-btn" onclick="nbCloseAdmin()" type="button" aria-label="Fermer">✕</button>
+
+    <div class="nb-admin-title">🔑 Panel Admin — Suggestions de cartes</div>
+    <div class="nb-admin-sub" id="nb-admin-sub">Chargement...</div>
+
+    <div class="nb-admin-tabs">
+      <button class="nb-admin-tab active" onclick="nbAdminShowTab('pending')" data-tab="pending" type="button">En attente <span class="nb-admin-badge" id="nb-badge-pending">0</span></button>
+      <button class="nb-admin-tab" onclick="nbAdminShowTab('approved')" data-tab="approved" type="button">Validées <span class="nb-admin-badge" id="nb-badge-approved" style="background:#1ddf94">0</span></button>
+      <button class="nb-admin-tab" onclick="nbAdminShowTab('rejected')" data-tab="rejected" type="button">Rejetées <span class="nb-admin-badge" id="nb-badge-rejected" style="background:#4a5a6a">0</span></button>
+    </div>
+
+    <div class="nb-admin-list" id="nb-admin-list">
+      <div class="nb-admin-empty">Chargement des suggestions...</div>
+    </div>
+  </div>
+</div>
+
+
+<script id="nakama-suggest-system-js">
+(function(){
+  if(window.__NAKAMA_SUGGEST_SYSTEM__) return;
+  window.__NAKAMA_SUGGEST_SYSTEM__ = true;
+
+  /* ══════════════════════════════════════════════════
+     ⚠️  CONFIGURATION ADMIN
+     Remplace la valeur ci-dessous par ton propre
+     Supabase User ID (visible dans Auth → Users de ton
+     dashboard Supabase, colonne "User UID").
+     Plusieurs IDs possibles : ['id1', 'id2']
+  ══════════════════════════════════════════════════ */
+  const ADMIN_IDS = ['b10c2690-557f-48bc-b8cf-1ae7b0ec4ee2'];
+
+  /* ── Helpers Supabase ──────────────────────────── */
+  function client() {
+    try { return window.nakamaSupabase || (typeof nakamaSupabase !== 'undefined' ? nakamaSupabase : null); }
+    catch(e) { return null; }
+  }
+  async function currentUser() {
+    const c = client();
+    if (!c) return null;
+    try { const { data } = await c.auth.getUser(); return data && data.user ? data.user : null; }
+    catch(e) { return null; }
+  }
+  function isAdmin(user) {
+    return user && ADMIN_IDS.includes(user.id);
+  }
+  function toast(msg) {
+    if (typeof showToast === 'function') showToast(msg);
+  }
+  function esc(v) {
+    return String(v == null ? '' : v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  /* ── État admin ────────────────────────────────── */
+  let _adminData = [];
+  let _adminCurrentTab = 'pending';
+
+  /* ══════════════════════════════════════════════════
+     OUVRIR / FERMER la modale Suggestion
+  ══════════════════════════════════════════════════ */
+  window.nbOpenSuggest = function() {
+    document.getElementById('nbs-msg').textContent = '';
+    document.getElementById('nbs-msg').className = 'nb-suggest-msg';
+    document.getElementById('nb-suggest-overlay').classList.add('active');
+  };
+  window.nbCloseSuggest = function() {
+    document.getElementById('nb-suggest-overlay').classList.remove('active');
+  };
+
+  /* ══════════════════════════════════════════════════
+     SOUMETTRE UNE SUGGESTION
+  ══════════════════════════════════════════════════ */
+  window.nbSubmitSuggestion = async function() {
+    const msg    = document.getElementById('nbs-msg');
+    const name   = document.getElementById('nbs-name').value.trim();
+    if (!name) { msg.textContent = 'Le nom est requis.'; msg.className = 'nb-suggest-msg err'; return; }
+
+    const c = client();
+    if (!c) {
+      msg.textContent = 'Supabase non disponible. Connecte-toi d\'abord.';
+      msg.className = 'nb-suggest-msg err';
+      return;
+    }
+
+    const user = await currentUser();
+    const btn = document.querySelector('.nb-suggest-submit');
+    if (btn) btn.disabled = true;
+    msg.textContent = 'Envoi en cours...';
+    msg.className = 'nb-suggest-msg';
+
+    try {
+      const row = {
+        user_id:      user ? user.id   : null,
+        display_name: user ? (user.user_metadata && (user.user_metadata.display_name || user.user_metadata.username)) || user.email || 'Visiteur' : 'Visiteur',
+        card_name:    name,
+        card_code:    document.getElementById('nbs-code').value.trim()   || null,
+        card_set:     document.getElementById('nbs-set').value.trim()    || null,
+        card_rarity:  document.getElementById('nbs-rarity').value        || null,
+        card_lang:    document.getElementById('nbs-lang').value          || 'FR',
+        card_type:    document.getElementById('nbs-type').value          || null,
+        image_url:    document.getElementById('nbs-image').value.trim()  || null,
+        notes:        document.getElementById('nbs-notes').value.trim()  || null,
+        status:       'pending',
+      };
+
+      const { error } = await c.from('card_suggestions').insert(row);
+      if (error) throw error;
+
+      msg.textContent = '✅ Proposition envoyée ! Elle sera examinée avant d\'être ajoutée.';
+      msg.className = 'nb-suggest-msg ok';
+
+      /* Vider le formulaire après succès */
+      ['nbs-name','nbs-code','nbs-set','nbs-image','nbs-notes'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+
+      setTimeout(window.nbCloseSuggest, 2800);
+
+    } catch(e) {
+      console.error('[Nakama Suggest]', e);
+      msg.textContent = 'Erreur : ' + (e.message || 'impossible d\'envoyer');
+      msg.className = 'nb-suggest-msg err';
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  };
+
+  /* ══════════════════════════════════════════════════
+     OUVRIR / FERMER le panel Admin
+  ══════════════════════════════════════════════════ */
+  window.nbOpenAdmin = async function() {
+    const user = await currentUser();
+    if (!isAdmin(user)) {
+      toast('Accès réservé à l\'administrateur.');
+      return;
+    }
+    document.getElementById('nb-admin-overlay').classList.add('active');
+    nbAdminLoad();
+  };
+  window.nbCloseAdmin = function() {
+    document.getElementById('nb-admin-overlay').classList.remove('active');
+  };
+
+  /* ── Charger toutes les suggestions ─────────────── */
+  async function nbAdminLoad() {
+    const list = document.getElementById('nb-admin-list');
+    const sub  = document.getElementById('nb-admin-sub');
+    list.innerHTML = '<div class="nb-admin-empty">Chargement...</div>';
+    try {
+      const c = client();
+      if (!c) throw new Error('Supabase non disponible');
+
+      const { data, error } = await c
+        .from('card_suggestions')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      _adminData = data || [];
+
+      const pending  = _adminData.filter(d => d.status === 'pending').length;
+      const approved = _adminData.filter(d => d.status === 'approved').length;
+      const rejected = _adminData.filter(d => d.status === 'rejected').length;
+
+      document.getElementById('nb-badge-pending').textContent  = pending;
+      document.getElementById('nb-badge-approved').textContent = approved;
+      document.getElementById('nb-badge-rejected').textContent = rejected;
+      sub.textContent = _adminData.length + ' suggestion(s) au total.';
+
+      nbAdminRender(_adminCurrentTab);
+    } catch(e) {
+      list.innerHTML = '<div class="nb-admin-empty" style="color:#ff6b81">Erreur : ' + esc(e.message) + '<br><br>Vérifie que la table card_suggestions existe dans Supabase et que les policies RLS sont correctes.</div>';
+    }
+  }
+
+  window.nbAdminShowTab = function(tab) {
+    _adminCurrentTab = tab;
+    document.querySelectorAll('.nb-admin-tab').forEach(t => t.classList.toggle('active', t.getAttribute('data-tab') === tab));
+    nbAdminRender(tab);
+  };
+
+  function nbAdminRender(tab) {
+    const list = document.getElementById('nb-admin-list');
+    const items = _adminData.filter(d => d.status === tab);
+
+    if (!items.length) {
+      const labels = { pending:'Aucune suggestion en attente 🎉', approved:'Aucune carte validée encore.', rejected:'Aucune suggestion rejetée.' };
+      list.innerHTML = '<div class="nb-admin-empty">' + (labels[tab] || 'Aucun résultat.') + '</div>';
+      return;
+    }
+
+    list.innerHTML = items.map(item => {
+      const date  = item.created_at ? new Date(item.created_at).toLocaleDateString('fr-FR') : '?';
+      const img   = item.image_url  ? `<img src="${esc(item.image_url)}" alt="${esc(item.card_name)}" loading="lazy" onerror="this.style.display='none';this.nextSibling&&(this.nextSibling.style.display='flex')"><span style="display:none;font-size:28px;width:100%;height:100%;align-items:center;justify-content:center">🃏</span>` : '🃏';
+      const meta  = [item.card_code, item.card_set, item.card_lang, item.card_rarity, item.card_type].filter(Boolean).join(' · ');
+      const statusBadge = tab !== 'pending' ? `<span class="nb-admin-status-badge nb-status-${tab}">${tab === 'approved' ? 'Validée' : 'Rejetée'}</span>` : '';
+
+      return `
+        <div class="nb-admin-card" id="nb-admin-card-${esc(item.id)}">
+          <div class="nb-admin-thumb">${img}</div>
+          <div>
+            <div class="nb-admin-info-name">${esc(item.card_name)}${statusBadge}</div>
+            <div class="nb-admin-info-meta">${esc(meta) || 'Infos incomplètes'}</div>
+            <div class="nb-admin-info-by">Proposée par <strong>${esc(item.display_name || 'Anonyme')}</strong> le ${date}</div>
+            ${item.notes ? `<div class="nb-admin-notes-preview">💬 "${esc(item.notes)}"</div>` : ''}
+            <div class="nb-admin-actions" style="margin-top:10px">
+              ${tab === 'pending' ? `
+                <button class="nb-admin-approve" type="button" onclick="nbAdminDecide('${esc(item.id)}','approved')">✓ Valider</button>
+                <button class="nb-admin-reject"  type="button" onclick="nbAdminDecide('${esc(item.id)}','rejected')">✕ Rejeter</button>
+              ` : ''}
+              ${tab === 'approved' ? `
+                <button class="nb-admin-reject"  type="button" onclick="nbAdminDecide('${esc(item.id)}','rejected')">✕ Retirer</button>
+              ` : ''}
+              ${tab === 'rejected' ? `
+                <button class="nb-admin-approve" type="button" onclick="nbAdminDecide('${esc(item.id)}','approved')">↩ Revalider</button>
+              ` : ''}
+              ${item.image_url ? `<button class="nb-admin-view" type="button" onclick="window.open('${esc(item.image_url)}','_blank')">🖼 Image</button>` : ''}
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  /* ── Valider / Rejeter ──────────────────────────── */
+  window.nbAdminDecide = async function(id, newStatus) {
+    try {
+      const c = client();
+      if (!c) throw new Error('Supabase non disponible');
+
+      const user = await currentUser();
+      if (!isAdmin(user)) { toast('Action réservée à l\'admin.'); return; }
+
+      const { error } = await c
+        .from('card_suggestions')
+        .update({ status: newStatus, reviewed_at: new Date().toISOString() })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      /* Mise à jour locale immédiate */
+      const item = _adminData.find(d => d.id === id);
+      if (item) {
+        item.status = newStatus;
+
+        /* Si validée → injecter dans ST.cards pour que ce soit visible sans rechargement */
+        if (newStatus === 'approved') {
+          nbInjectApprovedCard(item);
+          toast('✅ Carte validée et ajoutée pour tous les utilisateurs !');
+        } else {
+          /* Si retirée → retirer de ST.cards */
+          nbRemoveApprovedCard(item);
+          toast('Carte retirée de la liste publique.');
+        }
+      }
+
+      /* Mise à jour des compteurs */
+      const badges = { pending: 0, approved: 0, rejected: 0 };
+      _adminData.forEach(d => { if (badges[d.status] !== undefined) badges[d.status]++; });
+      document.getElementById('nb-badge-pending').textContent  = badges.pending;
+      document.getElementById('nb-badge-approved').textContent = badges.approved;
+      document.getElementById('nb-badge-rejected').textContent = badges.rejected;
+
+      /* Re-render de l'onglet courant */
+      nbAdminRender(_adminCurrentTab);
+
+    } catch(e) {
+      console.error('[Nakama Admin]', e);
+      toast('Erreur : ' + (e.message || 'action impossible'));
+    }
+  };
+
+  /* ── Convertir une suggestion en objet carte ─────── */
+  function suggestionToCard(item) {
+    const id = 'SUGGEST_' + item.id;
+    return {
+      id,
+      code:           item.card_code  || id,
+      name:           item.card_name  || 'Carte suggérée',
+      set:            item.card_set   || 'SUGGEST',
+      lang:           item.card_lang  || 'FR',
+      rarity:         item.card_rarity || 'COMMON',
+      type:           item.card_type  || 'CHARACTER',
+      original_image: item.image_url  || '',
+      image:          item.image_url  || '',
+      fromSuggestion: true,
+      suggestionId:   item.id,
+    };
+  }
+
+  function nbInjectApprovedCard(item) {
+    if (!window.ST || !Array.isArray(ST.cards)) return;
+    const cardId = 'SUGGEST_' + item.id;
+    if (ST.cards.find(c => c.id === cardId)) return; /* déjà présente */
+    const card = suggestionToCard(item);
+    if (typeof normalizeCard === 'function') {
+      ST.cards.push(normalizeCard(card));
+    } else {
+      ST.cards.push(card);
+    }
+    if (typeof applyFilters === 'function') applyFilters();
+  }
+
+  function nbRemoveApprovedCard(item) {
+    if (!window.ST || !Array.isArray(ST.cards)) return;
+    const cardId = 'SUGGEST_' + item.id;
+    ST.cards = ST.cards.filter(c => c.id !== cardId);
+    if (typeof applyFilters === 'function') applyFilters();
+  }
+
+  /* ══════════════════════════════════════════════════
+     CHARGEMENT DES CARTES APPROUVÉES AU DÉMARRAGE
+     → visible pour TOUS les utilisateurs
+  ══════════════════════════════════════════════════ */
+  async function nbLoadApprovedCards() {
+    const c = client();
+    if (!c) return;
+    try {
+      const { data, error } = await c
+        .from('card_suggestions')
+        .select('*')
+        .eq('status', 'approved');
+
+      if (error || !data || !data.length) return;
+
+      /* Attendre que ST.cards soit disponible */
+      let tries = 0;
+      while ((!window.ST || !Array.isArray(ST.cards) || !ST.cards.length) && tries < 20) {
+        await new Promise(r => setTimeout(r, 300));
+        tries++;
+      }
+
+      if (!window.ST || !Array.isArray(ST.cards)) return;
+
+      let added = 0;
+      data.forEach(item => {
+        const cardId = 'SUGGEST_' + item.id;
+        if (ST.cards.find(c => c.id === cardId)) return;
+        const card = typeof normalizeCard === 'function' ? normalizeCard(suggestionToCard(item)) : suggestionToCard(item);
+        ST.cards.push(card);
+        added++;
+      });
+
+      if (added > 0 && typeof applyFilters === 'function') {
+        applyFilters();
+        console.log('[Nakama Suggest] ' + added + ' carte(s) approuvée(s) chargée(s).');
+      }
+    } catch(e) {
+      console.warn('[Nakama Suggest] Erreur chargement cartes approuvées :', e);
+    }
+  }
+
+  /* ══════════════════════════════════════════════════
+     INJECTION DU BOUTON "Proposer" dans les filtres
+  ══════════════════════════════════════════════════ */
+  function injectSuggestButton() {
+    if (document.getElementById('nb-suggest-trigger')) return;
+
+    const target = document.querySelector('.filters-line-final');
+    if (!target) return;
+
+    const btn = document.createElement('button');
+    btn.id = 'nb-suggest-trigger';
+    btn.className = 'nb-suggest-btn';
+    btn.type = 'button';
+    btn.textContent = '💡 Proposer une carte';
+    btn.addEventListener('click', window.nbOpenSuggest);
+
+    /* Insérer après .manual-btn si présent, sinon à la fin */
+    const manualBtn = target.querySelector('.manual-btn');
+    if (manualBtn && manualBtn.nextSibling) {
+      target.insertBefore(btn, manualBtn.nextSibling);
+    } else {
+      target.appendChild(btn);
+    }
+  }
+
+  /* ══════════════════════════════════════════════════
+     INJECTION DU TILE ADMIN dans les Paramètres
+  ══════════════════════════════════════════════════ */
+  async function injectAdminTile() {
+    if (document.getElementById('nb-admin-settings-tile')) return;
+
+    const user = await currentUser();
+    if (!isAdmin(user)) return;
+
+    const grid = document.querySelector('.nakama-settings-grid');
+    if (!grid) return;
+
+    const tile = document.createElement('div');
+    tile.id = 'nb-admin-settings-tile';
+    tile.className = 'nakama-setting-tile nb-admin-tile';
+    tile.innerHTML = `
+      <div class="nakama-setting-tile-title">🔑 Admin</div>
+      <div class="nakama-setting-tile-help">Gérer les propositions de cartes soumises par les utilisateurs.</div>
+      <button type="button" id="nb-open-admin-btn">Gérer les suggestions <span class="nb-admin-badge" id="nb-admin-tile-badge" style="display:none">0</span></button>
+    `;
+    grid.appendChild(tile);
+
+    document.getElementById('nb-open-admin-btn').addEventListener('click', function(e) {
+      e.stopPropagation();
+      /* Fermer le modal paramètres d'abord */
+      const settingsOverlay = document.getElementById('nakama-settings-modal-overlay');
+      if (settingsOverlay) settingsOverlay.classList.remove('active');
+      setTimeout(window.nbOpenAdmin, 150);
+    });
+
+    /* Mettre à jour le badge du tile avec les suggestions en attente */
+    nbRefreshAdminBadge();
+  }
+
+  async function nbRefreshAdminBadge() {
+    const user = await currentUser();
+    if (!isAdmin(user)) return;
+
+    const c = client();
+    if (!c) return;
+
+    try {
+      const { count } = await c
+        .from('card_suggestions')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'pending');
+
+      const badge = document.getElementById('nb-admin-tile-badge');
+      if (badge) {
+        badge.textContent = count || 0;
+        badge.style.display = (count && count > 0) ? 'inline-flex' : 'none';
+      }
+    } catch(e) { /* silencieux */ }
+  }
+
+  /* ══════════════════════════════════════════════════
+     INIT
+  ══════════════════════════════════════════════════ */
+  function init() {
+    injectSuggestButton();
+    injectAdminTile();
+    /* Charger les cartes approuvées pour tous */
+    nbLoadApprovedCards();
+  }
+
+  document.addEventListener('DOMContentLoaded', () => setTimeout(init, 400));
+  window.addEventListener('load', () => {
+    setTimeout(init, 600);
+    setTimeout(init, 1800); /* retry si rendu tardif */
+  });
+
+  /* Re-injecter si les filtres sont re-rendus dynamiquement */
+  const observer = new MutationObserver(() => {
+    if (!document.getElementById('nb-suggest-trigger') && document.querySelector('.filters-line-final')) {
+      injectSuggestButton();
+    }
+  });
+  try { observer.observe(document.body, { childList: true, subtree: true }); } catch(e) {}
+
+  /* Rafraîchir le badge admin quand les paramètres s'ouvrent */
+  document.addEventListener('click', function(e) {
+    const settingsBtn = e.target.closest('#nakama-bottom-settings');
+    if (settingsBtn) {
+      setTimeout(() => { injectAdminTile(); nbRefreshAdminBadge(); }, 200);
+    }
+  });
+
+  /* Expose pour debug */
+  window.nbLoadApprovedCards = nbLoadApprovedCards;
+  window.nbRefreshAdminBadge = nbRefreshAdminBadge;
+
+})();
+</script>
+<!-- END NAKAMA CARD SUGGESTION SYSTEM -->
 
 </body>
 </html>
