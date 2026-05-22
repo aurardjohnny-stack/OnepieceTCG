@@ -12960,7 +12960,7 @@ function premiumZoomCard(){
       e.preventDefault();
       e.stopPropagation();
       /* 👉 Remplace l'URL ci-dessous par ton vrai lien Stripe Payment Link */
-      const STRIPE_URL = 'https://buy.stripe.com/XXXXXXXXXXXXXXXX';
+      const STRIPE_URL = 'https://buy.stripe.com/3cIeVdgUGbn2eBWelydQQ01';
       if (STRIPE_URL.includes('XXXX')) {
         if (typeof showToast === 'function') {
           showToast('Lien Stripe à configurer dans le code 🛠️');
@@ -13906,12 +13906,17 @@ function premiumZoomCard(){
   ══════════════════════════════════════════════════ */
   async function injectAdminTile() {
     if (document.getElementById('nb-admin-settings-tile')) return;
+    if (injectAdminTile._running) return;
+    injectAdminTile._running = true;
 
     const user = await currentUser();
-    if (!isAdmin(user)) return;
+    if (!isAdmin(user)) { injectAdminTile._running = false; return; }
 
     const grid = document.querySelector('.nakama-settings-grid');
-    if (!grid) return;
+    if (!grid) { injectAdminTile._running = false; return; }
+
+    // Double-check après l'await (une autre instance a pu finir entre temps)
+    if (document.getElementById('nb-admin-settings-tile')) { injectAdminTile._running = false; return; }
 
     const tile = document.createElement('div');
     tile.id = 'nb-admin-settings-tile';
@@ -13922,6 +13927,7 @@ function premiumZoomCard(){
       <button type="button" id="nb-open-admin-btn">Gérer les suggestions <span class="nb-admin-badge" id="nb-admin-tile-badge" style="display:none">0</span></button>
     `;
     grid.appendChild(tile);
+    injectAdminTile._running = false;
 
     document.getElementById('nb-open-admin-btn').addEventListener('click', function(e) {
       e.stopPropagation();
@@ -13968,8 +13974,7 @@ function premiumZoomCard(){
 
   document.addEventListener('DOMContentLoaded', () => setTimeout(init, 400));
   window.addEventListener('load', () => {
-    setTimeout(init, 600);
-    setTimeout(init, 1800); /* retry si rendu tardif */
+    setTimeout(init, 800); /* retry unique si rendu tardif */
   });
 
   /* Re-injecter si les filtres sont re-rendus dynamiquement */
