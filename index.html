@@ -10426,7 +10426,7 @@ function premiumZoomCard(){
  function esc(v){return String(v||'').replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]})}
  function setMeta(n,c,a='name'){if(!c)return;let e=document.querySelector(`meta[${a}="${n}"]`);if(!e){e=document.createElement('meta');e.setAttribute(a,n);document.head.appendChild(e)}e.setAttribute('content',c)}
  function setCanonical(u){let e=document.querySelector('link[rel="canonical"]');if(!e){e=document.createElement('link');e.rel='canonical';document.head.appendChild(e)}e.href=u}
- function addJsonLd(card){document.querySelectorAll('script[data-nakama-jsonld]').forEach(s=>s.remove());const s=document.createElement('script');s.type='application/ld+json';s.dataset.nakamaJsonld='1';s.textContent=JSON.stringify({"@context":"https://schema.org","@type":"Product","name":`${card.name||''} ${card.code||''}`.trim(),"description":card.description,"image":card.image,"brand":{"@type":"Brand","name":"One Piece Card Game"},"category":"Trading Card","url":card.url});document.head.appendChild(s)}
+ function addJsonLd(card){document.querySelectorAll('script[data-nakama-jsonld]').forEach(s=>s.remove());const s=document.createElement('script');s.type='application/ld+json';s.dataset.nakamaJsonld='1';s.textContent=JSON.stringify({"@context":"https://schema.org","@type":"Thing","name":`${card.name||''} ${card.code||''}`.trim(),"description":card.description,"image":card.image,"brand":{"@type":"Brand","name":"One Piece Card Game"},"category":"Trading Card","url":card.url});document.head.appendChild(s)}
  function renderSeoCard(card,slug){
    const main=document.getElementById('main-content'); if(!main)return;
    const old=document.getElementById('seo-card-fallback'); if(old)old.remove();
@@ -10542,7 +10542,7 @@ function premiumZoomCard(){
     const jsonld=document.createElement('script');
     jsonld.type='application/ld+json';
     jsonld.dataset.nakamaJsonld='1';
-    jsonld.textContent=JSON.stringify({"@context":"https://schema.org","@type":"Product","name":[name,code].filter(Boolean).join(' '),"description":desc,"image":img||undefined,"brand":{"@type":"Brand","name":"One Piece Card Game"},"category":"Trading Card","url":url});
+    jsonld.textContent=JSON.stringify({"@context":"https://schema.org","@type":"Thing","name":[name,code].filter(Boolean).join(' '),"description":desc,"image":img||undefined,"brand":{"@type":"Brand","name":"One Piece Card Game"},"category":"Trading Card","url":url});
     document.head.appendChild(jsonld);
     target.innerHTML=`<section id="seo-card-fallback" style="max-width:940px;margin:22px auto;padding:22px;background:#0e141c;border:1px solid rgba(212,160,23,.28);border-radius:18px;color:#e8edf2;font-family:DM Sans,Arial,sans-serif"><div style="display:grid;grid-template-columns:minmax(150px,260px) 1fr;gap:22px;align-items:start"><div>${img?`<img src="${esc(img)}" alt="${esc(name)}" referrerpolicy="no-referrer" onerror="this.outerHTML=\'<div style=&quot;aspect-ratio:.717;border-radius:14px;background:#141e2a;border:1px dashed rgba(212,160,23,.35);display:flex;align-items:center;justify-content:center;color:#f0c040;text-align:center;padding:16px&quot;>Image carte bientôt disponible</div>\'" style="width:100%;border-radius:14px;border:1px solid rgba(255,255,255,.18);display:block">`:`<div style="aspect-ratio:.717;border-radius:14px;background:#141e2a;border:1px dashed rgba(212,160,23,.35);display:flex;align-items:center;justify-content:center;color:#f0c040;text-align:center;padding:16px">Image carte bientôt disponible</div>`}</div><div><p style="color:#f0c040;font-size:12px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Carte One Piece TCG</p><h1 style="font-family:Cinzel,serif;font-size:30px;margin:0 0 10px;color:#fff">${esc(name)}</h1><p style="color:#7a8a99;margin-bottom:14px">${esc([code,rarity,lang].filter(Boolean).join(' • '))}</p><p style="line-height:1.6;color:#cfd7df">${esc(desc)}</p><p style="margin-top:18px"><a href="/" style="color:#f0c040;text-decoration:none;font-weight:700">Ouvrir Nakama Binder</a></p></div></div></section>`;
   }
@@ -10740,7 +10740,7 @@ function premiumZoomCard(){
     const jsonld=document.createElement('script');
     jsonld.type='application/ld+json';
     jsonld.dataset.nakamaJsonld='1';
-    jsonld.textContent=JSON.stringify({"@context":"https://schema.org","@type":"Product","name":[name,code].filter(Boolean).join(' '),"description":desc,"image":img||undefined,"brand":{"@type":"Brand","name":"One Piece Card Game"},"category":"Trading Card","url":url});
+    jsonld.textContent=JSON.stringify({"@context":"https://schema.org","@type":"Thing","name":[name,code].filter(Boolean).join(' '),"description":desc,"image":img||undefined,"brand":{"@type":"Brand","name":"One Piece Card Game"},"category":"Trading Card","url":url});
     document.head.appendChild(jsonld);
     target.innerHTML=`<section id="seo-card-fallback" style="max-width:940px;margin:22px auto;padding:22px;background:#0e141c;border:1px solid rgba(212,160,23,.28);border-radius:18px;color:#e8edf2;font-family:DM Sans,Arial,sans-serif"><div style="display:grid;grid-template-columns:minmax(150px,260px) 1fr;gap:22px;align-items:start"><div>${img?`<img src="${esc(img)}" alt="${esc(name)}" style="width:100%;border-radius:14px;border:1px solid rgba(255,255,255,.18);background:#141e2a">`:`<div style="aspect-ratio:.717;border-radius:14px;background:#141e2a;border:1px dashed rgba(212,160,23,.35);display:flex;align-items:center;justify-content:center;color:#f0c040;text-align:center;padding:16px">Image carte bientôt disponible</div>`}</div><div><p style="color:#f0c040;font-size:12px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Carte One Piece TCG</p><h1 style="font-family:Cinzel,serif;font-size:30px;margin:0 0 10px;color:#fff">${esc(name)}</h1><p style="color:#7a8a99;margin-bottom:14px">${esc([code,rarity,lang].filter(Boolean).join(' • '))}</p><p style="line-height:1.6;color:#cfd7df">${effect}</p><p style="margin-top:18px"><a href="/" style="color:#f0c040;text-decoration:none;font-weight:700">Ouvrir Nakama Binder</a></p></div></div></section>`;
   }
@@ -12960,7 +12960,7 @@ function premiumZoomCard(){
       e.preventDefault();
       e.stopPropagation();
       /* 👉 Remplace l'URL ci-dessous par ton vrai lien Stripe Payment Link */
-      const STRIPE_URL = 'https://buy.stripe.com/3cIeVdgUGbn2eBWelydQQ01';
+      const STRIPE_URL = 'https://buy.stripe.com/XXXXXXXXXXXXXXXX';
       if (STRIPE_URL.includes('XXXX')) {
         if (typeof showToast === 'function') {
           showToast('Lien Stripe à configurer dans le code 🛠️');
@@ -13458,7 +13458,7 @@ function premiumZoomCard(){
       </div>
       <div class="nb-suggest-field">
         <label>Code / Numéro</label>
-        <input id="nbs-code" type="text" placeholder="Ex : OP09-001">
+        <input id="nbs-code" type="text" placeholder="Ex : OP09-001 ou P-033">
       </div>
       <div class="nb-suggest-field">
         <label>Set</label>
@@ -13504,7 +13504,7 @@ function premiumZoomCard(){
       </div>
       <div class="nb-suggest-field wide">
         <label>URL de l'image (lien direct vers une image .jpg / .png / .webp)</label>
-        <input id="nbs-image" type="url" placeholder="https://...">
+        <input id="nbs-image" type="text" placeholder="https://...">
       </div>
       <div class="nb-suggest-field wide">
         <label>Notes / Infos supplémentaires</label>
@@ -13615,16 +13615,30 @@ function premiumZoomCard(){
     msg.className = 'nb-suggest-msg';
 
     try {
+      // Normaliser le code : majuscules, tirets propres (p-033 → P-033)
+      const rawCode = document.getElementById('nbs-code').value.trim();
+      const cardCode = rawCode ? rawCode.toUpperCase() : null;
+
+      // Valider l'URL image si renseignée (sans bloquer si vide)
+      const rawImage = document.getElementById('nbs-image').value.trim();
+      let imageUrl = rawImage || null;
+      if (rawImage && !/^https?:\/\/.+/i.test(rawImage)) {
+        msg.textContent = 'L\'URL image doit commencer par https:// (ou laisse vide).';
+        msg.className = 'nb-suggest-msg err';
+        if (btn) btn.disabled = false;
+        return;
+      }
+
       const row = {
         user_id:      user ? user.id   : null,
         display_name: user ? (user.user_metadata && (user.user_metadata.display_name || user.user_metadata.username)) || user.email || 'Visiteur' : 'Visiteur',
         card_name:    name,
-        card_code:    document.getElementById('nbs-code').value.trim()   || null,
+        card_code:    cardCode,
         card_set:     document.getElementById('nbs-set').value.trim()    || null,
         card_rarity:  document.getElementById('nbs-rarity').value        || null,
         card_lang:    document.getElementById('nbs-lang').value          || 'FR',
         card_type:    document.getElementById('nbs-type').value          || null,
-        image_url:    document.getElementById('nbs-image').value.trim()  || null,
+        image_url:    imageUrl,
         notes:        document.getElementById('nbs-notes').value.trim()  || null,
         status:       'pending',
       };
