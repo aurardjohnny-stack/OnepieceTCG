@@ -13503,8 +13503,23 @@ function premiumZoomCard(){
         </select>
       </div>
       <div class="nb-suggest-field wide">
-        <label>URL de l'image (lien direct vers une image .jpg / .png / .webp)</label>
-        <input id="nbs-image" type="text" placeholder="https://...">
+        <label>Photo de la carte</label>
+        <div id="nbs-upload-zone" onclick="document.getElementById('nbs-file').click()" style="
+          border:2px dashed rgba(212,160,23,.35);border-radius:12px;padding:18px;text-align:center;
+          cursor:pointer;background:rgba(212,160,23,.05);transition:border .2s;min-height:80px;
+          display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;">
+          <div id="nbs-upload-placeholder" style="color:var(--muted);font-size:13px;">
+            <div style="font-size:28px;margin-bottom:6px;">📷</div>
+            <div>Clique pour ajouter une photo</div>
+            <div style="font-size:11px;color:var(--muted2);margin-top:4px;">JPG, PNG, WEBP · max 5 Mo</div>
+          </div>
+          <img id="nbs-preview" src="" alt="preview" style="display:none;max-height:140px;max-width:180px;border-radius:8px;border:1px solid var(--border2);object-fit:contain;">
+        </div>
+        <input id="nbs-file" type="file" accept="image/*" style="display:none" onchange="nbsSuggestReadImage(event)">
+        <div id="nbs-upload-info" style="font-size:11px;color:var(--muted);margin-top:5px;display:none;">
+          <span id="nbs-upload-name"></span>
+          <button type="button" onclick="nbsClearImage()" style="margin-left:8px;background:transparent;border:1px solid var(--border2);color:var(--muted);border-radius:5px;padding:2px 7px;cursor:pointer;font-size:11px;">✕ Retirer</button>
+        </div>
       </div>
       <div class="nb-suggest-field wide">
         <label>Notes / Infos supplémentaires</label>
@@ -13582,6 +13597,60 @@ function premiumZoomCard(){
   let _adminCurrentTab = 'pending';
 
   /* ══════════════════════════════════════════════════
+     UPLOAD PHOTO SUGGESTION
+  ══════════════════════════════════════════════════ */
+  window._nbsSuggestImageData = '';
+
+  window.nbsSuggestReadImage = function(event) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { alert('Choisis une image (JPG, PNG, WEBP).'); return; }
+    if (file.size > 5 * 1024 * 1024) { alert('Image trop lourde (max 5 Mo).'); return; }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const img = new Image();
+      img.onload = function() {
+        // Resize max 900px, compression JPEG 85%
+        const maxSide = 900;
+        let w = img.width, h = img.height;
+        const ratio = Math.min(1, maxSide / Math.max(w, h));
+        w = Math.round(w * ratio); h = Math.round(h * ratio);
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        window._nbsSuggestImageData = canvas.toDataURL('image/jpeg', 0.85);
+
+        // Afficher preview
+        const preview = document.getElementById('nbs-preview');
+        const placeholder = document.getElementById('nbs-upload-placeholder');
+        const info = document.getElementById('nbs-upload-info');
+        const nameEl = document.getElementById('nbs-upload-name');
+        preview.src = window._nbsSuggestImageData;
+        preview.style.display = 'block';
+        placeholder.style.display = 'none';
+        info.style.display = 'block';
+        nameEl.textContent = file.name + ' (' + Math.round(file.size / 1024) + ' Ko)';
+        document.getElementById('nbs-upload-zone').style.borderColor = 'var(--gold)';
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  window.nbsClearImage = function() {
+    window._nbsSuggestImageData = '';
+    const preview = document.getElementById('nbs-preview');
+    const placeholder = document.getElementById('nbs-upload-placeholder');
+    const info = document.getElementById('nbs-upload-info');
+    preview.src = ''; preview.style.display = 'none';
+    placeholder.style.display = '';
+    info.style.display = 'none';
+    document.getElementById('nbs-file').value = '';
+    document.getElementById('nbs-upload-zone').style.borderColor = '';
+  };
+
+  /* ══════════════════════════════════════════════════
      OUVRIR / FERMER la modale Suggestion
   ══════════════════════════════════════════════════ */
   window.nbOpenSuggest = function() {
@@ -13591,6 +13660,11 @@ function premiumZoomCard(){
   };
   window.nbCloseSuggest = function() {
     document.getElementById('nb-suggest-overlay').classList.remove('active');
+    // Réinitialiser la photo
+    if (typeof nbsClearImage === 'function') nbsClearImage();
+    ['nbs-name','nbs-code','nbs-set','nbs-notes'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.value = '';
+    });
   };
 
   /* ══════════════════════════════════════════════════
@@ -13619,15 +13693,8 @@ function premiumZoomCard(){
       const rawCode = document.getElementById('nbs-code').value.trim();
       const cardCode = rawCode ? rawCode.toUpperCase() : null;
 
-      // Valider l'URL image si renseignée (sans bloquer si vide)
-      const rawImage = document.getElementById('nbs-image').value.trim();
-      let imageUrl = rawImage || null;
-      if (rawImage && !/^https?:\/\/.+/i.test(rawImage)) {
-        msg.textContent = 'L\'URL image doit commencer par https:// (ou laisse vide).';
-        msg.className = 'nb-suggest-msg err';
-        if (btn) btn.disabled = false;
-        return;
-      }
+      // Récupérer l'image base64 uploadée (peut être vide)
+      const imageUrl = window._nbsSuggestImageData || null;
 
       const row = {
         user_id:      user ? user.id   : null,
@@ -13644,16 +13711,39 @@ function premiumZoomCard(){
       };
 
       const { error } = await c.from('card_suggestions').insert(row);
-      if (error) throw error;
+
+      // Si l'insert échoue à cause du format du code → on réessaie sans card_code
+      // (le code est mis dans les notes pour que l'admin puisse le récupérer)
+      if (error) {
+        const isCodeError = error.message && (
+          error.message.includes('card_code') ||
+          error.message.includes('check') ||
+          error.message.includes('constraint') ||
+          error.message.includes('violates')
+        );
+        if (isCodeError && row.card_code) {
+          const fallbackRow = {
+            ...row,
+            card_code: null,
+            notes: (row.notes ? row.notes + '\n' : '') + '[Code: ' + row.card_code + ']',
+          };
+          const { error: error2 } = await c.from('card_suggestions').insert(fallbackRow);
+          if (error2) throw error2;
+          // Succès avec fallback
+        } else {
+          throw error;
+        }
+      }
 
       msg.textContent = '✅ Proposition envoyée ! Elle sera examinée avant d\'être ajoutée.';
       msg.className = 'nb-suggest-msg ok';
 
       /* Vider le formulaire après succès */
-      ['nbs-name','nbs-code','nbs-set','nbs-image','nbs-notes'].forEach(id => {
+      ['nbs-name','nbs-code','nbs-set','nbs-notes'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = '';
       });
+      if (typeof nbsClearImage === 'function') nbsClearImage();
 
       setTimeout(window.nbCloseSuggest, 2800);
 
