@@ -4377,6 +4377,8 @@ function normalizeOwnedEntry(u, code) {
   if (!info) return null;
   if (!Array.isArray(info.copies)) {
     u.owned[code] = { copies: getCopies(info) };
+    // Utiliser setUd pour s'assurer que l'objet u est bien rattaché à ST.users[ST.user]
+    if (ST.user) ST.users[ST.user] = u;
     save();
   }
   return u.owned[code];
@@ -4878,7 +4880,6 @@ function applyFilters() {
   document.getElementById('fcount').textContent = ST.filtered.length.toLocaleString('fr') + ' cartes';
   renderCards();
   renderStats();
-  if(typeof renderDashboardStats==='function') renderDashboardStats();
   renderCollectionTab();
   if(typeof renderDashboardStats==='function') renderDashboardStats();
 }
@@ -5393,7 +5394,6 @@ function toggleCard() {
   renderCopiesList(entry.copies);
   applyFilters();
   if (ST.mainTab === 'collection') renderCollectionTab();
-  if(typeof renderDashboardStats==='function') renderDashboardStats();
 }
 
 function removeCopy(copyId) {
@@ -5409,7 +5409,6 @@ function removeCopy(copyId) {
   renderCopiesList(entry.copies || []);
   applyFilters();
   if (ST.mainTab === 'collection') renderCollectionTab();
-  if(typeof renderDashboardStats==='function') renderDashboardStats();
   showToast('Exemplaire retiré ✕');
 }
 
@@ -6019,6 +6018,15 @@ window.enterApp = function(){
   });
 };
 
+// Guard anti-double-init : on ne lance enterAppSupabase qu'une seule fois par session
+let _nakamaAppEntered = false;
+const _origEnterAppSupabase = window.enterAppSupabase;
+window.enterAppSupabase = function(user){
+  if(_nakamaAppEntered) return;
+  _nakamaAppEntered = true;
+  _origEnterAppSupabase(user);
+};
+
 // Auto-session au chargement
 window.addEventListener('load', async () => {
   const { data } = await nakamaSupabase.auth.getSession();
@@ -6032,7 +6040,9 @@ window.addEventListener('load', async () => {
 
 // Gère confirmation mail / refresh session
 nakamaSupabase.auth.onAuthStateChange((event, session) => {
-  if(session && session.user){
+  if(event === 'SIGNED_IN' && session && session.user){
+    // Reset le guard si c'est une vraie nouvelle connexion (pas juste un refresh de token)
+    _nakamaAppEntered = false;
     enterAppSupabase(session.user);
   }
 });
@@ -11310,7 +11320,6 @@ function premiumZoomCard(){
     if (fc) fc.textContent = ST.filtered.length.toLocaleString('fr') + ' cartes';
     renderCards();
     if (typeof renderStats === 'function') renderStats();
-    if (typeof renderDashboardStats === 'function') renderDashboardStats();
     if (typeof renderCollectionTab === 'function') renderCollectionTab();
     if (typeof renderDashboardStats === 'function') renderDashboardStats();
   };
@@ -11967,6 +11976,7 @@ function premiumZoomCard(){
         card_id,
         card_code,
         qty,
+        price,
         updated_at: new Date().toISOString()
       };
     });
@@ -11986,23 +11996,37 @@ function premiumZoomCard(){
       const { data, error } = await c.from('user_cards').select('card_id,qty').eq('user_id', user.id);
       if(error || !data || !data.length) return false;
 
-      // Reconstruire le format owned
-      const owned = {};
-      data.forEach(row => {
-        const copies = [];
-        for(let i = 0; i < (row.qty || 1); i++){
-          copies.push({ id: 'sb_' + row.card_id + '_' + i, price: '', date: '', source: 'cloud' });
-        }
-        owned[row.card_id] = { copies };
-      });
-
-      // Injecter dans ST
       if(window.ST && ST.user){
         if(!ST.users[ST.user]) ST.users[ST.user] = {};
-        ST.users[ST.user].owned = owned;
+
+        // ── FUSION SÉCURISÉE : on ne remplace JAMAIS les données locales ──
+        // On ajoute seulement les cartes présentes dans le cloud mais absentes en local.
+        // Les cartes déjà en local gardent leurs prix et données intactes.
+        const localOwned = ST.users[ST.user].owned || {};
+        let added = 0;
+
+        data.forEach(row => {
+          const cardId = row.card_id;
+          if(!localOwned[cardId]){
+            // Carte cloud manquante en local → on la recrée sans prix
+            const copies = [];
+            for(let i = 0; i < (row.qty || 1); i++){
+              copies.push({ id: 'sb_' + cardId + '_' + i, price: '', date: '', source: 'cloud' });
+            }
+            localOwned[cardId] = { copies };
+            added++;
+          }
+          // Si la carte existe déjà en local → on NE TOUCHE PAS (prix préservés !)
+        });
+
+        ST.users[ST.user].owned = localOwned;
+
+        // Sauvegarder en localStorage pour rester cohérent
+        if(typeof save === 'function') save();
+
         if(typeof applyFilters === 'function') applyFilters();
         if(typeof renderCollectionTab === 'function') renderCollectionTab();
-        console.log('[Nakama] Classeur chargé depuis Supabase:', data.length, 'cartes');
+        console.log('[Nakama] Sync cloud OK – ' + data.length + ' cartes cloud, ' + added + ' ajoutées localement.');
         return true;
       }
     }catch(e){ console.warn('[Nakama] Erreur chargement Supabase:', e); }
