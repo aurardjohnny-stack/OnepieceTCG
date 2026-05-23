@@ -14,7 +14,7 @@
 <link rel="canonical" href="https://www.nakamabinder.com/"/>
 
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300;1,600&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -61,30 +61,50 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .user-row-count{font-size:11px;color:var(--muted)}
 
 /* LANDING REDESIGN */
-#auth-screen{flex-direction:row;gap:60px;align-items:center;justify-content:center;padding:40px 24px;min-height:100vh}
-.landing-col{flex:1;max-width:520px}
-.auth-wrap{flex-shrink:0;width:100%;max-width:420px}
-.landing-skull{font-size:52px;display:block;margin-bottom:16px;filter:drop-shadow(0 0 20px rgba(192,57,43,0.5))}
-.landing-title{font-family:var(--font-display);font-size:36px;font-weight:900;letter-spacing:2px;background:linear-gradient(135deg,#e8edf2,var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:10px}
-.landing-sub{font-size:15px;color:var(--muted);line-height:1.65;margin-bottom:28px}
-.landing-stats{display:flex;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:24px}
-.landing-stat{flex:1;padding:14px 12px;text-align:center;border-right:1px solid var(--border)}
-.landing-stat:last-child{border-right:none}
-.landing-stat-val{display:block;font-size:17px;font-weight:500;color:var(--gold);margin-bottom:2px}
-.landing-stat-lbl{font-size:11px;color:var(--muted)}
-.landing-feats{display:flex;flex-direction:column;gap:8px}
-.landing-feat{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px}
-.landing-feat-icon{width:34px;height:34px;background:rgba(212,160,23,0.1);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
-.landing-feat-name{font-size:13px;font-weight:500;color:var(--text);display:block}
-.landing-feat-desc{font-size:11px;color:var(--muted)}
+#auth-screen{flex-direction:row;gap:0;align-items:stretch;padding:0;min-height:100vh}
+.landing-col{flex:1;padding:52px 56px;display:flex;flex-direction:column;justify-content:center;position:relative}
+.auth-wrap{flex-shrink:0;width:100%;max-width:440px;display:flex;flex-direction:column;justify-content:center;padding:40px 36px;background:var(--surf);border-left:1px solid var(--border)}
 .auth-hero{display:none}
-@media(max-width:860px){
-  #auth-screen{flex-direction:column!important;gap:28px;padding:28px 16px}
-  .landing-col{max-width:100%;width:100%;text-align:center}
-  .landing-feats{text-align:left}
-  .landing-title{font-size:26px}
-  .auth-wrap{max-width:100%}
-  .auth-hero{display:none}
+.gl-eyebrow{display:flex;align-items:center;gap:12px;margin-bottom:28px}
+.gl-line{width:40px;height:0.5px;background:#c9a843}
+.gl-tag{font-size:9px;letter-spacing:4px;text-transform:uppercase;color:#c9a843;font-weight:500}
+.gl-h1{font-family:'Cormorant Garamond',Georgia,serif;font-size:54px;font-weight:300;font-style:italic;color:#f0e8d8;line-height:1.0;margin-bottom:6px}
+.gl-h2{font-family:'Cormorant Garamond',Georgia,serif;font-size:54px;font-weight:600;color:#f0e8d8;line-height:1.0;margin-bottom:12px}
+.gl-h2 span{color:#c9a843}
+.gl-tagline{font-family:'Cormorant Garamond',Georgia,serif;font-size:15px;font-weight:300;font-style:italic;color:#5a5040;letter-spacing:0.5px;margin-bottom:26px}
+.gl-desc{font-size:13px;color:#4a4030;line-height:1.85;max-width:380px;margin-bottom:30px}
+.gl-stats{display:flex;gap:0;border-top:0.5px solid #ffffff09;border-bottom:0.5px solid #ffffff09;padding:16px 0;margin-bottom:30px}
+.gl-stat{flex:1;padding:0 18px;border-right:0.5px solid #ffffff09}
+.gl-stat:first-child{padding-left:0}
+.gl-stat:last-child{border-right:none}
+.gl-sv{display:block;font-family:'Cormorant Garamond',Georgia,serif;font-size:22px;font-weight:600;color:#c9a843}
+.gl-sl{display:block;font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:#3a3020;margin-top:3px}
+.gl-cards-wrap{position:relative}
+.gl-glow{position:absolute;top:60px;left:50%;transform:translateX(-50%);width:160px;height:50px;background:#c9a84315;filter:blur(30px);border-radius:50%;pointer-events:none}
+.gl-cards{position:relative;width:280px;height:330px;margin:0 auto}
+.gl-card{position:absolute;width:118px;height:170px;border-radius:8px;overflow:hidden;border:0.5px solid rgba(201,168,67,0.2);transition:transform 0.3s ease;cursor:pointer}
+.gl-card img{width:100%;height:100%;object-fit:cover;display:block}
+.gl-card-fb{position:absolute;inset:0;padding:8px;display:flex;flex-direction:column}
+.gl-card-tp{font-size:6px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.3)}
+.gl-card-nm{margin-top:auto;font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:600;color:#f0e8d8}
+.gl-card-cd{font-size:7px;color:rgba(255,255,255,0.3);margin-top:2px}
+.gl-card:nth-child(1){top:90px;left:0;background:#110820;transform:rotate(-9deg);animation:glf1 4.5s ease-in-out infinite}
+.gl-card:nth-child(1):hover{transform:rotate(-9deg) translateY(-12px) scale(1.04)!important;z-index:10}
+.gl-card:nth-child(2){top:28px;left:78px;background:#0a1525;transform:rotate(0deg);z-index:3;border-color:rgba(201,168,67,0.5);animation:glf2 5.5s ease-in-out infinite}
+.gl-card:nth-child(2):hover{transform:rotate(0deg) translateY(-14px) scale(1.04)!important;z-index:10}
+.gl-card:nth-child(3){top:80px;left:158px;background:#1a0a0a;transform:rotate(8deg);animation:glf3 5s ease-in-out infinite}
+.gl-card:nth-child(3):hover{transform:rotate(8deg) translateY(-12px) scale(1.04)!important;z-index:10}
+.gl-caption{text-align:center;margin-top:14px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:#3a3020;letter-spacing:1px}
+@keyframes glf1{0%,100%{transform:rotate(-9deg) translateY(0)}50%{transform:rotate(-9deg) translateY(-12px)}}
+@keyframes glf2{0%,100%{transform:rotate(0deg) translateY(0)}50%{transform:rotate(0deg) translateY(-16px)}}
+@keyframes glf3{0%,100%{transform:rotate(8deg) translateY(0)}50%{transform:rotate(8deg) translateY(-10px)}}
+@media(max-width:900px){
+  #auth-screen{flex-direction:column!important}
+  .landing-col{padding:36px 20px}
+  .auth-wrap{max-width:100%;border-left:none;border-top:1px solid var(--border)}
+  .gl-h1,.gl-h2{font-size:38px}
+  .gl-cards{width:220px;height:260px}
+  .gl-card{width:94px;height:135px}
 }
 
 /* MAIN */
@@ -3945,23 +3965,37 @@ body.visitor-mode #visitor-signup-banner{
 <!-- AUTH SCREEN -->
 <div id="auth-screen" class="screen active">
 
-  <!-- LANDING CONTENT -->
+  <!-- LANDING GRAND LINE -->
   <div class="landing-col">
-    <span class="landing-skull">☠️</span>
-    <h1 class="landing-title">GRAND LINE BINDER</h1>
-    <p class="landing-sub">Suis ta collection One Piece TCG, consulte les prix en temps réel, construis tes decks et échange avec tes nakamas.</p>
-    <div class="landing-stats">
-      <div class="landing-stat"><span class="landing-stat-val">26 294</span><span class="landing-stat-lbl">Cartes</span></div>
-      <div class="landing-stat"><span class="landing-stat-val">OP01→ST30</span><span class="landing-stat-lbl">Sets</span></div>
-      <div class="landing-stat"><span class="landing-stat-val">6</span><span class="landing-stat-lbl">Langues</span></div>
-      <div class="landing-stat"><span class="landing-stat-val">100%</span><span class="landing-stat-lbl">Gratuit</span></div>
+    <div class="gl-eyebrow"><div class="gl-line"></div><span class="gl-tag">One Piece Card Game</span></div>
+    <div class="gl-h1">Le classeur</div>
+    <div class="gl-h2">du <span>Grand Line.</span></div>
+    <p class="gl-tagline">26 294 cartes. Une seule destination.</p>
+    <p class="gl-desc">Suis ta collection, consulte les prix Cardmarket en temps réel, construis tes decks et échange avec tes nakamas. Gratuit, pour toujours.</p>
+    <div class="gl-stats">
+      <div class="gl-stat"><span class="gl-sv">26 294</span><span class="gl-sl">Cartes</span></div>
+      <div class="gl-stat"><span class="gl-sv">OP01—ST30</span><span class="gl-sl">Sets</span></div>
+      <div class="gl-stat"><span class="gl-sv">6</span><span class="gl-sl">Langues</span></div>
+      <div class="gl-stat"><span class="gl-sv">100%</span><span class="gl-sl">Gratuit</span></div>
     </div>
-    <div class="landing-feats">
-      <div class="landing-feat"><div class="landing-feat-icon">📚</div><div><span class="landing-feat-name">Binder cloud</span><span class="landing-feat-desc">Ajoute tes cartes et suis ta progression</span></div></div>
-      <div class="landing-feat"><div class="landing-feat-icon">💰</div><div><span class="landing-feat-name">Prix en temps réel</span><span class="landing-feat-desc">Cotes Cardmarket pour toute ta collection</span></div></div>
-      <div class="landing-feat"><div class="landing-feat-icon">👥</div><div><span class="landing-feat-name">Amis & échanges</span><span class="landing-feat-desc">Connecte-toi avec tes nakamas</span></div></div>
-      <div class="landing-feat"><div class="landing-feat-icon">⚔️</div><div><span class="landing-feat-name">Deck builder</span><span class="landing-feat-desc">50 cartes + 10 DON!!</span></div></div>
+    <div class="gl-cards-wrap">
+      <div class="gl-glow"></div>
+      <div class="gl-cards">
+        <div class="gl-card">
+          <img src="https://fr.onepiece-cardgame.com/images/cardlist/card/OP01-001.png" alt="Zoro" onerror="this.style.display='none'">
+          <div class="gl-card-fb"><span class="gl-card-tp">Leader</span><span class="gl-card-nm">Roronoa Zoro</span><span class="gl-card-cd">OP01-001</span></div>
+        </div>
+        <div class="gl-card">
+          <img src="https://fr.onepiece-cardgame.com/images/cardlist/card/OP09-004.png" alt="Shanks" onerror="this.style.display='none'">
+          <div class="gl-card-fb"><span class="gl-card-tp">Leader</span><span class="gl-card-nm">Shanks</span><span class="gl-card-cd">OP09-004</span></div>
+        </div>
+        <div class="gl-card">
+          <img src="https://fr.onepiece-cardgame.com/images/cardlist/card/EB02-003.png" alt="Chopper" onerror="this.style.display='none'">
+          <div class="gl-card-fb"><span class="gl-card-tp">Character</span><span class="gl-card-nm">Tony Tony Chopper</span><span class="gl-card-cd">EB02-003</span></div>
+        </div>
+      </div>
     </div>
+    <p class="gl-caption">Ta collection t'attend</p>
   </div>
 
   <!-- AUTH FORM -->
@@ -14204,5 +14238,25 @@ window.enterAppSupabase = function(user) {
   setTimeout(() => loadCollectionFromCloud(user.id), 1500);
 };
 </script>
+<style>
+/* === BROWSE TAB — VISUAL UPGRADE === */
+#main-screen .cards-grid{grid-template-columns:repeat(auto-fill,minmax(165px,1fr))!important;gap:18px!important}
+#main-screen .card-item{border-radius:14px!important;border:1px solid rgba(255,255,255,0.08)!important;transition:transform 0.25s ease,box-shadow 0.25s ease,border-color 0.25s ease!important}
+#main-screen .card-item:hover{transform:translateY(-8px) scale(1.02)!important;border-color:rgba(212,160,23,0.55)!important;box-shadow:0 24px 48px rgba(0,0,0,0.5),0 0 0 1px rgba(212,160,23,0.12),0 0 28px rgba(212,160,23,0.08)!important;z-index:4!important}
+#main-screen .card-item.owned{border-color:rgba(29,158,117,0.3)!important}
+#main-screen .card-item.owned:hover{border-color:rgba(29,158,117,0.6)!important;box-shadow:0 24px 48px rgba(0,0,0,0.5),0 0 0 1px rgba(29,158,117,0.12)!important}
+#main-screen .card-item img{transition:transform 0.3s ease,opacity 0.3s!important}
+#main-screen .card-item:hover img{transform:scale(1.06)!important}
+#main-screen .price-badge{padding:6px 8px!important;font-size:11px!important;font-weight:600!important;color:#f0c040!important;background:rgba(3,6,10,0.88)!important;backdrop-filter:blur(4px)!important}
+#main-screen .qty-badge{top:0!important;right:0!important;padding:6px 9px!important;font-size:12px!important;font-weight:700!important;border-radius:0 12px 0 10px!important;background:rgba(5,9,16,0.90)!important;backdrop-filter:blur(4px)!important;color:#f0c040!important}
+#main-screen .rarity-head{font-size:10px!important;letter-spacing:1.5px!important;font-weight:700!important;padding:6px 0 10px!important;border-bottom:0.5px solid rgba(255,255,255,0.05)!important;margin-bottom:14px!important}
+#main-screen .r-dot{width:7px!important;height:7px!important;border-radius:50%!important;flex-shrink:0!important}
+#main-screen .rarity-count{font-size:10px!important;color:rgba(255,255,255,0.2)!important;margin-left:auto!important}
+#main-screen .set-label{font-size:20px!important;font-weight:900!important;color:#f0ece0!important;margin-bottom:4px!important}
+#main-screen .rarity-block{margin-bottom:28px!important}
+.filters-final-clean{gap:10px!important;padding:14px 20px!important;background:rgba(6,9,14,0.97)!important;border-bottom:0.5px solid rgba(255,255,255,0.05)!important}
+.filters-final-clean input,.filters-final-clean select{border-radius:10px!important;border:0.5px solid rgba(255,255,255,0.1)!important;background:rgba(255,255,255,0.05)!important;transition:border-color 0.2s!important}
+.filters-final-clean input:focus{border-color:rgba(212,160,23,0.4)!important;outline:none!important}
+</style>
 </body>
 </html>
