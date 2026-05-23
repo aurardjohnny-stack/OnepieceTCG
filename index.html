@@ -14174,12 +14174,18 @@ window.loadCollectionFromCloud = async function(userId) {
       .select('collection')
       .eq('id', userId)
       .single();
+    const localOwned = (ST.users[ST.user] || {}).owned || {};
+    const hasLocal = Object.keys(localOwned).length > 0;
     if (data?.collection) {
+      // Cloud a des données → merge cloud + local (cloud prioritaire)
       const cloudOwned = JSON.parse(data.collection);
       if (!ST.users[ST.user]) ST.users[ST.user] = { owned: {}, friends: [] };
-      ST.users[ST.user].owned = { ...ST.users[ST.user].owned, ...cloudOwned };
+      ST.users[ST.user].owned = { ...localOwned, ...cloudOwned };
       save();
       if (typeof renderDashboardStats === 'function') renderDashboardStats();
+    } else if (hasLocal) {
+      // Cloud vide mais local a des données → migration automatique
+      await saveCollectionToCloud();
     }
   } catch(e) { console.warn('Cloud load error', e); }
 };
