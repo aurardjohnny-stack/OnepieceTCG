@@ -14153,5 +14153,50 @@ function premiumZoomCard(){
 </script>
 <!-- END NAKAMA CARD SUGGESTION SYSTEM -->
 
+
+<script id="nakama-cloud-collection">
+async function saveCollectionToCloud() {
+  try {
+    const { data } = await nakamaSupabase.auth.getUser();
+    if (!data?.user || !ST.user) return;
+    const owned = (ST.users[ST.user] || {}).owned || {};
+    await nakamaSupabase.from('profiles').upsert({
+      id: data.user.id,
+      collection: JSON.stringify(owned),
+      updated_at: new Date().toISOString()
+    });
+  } catch(e) { console.warn('Cloud save error', e); }
+}
+
+window.loadCollectionFromCloud = async function(userId) {
+  try {
+    const { data } = await nakamaSupabase.from('profiles')
+      .select('collection')
+      .eq('id', userId)
+      .single();
+    if (data?.collection) {
+      const cloudOwned = JSON.parse(data.collection);
+      if (!ST.users[ST.user]) ST.users[ST.user] = { owned: {}, friends: [] };
+      ST.users[ST.user].owned = { ...ST.users[ST.user].owned, ...cloudOwned };
+      save();
+      if (typeof renderDashboardStats === 'function') renderDashboardStats();
+    }
+  } catch(e) { console.warn('Cloud load error', e); }
+};
+
+let _cloudSaveTimer;
+const _origSave = window.save;
+window.save = function() {
+  _origSave();
+  clearTimeout(_cloudSaveTimer);
+  _cloudSaveTimer = setTimeout(saveCollectionToCloud, 2000);
+};
+
+const _origEnterApp = window.enterAppSupabase;
+window.enterAppSupabase = function(user) {
+  _origEnterApp(user);
+  setTimeout(() => loadCollectionFromCloud(user.id), 1500);
+};
+</script>
 </body>
 </html>
