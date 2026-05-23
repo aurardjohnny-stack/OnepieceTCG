@@ -60,6 +60,33 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .user-row-name{font-size:13px;font-weight:500}
 .user-row-count{font-size:11px;color:var(--muted)}
 
+/* LANDING REDESIGN */
+#auth-screen{flex-direction:row;gap:60px;align-items:center;justify-content:center;padding:40px 24px;min-height:100vh}
+.landing-col{flex:1;max-width:520px}
+.auth-wrap{flex-shrink:0;width:100%;max-width:420px}
+.landing-skull{font-size:52px;display:block;margin-bottom:16px;filter:drop-shadow(0 0 20px rgba(192,57,43,0.5))}
+.landing-title{font-family:var(--font-display);font-size:36px;font-weight:900;letter-spacing:2px;background:linear-gradient(135deg,#e8edf2,var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:10px}
+.landing-sub{font-size:15px;color:var(--muted);line-height:1.65;margin-bottom:28px}
+.landing-stats{display:flex;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:24px}
+.landing-stat{flex:1;padding:14px 12px;text-align:center;border-right:1px solid var(--border)}
+.landing-stat:last-child{border-right:none}
+.landing-stat-val{display:block;font-size:17px;font-weight:500;color:var(--gold);margin-bottom:2px}
+.landing-stat-lbl{font-size:11px;color:var(--muted)}
+.landing-feats{display:flex;flex-direction:column;gap:8px}
+.landing-feat{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px}
+.landing-feat-icon{width:34px;height:34px;background:rgba(212,160,23,0.1);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.landing-feat-name{font-size:13px;font-weight:500;color:var(--text);display:block}
+.landing-feat-desc{font-size:11px;color:var(--muted)}
+.auth-hero{display:none}
+@media(max-width:860px){
+  #auth-screen{flex-direction:column!important;gap:28px;padding:28px 16px}
+  .landing-col{max-width:100%;width:100%;text-align:center}
+  .landing-feats{text-align:left}
+  .landing-title{font-size:26px}
+  .auth-wrap{max-width:100%}
+  .auth-hero{display:none}
+}
+
 /* MAIN */
 #main-screen{min-height:100vh}
 .topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:12px;padding:12px 20px;background:rgba(8,12,16,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
@@ -3917,8 +3944,29 @@ body.visitor-mode #visitor-signup-banner{
 
 <!-- AUTH SCREEN -->
 <div id="auth-screen" class="screen active">
+
+  <!-- LANDING CONTENT -->
+  <div class="landing-col">
+    <span class="landing-skull">☠️</span>
+    <h1 class="landing-title">GRAND LINE BINDER</h1>
+    <p class="landing-sub">Suis ta collection One Piece TCG, consulte les prix en temps réel, construis tes decks et échange avec tes nakamas.</p>
+    <div class="landing-stats">
+      <div class="landing-stat"><span class="landing-stat-val">26 294</span><span class="landing-stat-lbl">Cartes</span></div>
+      <div class="landing-stat"><span class="landing-stat-val">OP01→ST30</span><span class="landing-stat-lbl">Sets</span></div>
+      <div class="landing-stat"><span class="landing-stat-val">6</span><span class="landing-stat-lbl">Langues</span></div>
+      <div class="landing-stat"><span class="landing-stat-val">100%</span><span class="landing-stat-lbl">Gratuit</span></div>
+    </div>
+    <div class="landing-feats">
+      <div class="landing-feat"><div class="landing-feat-icon">📚</div><div><span class="landing-feat-name">Binder cloud</span><span class="landing-feat-desc">Ajoute tes cartes et suis ta progression</span></div></div>
+      <div class="landing-feat"><div class="landing-feat-icon">💰</div><div><span class="landing-feat-name">Prix en temps réel</span><span class="landing-feat-desc">Cotes Cardmarket pour toute ta collection</span></div></div>
+      <div class="landing-feat"><div class="landing-feat-icon">👥</div><div><span class="landing-feat-name">Amis & échanges</span><span class="landing-feat-desc">Connecte-toi avec tes nakamas</span></div></div>
+      <div class="landing-feat"><div class="landing-feat-icon">⚔️</div><div><span class="landing-feat-name">Deck builder</span><span class="landing-feat-desc">50 cartes + 10 DON!!</span></div></div>
+    </div>
+  </div>
+
+  <!-- AUTH FORM -->
   <div class="auth-wrap">
-    <div class="auth-hero">
+    <div class="auth-hero" style="display:none">
       <span class="skull">☠️</span>
       <h1>GRAND LINE BINDER</h1>
       <p>One Piece TCG — Classeur numérique</p>
