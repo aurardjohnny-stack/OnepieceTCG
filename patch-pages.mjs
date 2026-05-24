@@ -1,20 +1,11 @@
-/**
- * patch-pages.mjs
- * Ajoute à chaque page /carte/*/index.html :
- *  1. Zoom plein écran sur la carte (clic)
- *  2. Prix live via /api/prices
- *  3. Offers dans le schema JSON-LD
- */
-
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const CARTE_DIR  = path.join(__dirname, 'carte');
+const CARTE_DIR = path.join(__dirname, 'carte');
 
 const ZOOM_CSS = `
-/* ZOOM OVERLAY */
 .zoom-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:9999;align-items:center;justify-content:center;cursor:zoom-out}
 .zoom-overlay.open{display:flex}
 .zoom-overlay img{max-width:90vw;max-height:90vh;object-fit:contain;border-radius:14px;border:1px solid rgba(212,160,23,.35)}
@@ -33,14 +24,13 @@ const ZOOM_HTML = `
 const SCRIPT = `
 <script>
 (function(){
-  // ZOOM
   var frame=document.querySelector('.card-frame');
   var overlay=document.getElementById('zoom-overlay');
   var zoomImg=document.getElementById('zoom-img');
   if(frame&&overlay){
     var hint=document.createElement('div');
     hint.className='zoom-hint';
-    hint.textContent='🔍 Cliquer pour zoomer';
+    hint.textContent='Cliquer pour zoomer';
     frame.appendChild(hint);
     frame.addEventListener('click',function(){
       zoomImg.src=document.getElementById('main-img').src;
@@ -50,7 +40,6 @@ const SCRIPT = `
       if(e.key==='Escape')overlay.classList.remove('open');
     });
   }
-  // PRIX LIVE
   var priceEl=document.querySelector('.price-val');
   var noteEl=document.querySelector('.price-note');
   if(!priceEl)return;
@@ -62,13 +51,13 @@ const SCRIPT = `
     if(!cardCode)(data.additionalProperty||[]).forEach(function(p){if(p.name==='Code')cardCode=p.value;});
   }catch(e){}
   if(!cardCode)return;
-  priceEl.textContent='…';
+  priceEl.textContent='...';
   priceEl.className='price-val price-loading';
   fetch('/api/prices?name='+encodeURIComponent(cardCode))
     .then(function(r){return r.json();})
     .then(function(d){
       if(d.success&&d.price){
-        priceEl.textContent=d.price.toFixed(2).replace('.',',')+' €';
+        priceEl.textContent=d.price.toFixed(2).replace('.',',')+' EUR';
         priceEl.className='price-val price-live';
         if(noteEl)noteEl.textContent='Prix Cardmarket (indicatif)';
       }else{
@@ -78,7 +67,7 @@ const SCRIPT = `
     })
     .catch(function(){priceEl.textContent='Voir prix';priceEl.className='price-val';});
 })();
-</script>
+<\/script>
 `;
 
 async function patchFile(filePath) {
@@ -109,7 +98,7 @@ async function main() {
   console.log('Scan de /carte/ ...');
   const entries = await fs.readdir(CARTE_DIR, { withFileTypes: true });
   const folders = entries.filter(e => e.isDirectory()).map(e => e.name);
-  console.log(folders.length + ' dossiers trouves\n');
+  console.log(folders.length + ' dossiers trouves');
 
   let patched=0, skipped=0, errors=0;
 
@@ -120,15 +109,12 @@ async function main() {
       const result = await patchFile(filePath);
       if(result==='patched'){
         patched++;
-        if(patched%500===0) console.log('  ' + patched + ' pages mises a jour...');
+        if(patched%500===0) console.log(patched + ' pages mises a jour...');
       } else { skipped++; }
     } catch(e) { errors++; }
   }
 
-  console.log('\nTermine !');
-  console.log('   Patchees : ' + patched);
-  console.log('   Deja ok  : ' + skipped);
-  console.log('   Erreurs  : ' + errors);
+  console.log('Termine : patchees=' + patched + ' deja_ok=' + skipped + ' erreurs=' + errors);
 }
 
 main().catch(err=>{ console.error(err); process.exit(1); });
