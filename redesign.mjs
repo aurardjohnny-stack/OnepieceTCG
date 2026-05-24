@@ -6,7 +6,11 @@ import * as cheerio from 'cheerio';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const CARTE_DIR = path.join(__dirname, 'carte');
 
-function proxyImg(url){ return "/api/img?url=" + encodeURIComponent(url||""); }
+function proxyImg(url){
+  if(!url) return '';
+  if(url.startsWith('/api/img')) return url; // déjà proxifié
+  return '/api/img?url=' + encodeURIComponent(url);
+}
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 function buildPage(d) {
@@ -16,7 +20,7 @@ function buildPage(d) {
     <div class="var-section">
       <div class="var-lbl">${d.variants.length} variantes</div>
       <div class="var-grid">
-        ${d.variants.map((v,i) => `<button class="var-btn${i===0?' active':''}" onclick="switchCard(this,'${esc(v.src)}')" title="${esc(v.label)}"><img src="${proxyImg(v.src)}" alt="${esc(v.label)}" loading="lazy"></button>`).join('')}
+        ${d.variants.map((v,i) => `<button class="var-btn${i===0?' active':''}" onclick="switchCard(this,'${proxyImg(v.src)}')" title="${esc(v.label)}"><img src="${proxyImg(v.src)}" alt="${esc(v.label)}" loading="lazy"></button>`).join('')}
       </div>
     </div>` : '';
 
@@ -260,7 +264,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
           </div>
         </div>
 
-        <a href="/" class="btn-app">💀 Ouvrir Nakama Binder</a>
+        <a href="/?card=${encodeURIComponent(d.code||d.name)}" class="btn-app">💀 Ouvrir dans Nakama Binder</a>
       </div>
     </div>
   </div>
@@ -378,7 +382,8 @@ function loadPrice(){
         drawChart([{ label: label, price: data.price }]);
       } else {
         pv.textContent = '—';
-        if(pn) pn.textContent = 'Voir le prix sur Cardmarket';
+        pv.classList.remove('loading');
+        if(pn) pn.innerHTML = '<a href="' + document.querySelector('.btn-cm').href + '" target="_blank" rel="noopener" style="color:var(--gold)">Voir le prix sur Cardmarket →</a>';
         var canvas = document.getElementById('price-chart');
         if(canvas) canvas.style.display = 'none';
       }
