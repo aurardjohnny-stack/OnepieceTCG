@@ -232,7 +232,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
           </div>
         </div>
 
-        <a href="/" class="btn-app">💀 Ouvrir Nakama Binder</a>
+        <a href="/?card=OP15-044" class="btn-app">💀 Ouvrir dans Nakama Binder</a>
       </div>
     </div>
   </div>
@@ -260,32 +260,32 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
     <section class="related-section">
   <h2>Autres cartes Koala dans One Piece TCG</h2>
   <div class="related-grid"><a href="/carte/koala-p-069-r1-fr/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FP069_r1.png" alt="Koala P-069_r1" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FP069_r1.png" alt="Koala P-069_r1" loading="lazy">
   <span class="rel-name">Koala</span>
   <span class="rel-code">P-069_r1</span>
 </a>
 <a href="/carte/koala-eb03-042-fr/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FEB03-042.png" alt="Koala EB03-042" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FEB03-042.png" alt="Koala EB03-042" loading="lazy">
   <span class="rel-name">Koala</span>
   <span class="rel-code">EB03-042</span>
 </a>
 <a href="/carte/koala-op09-103-fr/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP09-103.png" alt="Koala OP09-103" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP09-103.png" alt="Koala OP09-103" loading="lazy">
   <span class="rel-name">Koala</span>
   <span class="rel-code">OP09-103</span>
 </a>
 <a href="/carte/koala-op10-047-fr/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP10-047.png" alt="Koala OP10-047" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP10-047.png" alt="Koala OP10-047" loading="lazy">
   <span class="rel-name">Koala</span>
   <span class="rel-code">OP10-047</span>
 </a>
 <a href="/carte/koala-op12-081-fr/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP12-081.png" alt="Koala OP12-081" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP12-081.png" alt="Koala OP12-081" loading="lazy">
   <span class="rel-name">Koala</span>
   <span class="rel-code">OP12-081</span>
 </a>
 <a href="/carte/koala-op12-086-fr/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP12-086.png" alt="Koala OP12-086" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP12-086.png" alt="Koala OP12-086" loading="lazy">
   <span class="rel-name">Koala</span>
   <span class="rel-code">OP12-086</span>
 </a>
@@ -398,7 +398,8 @@ function loadPrice(){
         drawChart([{ label: label, price: data.price }]);
       } else {
         pv.textContent = '—';
-        if(pn) pn.textContent = 'Voir le prix sur Cardmarket';
+        pv.classList.remove('loading');
+        if(pn) pn.innerHTML = '<a href="' + document.querySelector('.btn-cm').href + '" target="_blank" rel="noopener" style="color:var(--gold)">Voir le prix sur Cardmarket →</a>';
         var canvas = document.getElementById('price-chart');
         if(canvas) canvas.style.display = 'none';
       }

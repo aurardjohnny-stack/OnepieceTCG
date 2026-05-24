@@ -232,7 +232,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
           </div>
         </div>
 
-        <a href="/" class="btn-app">💀 Ouvrir Nakama Binder</a>
+        <a href="/?card=OP10-052" class="btn-app">💀 Ouvrir dans Nakama Binder</a>
       </div>
     </div>
   </div>
@@ -260,22 +260,22 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
     <section class="related-section">
   <h2>Autres cartes Bartolomeo dans One Piece TCG</h2>
   <div class="related-grid"><a href="/carte/bartolomeo-op07-031-fr/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP07-031.png" alt="Bartolomeo OP07-031" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP07-031.png" alt="Bartolomeo OP07-031" loading="lazy">
   <span class="rel-name">Bartolomeo</span>
   <span class="rel-code">OP07-031</span>
 </a>
 <a href="/carte/bartolomeo-op11-055-fr/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP11-055.png" alt="Bartolomeo OP11-055" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP11-055.png" alt="Bartolomeo OP11-055" loading="lazy">
   <span class="rel-name">Bartolomeo</span>
   <span class="rel-code">OP11-055</span>
 </a>
 <a href="/carte/bartolomeo-op14-011-fr/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP14-011.png" alt="Bartolomeo OP14-011" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP14-011.png" alt="Bartolomeo OP14-011" loading="lazy">
   <span class="rel-name">Bartolomeo</span>
   <span class="rel-code">OP14-011</span>
 </a>
 <a href="/carte/bartolomeo-op15-014-fr/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP15-014.png" alt="Bartolomeo OP15-014" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP15-014.png" alt="Bartolomeo OP15-014" loading="lazy">
   <span class="rel-name">Bartolomeo</span>
   <span class="rel-code">OP15-014</span>
 </a>
@@ -388,7 +388,8 @@ function loadPrice(){
         drawChart([{ label: label, price: data.price }]);
       } else {
         pv.textContent = '—';
-        if(pn) pn.textContent = 'Voir le prix sur Cardmarket';
+        pv.classList.remove('loading');
+        if(pn) pn.innerHTML = '<a href="' + document.querySelector('.btn-cm').href + '" target="_blank" rel="noopener" style="color:var(--gold)">Voir le prix sur Cardmarket →</a>';
         var canvas = document.getElementById('price-chart');
         if(canvas) canvas.style.display = 'none';
       }

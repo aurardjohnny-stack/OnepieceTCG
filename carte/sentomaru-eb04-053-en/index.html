@@ -232,7 +232,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
           </div>
         </div>
 
-        <a href="/" class="btn-app">💀 Ouvrir Nakama Binder</a>
+        <a href="/?card=EB04-053" class="btn-app">💀 Ouvrir dans Nakama Binder</a>
       </div>
     </div>
   </div>
@@ -260,22 +260,22 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
     <section class="related-section">
   <h2>Autres cartes Sentomaru dans One Piece TCG</h2>
   <div class="related-grid"><a href="/carte/sentomaru-op02-104-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP02-104.png" alt="Sentomaru OP02-104" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP02-104.png" alt="Sentomaru OP02-104" loading="lazy">
   <span class="rel-name">Sentomaru</span>
   <span class="rel-code">OP02-104</span>
 </a>
 <a href="/carte/sentomaru-op12-104-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP12-104.png" alt="Sentomaru OP12-104" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP12-104.png" alt="Sentomaru OP12-104" loading="lazy">
   <span class="rel-name">Sentomaru</span>
   <span class="rel-code">OP12-104</span>
 </a>
 <a href="/carte/sentomaru-st03-007-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FST03-007.png" alt="Sentomaru ST03-007" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FST03-007.png" alt="Sentomaru ST03-007" loading="lazy">
   <span class="rel-name">Sentomaru</span>
   <span class="rel-code">ST03-007</span>
 </a>
 <a href="/carte/sentomaru-st21-007-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FST21-007.png" alt="Sentomaru ST21-007" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FST21-007.png" alt="Sentomaru ST21-007" loading="lazy">
   <span class="rel-name">Sentomaru</span>
   <span class="rel-code">ST21-007</span>
 </a>
@@ -388,7 +388,8 @@ function loadPrice(){
         drawChart([{ label: label, price: data.price }]);
       } else {
         pv.textContent = '—';
-        if(pn) pn.textContent = 'Voir le prix sur Cardmarket';
+        pv.classList.remove('loading');
+        if(pn) pn.innerHTML = '<a href="' + document.querySelector('.btn-cm').href + '" target="_blank" rel="noopener" style="color:var(--gold)">Voir le prix sur Cardmarket →</a>';
         var canvas = document.getElementById('price-chart');
         if(canvas) canvas.style.display = 'none';
       }

@@ -232,7 +232,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
           </div>
         </div>
 
-        <a href="/" class="btn-app">💀 Ouvrir Nakama Binder</a>
+        <a href="/?card=OP01-007" class="btn-app">💀 Ouvrir dans Nakama Binder</a>
       </div>
     </div>
   </div>
@@ -260,17 +260,17 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
     <section class="related-section">
   <h2>Autres cartes Caribou dans One Piece TCG</h2>
   <div class="related-grid"><a href="/carte/caribou-op07-023-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP07-023.png" alt="Caribou OP07-023" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP07-023.png" alt="Caribou OP07-023" loading="lazy">
   <span class="rel-name">Caribou</span>
   <span class="rel-code">OP07-023</span>
 </a>
 <a href="/carte/caribou-op10-104-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP10-104.png" alt="Caribou OP10-104" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP10-104.png" alt="Caribou OP10-104" loading="lazy">
   <span class="rel-name">Caribou</span>
   <span class="rel-code">OP10-104</span>
 </a>
 <a href="/carte/caribou-op11-083-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP11-083.png" alt="Caribou OP11-083" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP11-083.png" alt="Caribou OP11-083" loading="lazy">
   <span class="rel-name">Caribou</span>
   <span class="rel-code">OP11-083</span>
 </a>
@@ -383,7 +383,8 @@ function loadPrice(){
         drawChart([{ label: label, price: data.price }]);
       } else {
         pv.textContent = '—';
-        if(pn) pn.textContent = 'Voir le prix sur Cardmarket';
+        pv.classList.remove('loading');
+        if(pn) pn.innerHTML = '<a href="' + document.querySelector('.btn-cm').href + '" target="_blank" rel="noopener" style="color:var(--gold)">Voir le prix sur Cardmarket →</a>';
         var canvas = document.getElementById('price-chart');
         if(canvas) canvas.style.display = 'none';
       }

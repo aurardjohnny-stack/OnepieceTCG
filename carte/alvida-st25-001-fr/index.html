@@ -232,7 +232,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
           </div>
         </div>
 
-        <a href="/" class="btn-app">💀 Ouvrir Nakama Binder</a>
+        <a href="/?card=ST25-001" class="btn-app">💀 Ouvrir dans Nakama Binder</a>
       </div>
     </div>
   </div>
@@ -260,22 +260,22 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
     <section class="related-section">
   <h2>Autres cartes Alvida dans One Piece TCG</h2>
   <div class="related-grid"><a href="/carte/alvida-eb03-021-fr/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FEB03-021.png" alt="Alvida EB03-021" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FEB03-021.png" alt="Alvida EB03-021" loading="lazy">
   <span class="rel-name">Alvida</span>
   <span class="rel-code">EB03-021</span>
 </a>
 <a href="/carte/alvida-op09-043-fr/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP09-043.png" alt="Alvida OP09-043" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP09-043.png" alt="Alvida OP09-043" loading="lazy">
   <span class="rel-name">Alvida</span>
   <span class="rel-code">OP09-043</span>
 </a>
 <a href="/carte/alvida-op12-042-fr/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP12-042.png" alt="Alvida OP12-042" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP12-042.png" alt="Alvida OP12-042" loading="lazy">
   <span class="rel-name">Alvida</span>
   <span class="rel-code">OP12-042</span>
 </a>
 <a href="/carte/alvida-op15-003-fr/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP15-003.png" alt="Alvida OP15-003" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP15-003.png" alt="Alvida OP15-003" loading="lazy">
   <span class="rel-name">Alvida</span>
   <span class="rel-code">OP15-003</span>
 </a>
@@ -388,7 +388,8 @@ function loadPrice(){
         drawChart([{ label: label, price: data.price }]);
       } else {
         pv.textContent = '—';
-        if(pn) pn.textContent = 'Voir le prix sur Cardmarket';
+        pv.classList.remove('loading');
+        if(pn) pn.innerHTML = '<a href="' + document.querySelector('.btn-cm').href + '" target="_blank" rel="noopener" style="color:var(--gold)">Voir le prix sur Cardmarket →</a>';
         var canvas = document.getElementById('price-chart');
         if(canvas) canvas.style.display = 'none';
       }

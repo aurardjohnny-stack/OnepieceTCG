@@ -232,7 +232,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
           </div>
         </div>
 
-        <a href="/" class="btn-app">💀 Ouvrir Nakama Binder</a>
+        <a href="/?card=OP14-014" class="btn-app">💀 Ouvrir dans Nakama Binder</a>
       </div>
     </div>
   </div>
@@ -260,22 +260,22 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
     <section class="related-section">
   <h2>Autres cartes Eustass "Captain" Kidd dans One Piece TCG</h2>
   <div class="related-grid"><a href="/carte/eustass-captain-kidd-eb04-039-fr/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FEB04-039.png" alt="Eustass " captain"="" kidd="" eb04-039"="" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FEB04-039.png" alt="Eustass " captain"="" kidd="" eb04-039"="" loading="lazy">
   <span class="rel-name">Eustass "Captain" Kidd</span>
   <span class="rel-code">EB04-039</span>
 </a>
 <a href="/carte/eustass-captain-kidd-op09-075-fr/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP09-075.png" alt="Eustass " captain"="" kidd="" op09-075"="" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP09-075.png" alt="Eustass " captain"="" kidd="" op09-075"="" loading="lazy">
   <span class="rel-name">Eustass "Captain" Kidd</span>
   <span class="rel-code">OP09-075</span>
 </a>
 <a href="/carte/eustass-captain-kidd-op10-099-fr/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP10-099.png" alt="Eustass " captain"="" kidd="" op10-099"="" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP10-099.png" alt="Eustass " captain"="" kidd="" op10-099"="" loading="lazy">
   <span class="rel-name">Eustass "Captain" Kidd</span>
   <span class="rel-code">OP10-099</span>
 </a>
 <a href="/carte/eustass-captain-kidd-op10-112-fr/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP10-112.png" alt="Eustass " captain"="" kidd="" op10-112"="" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP10-112.png" alt="Eustass " captain"="" kidd="" op10-112"="" loading="lazy">
   <span class="rel-name">Eustass "Captain" Kidd</span>
   <span class="rel-code">OP10-112</span>
 </a>
@@ -388,7 +388,8 @@ function loadPrice(){
         drawChart([{ label: label, price: data.price }]);
       } else {
         pv.textContent = '—';
-        if(pn) pn.textContent = 'Voir le prix sur Cardmarket';
+        pv.classList.remove('loading');
+        if(pn) pn.innerHTML = '<a href="' + document.querySelector('.btn-cm').href + '" target="_blank" rel="noopener" style="color:var(--gold)">Voir le prix sur Cardmarket →</a>';
         var canvas = document.getElementById('price-chart');
         if(canvas) canvas.style.display = 'none';
       }

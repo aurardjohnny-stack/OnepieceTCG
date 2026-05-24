@@ -232,7 +232,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
           </div>
         </div>
 
-        <a href="/" class="btn-app">💀 Ouvrir Nakama Binder</a>
+        <a href="/?card=ST08-009" class="btn-app">💀 Ouvrir dans Nakama Binder</a>
       </div>
     </div>
   </div>
@@ -260,22 +260,22 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
     <section class="related-section">
   <h2>Autres cartes Makino dans One Piece TCG</h2>
   <div class="related-grid"><a href="/carte/makino-eb03-009-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FEB03-009.png" alt="Makino EB03-009" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FEB03-009.png" alt="Makino EB03-009" loading="lazy">
   <span class="rel-name">Makino</span>
   <span class="rel-code">EB03-009</span>
 </a>
 <a href="/carte/makino-op02-015-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP02-015.png" alt="Makino OP02-015" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP02-015.png" alt="Makino OP02-015" loading="lazy">
   <span class="rel-name">Makino</span>
   <span class="rel-code">OP02-015</span>
 </a>
 <a href="/carte/makino-op13-015-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP13-015.png" alt="Makino OP13-015" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP13-015.png" alt="Makino OP13-015" loading="lazy">
   <span class="rel-name">Makino</span>
   <span class="rel-code">OP13-015</span>
 </a>
 <a href="/carte/makino-st13-012-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FST13-012.png" alt="Makino ST13-012" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FST13-012.png" alt="Makino ST13-012" loading="lazy">
   <span class="rel-name">Makino</span>
   <span class="rel-code">ST13-012</span>
 </a>
@@ -388,7 +388,8 @@ function loadPrice(){
         drawChart([{ label: label, price: data.price }]);
       } else {
         pv.textContent = '—';
-        if(pn) pn.textContent = 'Voir le prix sur Cardmarket';
+        pv.classList.remove('loading');
+        if(pn) pn.innerHTML = '<a href="' + document.querySelector('.btn-cm').href + '" target="_blank" rel="noopener" style="color:var(--gold)">Voir le prix sur Cardmarket →</a>';
         var canvas = document.getElementById('price-chart');
         if(canvas) canvas.style.display = 'none';
       }

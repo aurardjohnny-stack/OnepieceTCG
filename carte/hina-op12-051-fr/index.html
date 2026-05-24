@@ -232,7 +232,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
           </div>
         </div>
 
-        <a href="/" class="btn-app">💀 Ouvrir Nakama Binder</a>
+        <a href="/?card=OP12-051" class="btn-app">💀 Ouvrir dans Nakama Binder</a>
       </div>
     </div>
   </div>
@@ -260,17 +260,17 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
     <section class="related-section">
   <h2>Autres cartes Hina dans One Piece TCG</h2>
   <div class="related-grid"><a href="/carte/hina-eb03-025-fr/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FEB03-025.png" alt="Hina EB03-025" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FEB03-025.png" alt="Hina EB03-025" loading="lazy">
   <span class="rel-name">Hina</span>
   <span class="rel-code">EB03-025</span>
 </a>
 <a href="/carte/hina-st06-008-fr/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FST06-008.png" alt="Hina ST06-008" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FST06-008.png" alt="Hina ST06-008" loading="lazy">
   <span class="rel-name">Hina</span>
   <span class="rel-code">ST06-008</span>
 </a>
 <a href="/carte/hina-st19-004-fr/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FST19-004.png" alt="Hina ST19-004" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FST19-004.png" alt="Hina ST19-004" loading="lazy">
   <span class="rel-name">Hina</span>
   <span class="rel-code">ST19-004</span>
 </a>
@@ -383,7 +383,8 @@ function loadPrice(){
         drawChart([{ label: label, price: data.price }]);
       } else {
         pv.textContent = '—';
-        if(pn) pn.textContent = 'Voir le prix sur Cardmarket';
+        pv.classList.remove('loading');
+        if(pn) pn.innerHTML = '<a href="' + document.querySelector('.btn-cm').href + '" target="_blank" rel="noopener" style="color:var(--gold)">Voir le prix sur Cardmarket →</a>';
         var canvas = document.getElementById('price-chart');
         if(canvas) canvas.style.display = 'none';
       }

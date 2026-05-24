@@ -232,7 +232,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
           </div>
         </div>
 
-        <a href="/" class="btn-app">💀 Ouvrir Nakama Binder</a>
+        <a href="/?card=OP01-009" class="btn-app">💀 Ouvrir dans Nakama Binder</a>
       </div>
     </div>
   </div>
@@ -260,32 +260,32 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
     <section class="related-section">
   <h2>Autres cartes Carrot dans One Piece TCG</h2>
   <div class="related-grid"><a href="/carte/carrot-p-070-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FP070.png" alt="Carrot P-070" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FP070.png" alt="Carrot P-070" loading="lazy">
   <span class="rel-name">Carrot</span>
   <span class="rel-code">P-070</span>
 </a>
 <a href="/carte/carrot-p-070-r1-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FP070_r1.png" alt="Carrot P-070_r1" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FP070_r1.png" alt="Carrot P-070_r1" loading="lazy">
   <span class="rel-name">Carrot</span>
   <span class="rel-code">P-070_r1</span>
 </a>
 <a href="/carte/carrot-eb02-013-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FEB02-013.png" alt="Carrot EB02-013" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FEB02-013.png" alt="Carrot EB02-013" loading="lazy">
   <span class="rel-name">Carrot</span>
   <span class="rel-code">EB02-013</span>
 </a>
 <a href="/carte/carrot-eb03-013-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FEB03-013.png" alt="Carrot EB03-013" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FEB03-013.png" alt="Carrot EB03-013" loading="lazy">
   <span class="rel-name">Carrot</span>
   <span class="rel-code">EB03-013</span>
 </a>
 <a href="/carte/carrot-eb04-013-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FEB04-013.png" alt="Carrot EB04-013" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FEB04-013.png" alt="Carrot EB04-013" loading="lazy">
   <span class="rel-name">Carrot</span>
   <span class="rel-code">EB04-013</span>
 </a>
 <a href="/carte/carrot-op02-029-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP02-029.png" alt="Carrot OP02-029" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP02-029.png" alt="Carrot OP02-029" loading="lazy">
   <span class="rel-name">Carrot</span>
   <span class="rel-code">OP02-029</span>
 </a>
@@ -398,7 +398,8 @@ function loadPrice(){
         drawChart([{ label: label, price: data.price }]);
       } else {
         pv.textContent = '—';
-        if(pn) pn.textContent = 'Voir le prix sur Cardmarket';
+        pv.classList.remove('loading');
+        if(pn) pn.innerHTML = '<a href="' + document.querySelector('.btn-cm').href + '" target="_blank" rel="noopener" style="color:var(--gold)">Voir le prix sur Cardmarket →</a>';
         var canvas = document.getElementById('price-chart');
         if(canvas) canvas.style.display = 'none';
       }

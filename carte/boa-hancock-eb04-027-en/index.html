@@ -232,7 +232,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
           </div>
         </div>
 
-        <a href="/" class="btn-app">💀 Ouvrir Nakama Binder</a>
+        <a href="/?card=EB04-027" class="btn-app">💀 Ouvrir dans Nakama Binder</a>
       </div>
     </div>
   </div>
@@ -260,32 +260,32 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
     <section class="related-section">
   <h2>Autres cartes Boa Hancock dans One Piece TCG</h2>
   <div class="related-grid"><a href="/carte/boa-hancock-eb03-026-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FEB03-026.png" alt="Boa Hancock EB03-026" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FEB03-026.png" alt="Boa Hancock EB03-026" loading="lazy">
   <span class="rel-name">Boa Hancock</span>
   <span class="rel-code">EB03-026</span>
 </a>
 <a href="/carte/boa-hancock-op01-078-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP01-078.png" alt="Boa Hancock OP01-078" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP01-078.png" alt="Boa Hancock OP01-078" loading="lazy">
   <span class="rel-name">Boa Hancock</span>
   <span class="rel-code">OP01-078</span>
 </a>
 <a href="/carte/boa-hancock-op02-059-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP02-059.png" alt="Boa Hancock OP02-059" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP02-059.png" alt="Boa Hancock OP02-059" loading="lazy">
   <span class="rel-name">Boa Hancock</span>
   <span class="rel-code">OP02-059</span>
 </a>
 <a href="/carte/boa-hancock-op07-038-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP07-038.png" alt="Boa Hancock OP07-038" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP07-038.png" alt="Boa Hancock OP07-038" loading="lazy">
   <span class="rel-name">Boa Hancock</span>
   <span class="rel-code">OP07-038</span>
 </a>
 <a href="/carte/boa-hancock-op07-051-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP07-051.png" alt="Boa Hancock OP07-051" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP07-051.png" alt="Boa Hancock OP07-051" loading="lazy">
   <span class="rel-name">Boa Hancock</span>
   <span class="rel-code">OP07-051</span>
 </a>
 <a href="/carte/boa-hancock-op12-014-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP12-014.png" alt="Boa Hancock OP12-014" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP12-014.png" alt="Boa Hancock OP12-014" loading="lazy">
   <span class="rel-name">Boa Hancock</span>
   <span class="rel-code">OP12-014</span>
 </a>
@@ -398,7 +398,8 @@ function loadPrice(){
         drawChart([{ label: label, price: data.price }]);
       } else {
         pv.textContent = '—';
-        if(pn) pn.textContent = 'Voir le prix sur Cardmarket';
+        pv.classList.remove('loading');
+        if(pn) pn.innerHTML = '<a href="' + document.querySelector('.btn-cm').href + '" target="_blank" rel="noopener" style="color:var(--gold)">Voir le prix sur Cardmarket →</a>';
         var canvas = document.getElementById('price-chart');
         if(canvas) canvas.style.display = 'none';
       }

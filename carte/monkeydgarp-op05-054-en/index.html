@@ -232,7 +232,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
           </div>
         </div>
 
-        <a href="/" class="btn-app">💀 Ouvrir Nakama Binder</a>
+        <a href="/?card=OP05-054" class="btn-app">💀 Ouvrir dans Nakama Binder</a>
       </div>
     </div>
   </div>
@@ -260,32 +260,32 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
     <section class="related-section">
   <h2>Autres cartes Monkey.D.Garp dans One Piece TCG</h2>
   <div class="related-grid"><a href="/carte/monkeydgarp-p-054-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FP054.png" alt="Monkey.D.Garp P-054" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FP054.png" alt="Monkey.D.Garp P-054" loading="lazy">
   <span class="rel-name">Monkey.D.Garp</span>
   <span class="rel-code">P-054</span>
 </a>
 <a href="/carte/monkeydgarp-eb02-049-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FEB02-049.png" alt="Monkey.D.Garp EB02-049" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FEB02-049.png" alt="Monkey.D.Garp EB02-049" loading="lazy">
   <span class="rel-name">Monkey.D.Garp</span>
   <span class="rel-code">EB02-049</span>
 </a>
 <a href="/carte/monkeydgarp-op02-002-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP02-002.png" alt="Monkey.D.Garp OP02-002" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP02-002.png" alt="Monkey.D.Garp OP02-002" loading="lazy">
   <span class="rel-name">Monkey.D.Garp</span>
   <span class="rel-code">OP02-002</span>
 </a>
 <a href="/carte/monkeydgarp-op02-115-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP02-115.png" alt="Monkey.D.Garp OP02-115" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP02-115.png" alt="Monkey.D.Garp OP02-115" loading="lazy">
   <span class="rel-name">Monkey.D.Garp</span>
   <span class="rel-code">OP02-115</span>
 </a>
 <a href="/carte/monkeydgarp-op03-014-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP03-014.png" alt="Monkey.D.Garp OP03-014" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP03-014.png" alt="Monkey.D.Garp OP03-014" loading="lazy">
   <span class="rel-name">Monkey.D.Garp</span>
   <span class="rel-code">OP03-014</span>
 </a>
 <a href="/carte/monkeydgarp-op06-055-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP06-055.png" alt="Monkey.D.Garp OP06-055" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP06-055.png" alt="Monkey.D.Garp OP06-055" loading="lazy">
   <span class="rel-name">Monkey.D.Garp</span>
   <span class="rel-code">OP06-055</span>
 </a>
@@ -398,7 +398,8 @@ function loadPrice(){
         drawChart([{ label: label, price: data.price }]);
       } else {
         pv.textContent = '—';
-        if(pn) pn.textContent = 'Voir le prix sur Cardmarket';
+        pv.classList.remove('loading');
+        if(pn) pn.innerHTML = '<a href="' + document.querySelector('.btn-cm').href + '" target="_blank" rel="noopener" style="color:var(--gold)">Voir le prix sur Cardmarket →</a>';
         var canvas = document.getElementById('price-chart');
         if(canvas) canvas.style.display = 'none';
       }

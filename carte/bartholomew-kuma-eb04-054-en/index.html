@@ -232,7 +232,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
           </div>
         </div>
 
-        <a href="/" class="btn-app">💀 Ouvrir Nakama Binder</a>
+        <a href="/?card=EB04-054" class="btn-app">💀 Ouvrir dans Nakama Binder</a>
       </div>
     </div>
   </div>
@@ -260,32 +260,32 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
     <section class="related-section">
   <h2>Autres cartes Bartholomew Kuma dans One Piece TCG</h2>
   <div class="related-grid"><a href="/carte/bartholomew-kuma-eb04-055-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FEB04-055.png" alt="Bartholomew Kuma EB04-055" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FEB04-055.png" alt="Bartholomew Kuma EB04-055" loading="lazy">
   <span class="rel-name">Bartholomew Kuma</span>
   <span class="rel-code">EB04-055</span>
 </a>
 <a href="/carte/bartholomew-kuma-op01-074-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP01-074.png" alt="Bartholomew Kuma OP01-074" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP01-074.png" alt="Bartholomew Kuma OP01-074" loading="lazy">
   <span class="rel-name">Bartholomew Kuma</span>
   <span class="rel-code">OP01-074</span>
 </a>
 <a href="/carte/bartholomew-kuma-op02-057-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP02-057.png" alt="Bartholomew Kuma OP02-057" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP02-057.png" alt="Bartholomew Kuma OP02-057" loading="lazy">
   <span class="rel-name">Bartholomew Kuma</span>
   <span class="rel-code">OP02-057</span>
 </a>
 <a href="/carte/bartholomew-kuma-op05-011-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP05-011.png" alt="Bartholomew Kuma OP05-011" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP05-011.png" alt="Bartholomew Kuma OP05-011" loading="lazy">
   <span class="rel-name">Bartholomew Kuma</span>
   <span class="rel-code">OP05-011</span>
 </a>
 <a href="/carte/bartholomew-kuma-op09-108-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP09-108.png" alt="Bartholomew Kuma OP09-108" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP09-108.png" alt="Bartholomew Kuma OP09-108" loading="lazy">
   <span class="rel-name">Bartholomew Kuma</span>
   <span class="rel-code">OP09-108</span>
 </a>
 <a href="/carte/bartholomew-kuma-op12-119-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP12-119.png" alt="Bartholomew Kuma OP12-119" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP12-119.png" alt="Bartholomew Kuma OP12-119" loading="lazy">
   <span class="rel-name">Bartholomew Kuma</span>
   <span class="rel-code">OP12-119</span>
 </a>
@@ -398,7 +398,8 @@ function loadPrice(){
         drawChart([{ label: label, price: data.price }]);
       } else {
         pv.textContent = '—';
-        if(pn) pn.textContent = 'Voir le prix sur Cardmarket';
+        pv.classList.remove('loading');
+        if(pn) pn.innerHTML = '<a href="' + document.querySelector('.btn-cm').href + '" target="_blank" rel="noopener" style="color:var(--gold)">Voir le prix sur Cardmarket →</a>';
         var canvas = document.getElementById('price-chart');
         if(canvas) canvas.style.display = 'none';
       }

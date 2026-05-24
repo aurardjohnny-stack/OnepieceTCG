@@ -232,7 +232,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
           </div>
         </div>
 
-        <a href="/" class="btn-app">💀 Ouvrir Nakama Binder</a>
+        <a href="/?card=ST03-001" class="btn-app">💀 Ouvrir dans Nakama Binder</a>
       </div>
     </div>
   </div>
@@ -260,32 +260,32 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
     <section class="related-section">
   <h2>Autres cartes Crocodile dans One Piece TCG</h2>
   <div class="related-grid"><a href="/carte/crocodile-p-004-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FP004.png" alt="Crocodile P-004" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FP004.png" alt="Crocodile P-004" loading="lazy">
   <span class="rel-name">Crocodile</span>
   <span class="rel-code">P-004</span>
 </a>
 <a href="/carte/crocodile-p-082-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FP082.png" alt="Crocodile P-082" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FP082.png" alt="Crocodile P-082" loading="lazy">
   <span class="rel-name">Crocodile</span>
   <span class="rel-code">P-082</span>
 </a>
 <a href="/carte/crocodile-p-082-r1-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FP082_r1.png" alt="Crocodile P-082_r1" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FP082_r1.png" alt="Crocodile P-082_r1" loading="lazy">
   <span class="rel-name">Crocodile</span>
   <span class="rel-code">P-082_r1</span>
 </a>
 <a href="/carte/crocodile-eb02-023-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FEB02-023.png" alt="Crocodile EB02-023" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FEB02-023.png" alt="Crocodile EB02-023" loading="lazy">
   <span class="rel-name">Crocodile</span>
   <span class="rel-code">EB02-023</span>
 </a>
 <a href="/carte/crocodile-op01-062-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP01-062.png" alt="Crocodile OP01-062" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP01-062.png" alt="Crocodile OP01-062" loading="lazy">
   <span class="rel-name">Crocodile</span>
   <span class="rel-code">OP01-062</span>
 </a>
 <a href="/carte/crocodile-op01-067-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP01-067.png" alt="Crocodile OP01-067" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP01-067.png" alt="Crocodile OP01-067" loading="lazy">
   <span class="rel-name">Crocodile</span>
   <span class="rel-code">OP01-067</span>
 </a>
@@ -398,7 +398,8 @@ function loadPrice(){
         drawChart([{ label: label, price: data.price }]);
       } else {
         pv.textContent = '—';
-        if(pn) pn.textContent = 'Voir le prix sur Cardmarket';
+        pv.classList.remove('loading');
+        if(pn) pn.innerHTML = '<a href="' + document.querySelector('.btn-cm').href + '" target="_blank" rel="noopener" style="color:var(--gold)">Voir le prix sur Cardmarket →</a>';
         var canvas = document.getElementById('price-chart');
         if(canvas) canvas.style.display = 'none';
       }

@@ -232,7 +232,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
           </div>
         </div>
 
-        <a href="/" class="btn-app">💀 Ouvrir Nakama Binder</a>
+        <a href="/?card=OP11-016" class="btn-app">💀 Ouvrir dans Nakama Binder</a>
       </div>
     </div>
   </div>
@@ -260,32 +260,32 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
     <section class="related-section">
   <h2>Autres cartes Roronoa Zoro dans One Piece TCG</h2>
   <div class="related-grid"><a href="/carte/roronoa-zoro-eb02-019-fr/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FEB02-019.png" alt="Roronoa Zoro EB02-019" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FEB02-019.png" alt="Roronoa Zoro EB02-019" loading="lazy">
   <span class="rel-name">Roronoa Zoro</span>
   <span class="rel-code">EB02-019</span>
 </a>
 <a href="/carte/roronoa-zoro-eb04-007-fr/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FEB04-007.png" alt="Roronoa Zoro EB04-007" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FEB04-007.png" alt="Roronoa Zoro EB04-007" loading="lazy">
   <span class="rel-name">Roronoa Zoro</span>
   <span class="rel-code">EB04-007</span>
 </a>
 <a href="/carte/roronoa-zoro-op06-118-fr/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP06-118.png" alt="Roronoa Zoro OP06-118" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP06-118.png" alt="Roronoa Zoro OP06-118" loading="lazy">
   <span class="rel-name">Roronoa Zoro</span>
   <span class="rel-code">OP06-118</span>
 </a>
 <a href="/carte/roronoa-zoro-op09-076-fr/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP09-076.png" alt="Roronoa Zoro OP09-076" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP09-076.png" alt="Roronoa Zoro OP09-076" loading="lazy">
   <span class="rel-name">Roronoa Zoro</span>
   <span class="rel-code">OP09-076</span>
 </a>
 <a href="/carte/roronoa-zoro-op10-038-fr/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP10-038.png" alt="Roronoa Zoro OP10-038" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP10-038.png" alt="Roronoa Zoro OP10-038" loading="lazy">
   <span class="rel-name">Roronoa Zoro</span>
   <span class="rel-code">OP10-038</span>
 </a>
 <a href="/carte/roronoa-zoro-op10-095-fr/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP10-095.png" alt="Roronoa Zoro OP10-095" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP10-095.png" alt="Roronoa Zoro OP10-095" loading="lazy">
   <span class="rel-name">Roronoa Zoro</span>
   <span class="rel-code">OP10-095</span>
 </a>
@@ -398,7 +398,8 @@ function loadPrice(){
         drawChart([{ label: label, price: data.price }]);
       } else {
         pv.textContent = '—';
-        if(pn) pn.textContent = 'Voir le prix sur Cardmarket';
+        pv.classList.remove('loading');
+        if(pn) pn.innerHTML = '<a href="' + document.querySelector('.btn-cm').href + '" target="_blank" rel="noopener" style="color:var(--gold)">Voir le prix sur Cardmarket →</a>';
         var canvas = document.getElementById('price-chart');
         if(canvas) canvas.style.display = 'none';
       }

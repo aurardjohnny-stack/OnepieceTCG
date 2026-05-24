@@ -232,7 +232,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
           </div>
         </div>
 
-        <a href="/" class="btn-app">💀 Ouvrir Nakama Binder</a>
+        <a href="/?card=OP14-047" class="btn-app">💀 Ouvrir dans Nakama Binder</a>
       </div>
     </div>
   </div>
@@ -260,27 +260,27 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
     <section class="related-section">
   <h2>Autres cartes Shirahoshi dans One Piece TCG</h2>
   <div class="related-grid"><a href="/carte/shirahoshi-eb01-057-fr/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FEB01-057.png" alt="Shirahoshi EB01-057" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FEB01-057.png" alt="Shirahoshi EB01-057" loading="lazy">
   <span class="rel-name">Shirahoshi</span>
   <span class="rel-code">EB01-057</span>
 </a>
 <a href="/carte/shirahoshi-eb03-052-fr/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FEB03-052.png" alt="Shirahoshi EB03-052" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FEB03-052.png" alt="Shirahoshi EB03-052" loading="lazy">
   <span class="rel-name">Shirahoshi</span>
   <span class="rel-code">EB03-052</span>
 </a>
 <a href="/carte/shirahoshi-op11-022-fr/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP11-022.png" alt="Shirahoshi OP11-022" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP11-022.png" alt="Shirahoshi OP11-022" loading="lazy">
   <span class="rel-name">Shirahoshi</span>
   <span class="rel-code">OP11-022</span>
 </a>
 <a href="/carte/shirahoshi-op11-030-fr/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP11-030.png" alt="Shirahoshi OP11-030" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP11-030.png" alt="Shirahoshi OP11-030" loading="lazy">
   <span class="rel-name">Shirahoshi</span>
   <span class="rel-code">OP11-030</span>
 </a>
 <a href="/carte/shirahoshi-op12-102-fr/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP12-102.png" alt="Shirahoshi OP12-102" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP12-102.png" alt="Shirahoshi OP12-102" loading="lazy">
   <span class="rel-name">Shirahoshi</span>
   <span class="rel-code">OP12-102</span>
 </a>
@@ -393,7 +393,8 @@ function loadPrice(){
         drawChart([{ label: label, price: data.price }]);
       } else {
         pv.textContent = '—';
-        if(pn) pn.textContent = 'Voir le prix sur Cardmarket';
+        pv.classList.remove('loading');
+        if(pn) pn.innerHTML = '<a href="' + document.querySelector('.btn-cm').href + '" target="_blank" rel="noopener" style="color:var(--gold)">Voir le prix sur Cardmarket →</a>';
         var canvas = document.getElementById('price-chart');
         if(canvas) canvas.style.display = 'none';
       }

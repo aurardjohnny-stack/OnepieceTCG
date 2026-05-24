@@ -232,7 +232,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
           </div>
         </div>
 
-        <a href="/" class="btn-app">💀 Ouvrir Nakama Binder</a>
+        <a href="/?card=OP03-091" class="btn-app">💀 Ouvrir dans Nakama Binder</a>
       </div>
     </div>
   </div>
@@ -260,32 +260,32 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
     <section class="related-section">
   <h2>Autres cartes Helmeppo dans One Piece TCG</h2>
   <div class="related-grid"><a href="/carte/helmeppo-p-020-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FP020.png" alt="Helmeppo P-020" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FP020.png" alt="Helmeppo P-020" loading="lazy">
   <span class="rel-name">Helmeppo</span>
   <span class="rel-code">P-020</span>
 </a>
 <a href="/carte/helmeppo-eb04-047-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FEB04-047.png" alt="Helmeppo EB04-047" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FEB04-047.png" alt="Helmeppo EB04-047" loading="lazy">
   <span class="rel-name">Helmeppo</span>
   <span class="rel-code">EB04-047</span>
 </a>
 <a href="/carte/helmeppo-op02-113-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP02-113.png" alt="Helmeppo OP02-113" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP02-113.png" alt="Helmeppo OP02-113" loading="lazy">
   <span class="rel-name">Helmeppo</span>
   <span class="rel-code">OP02-113</span>
 </a>
 <a href="/carte/helmeppo-op11-092-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP11-092.png" alt="Helmeppo OP11-092" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP11-092.png" alt="Helmeppo OP11-092" loading="lazy">
   <span class="rel-name">Helmeppo</span>
   <span class="rel-code">OP11-092</span>
 </a>
 <a href="/carte/helmeppo-op12-033-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP12-033.png" alt="Helmeppo OP12-033" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP12-033.png" alt="Helmeppo OP12-033" loading="lazy">
   <span class="rel-name">Helmeppo</span>
   <span class="rel-code">OP12-033</span>
 </a>
 <a href="/carte/helmeppo-op13-036-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP13-036.png" alt="Helmeppo OP13-036" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP13-036.png" alt="Helmeppo OP13-036" loading="lazy">
   <span class="rel-name">Helmeppo</span>
   <span class="rel-code">OP13-036</span>
 </a>
@@ -398,7 +398,8 @@ function loadPrice(){
         drawChart([{ label: label, price: data.price }]);
       } else {
         pv.textContent = '—';
-        if(pn) pn.textContent = 'Voir le prix sur Cardmarket';
+        pv.classList.remove('loading');
+        if(pn) pn.innerHTML = '<a href="' + document.querySelector('.btn-cm').href + '" target="_blank" rel="noopener" style="color:var(--gold)">Voir le prix sur Cardmarket →</a>';
         var canvas = document.getElementById('price-chart');
         if(canvas) canvas.style.display = 'none';
       }

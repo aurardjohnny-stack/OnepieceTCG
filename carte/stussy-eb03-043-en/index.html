@@ -232,7 +232,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
           </div>
         </div>
 
-        <a href="/" class="btn-app">💀 Ouvrir Nakama Binder</a>
+        <a href="/?card=EB03-043" class="btn-app">💀 Ouvrir dans Nakama Binder</a>
       </div>
     </div>
   </div>
@@ -260,27 +260,27 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
     <section class="related-section">
   <h2>Autres cartes Stussy dans One Piece TCG</h2>
   <div class="related-grid"><a href="/carte/stussy-op04-084-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP04-084.png" alt="Stussy OP04-084" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP04-084.png" alt="Stussy OP04-084" loading="lazy">
   <span class="rel-name">Stussy</span>
   <span class="rel-code">OP04-084</span>
 </a>
 <a href="/carte/stussy-op07-085-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP07-085.png" alt="Stussy OP07-085" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP07-085.png" alt="Stussy OP07-085" loading="lazy">
   <span class="rel-name">Stussy</span>
   <span class="rel-code">OP07-085</span>
 </a>
 <a href="/carte/stussy-op13-110-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP13-110.png" alt="Stussy OP13-110" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP13-110.png" alt="Stussy OP13-110" loading="lazy">
   <span class="rel-name">Stussy</span>
   <span class="rel-code">OP13-110</span>
 </a>
 <a href="/carte/stussy-st21-006-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FST21-006.png" alt="Stussy ST21-006" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FST21-006.png" alt="Stussy ST21-006" loading="lazy">
   <span class="rel-name">Stussy</span>
   <span class="rel-code">ST21-006</span>
 </a>
 <a href="/carte/stussy-st29-006-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FST29-006.png" alt="Stussy ST29-006" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FST29-006.png" alt="Stussy ST29-006" loading="lazy">
   <span class="rel-name">Stussy</span>
   <span class="rel-code">ST29-006</span>
 </a>
@@ -393,7 +393,8 @@ function loadPrice(){
         drawChart([{ label: label, price: data.price }]);
       } else {
         pv.textContent = '—';
-        if(pn) pn.textContent = 'Voir le prix sur Cardmarket';
+        pv.classList.remove('loading');
+        if(pn) pn.innerHTML = '<a href="' + document.querySelector('.btn-cm').href + '" target="_blank" rel="noopener" style="color:var(--gold)">Voir le prix sur Cardmarket →</a>';
         var canvas = document.getElementById('price-chart');
         if(canvas) canvas.style.display = 'none';
       }

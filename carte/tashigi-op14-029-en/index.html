@@ -232,7 +232,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
           </div>
         </div>
 
-        <a href="/" class="btn-app">💀 Ouvrir Nakama Binder</a>
+        <a href="/?card=OP14-029" class="btn-app">💀 Ouvrir dans Nakama Binder</a>
       </div>
     </div>
   </div>
@@ -260,32 +260,32 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
     <section class="related-section">
   <h2>Autres cartes Tashigi dans One Piece TCG</h2>
   <div class="related-grid"><a href="/carte/tashigi-eb03-018-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FEB03-018.png" alt="Tashigi EB03-018" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FEB03-018.png" alt="Tashigi EB03-018" loading="lazy">
   <span class="rel-name">Tashigi</span>
   <span class="rel-code">EB03-018</span>
 </a>
 <a href="/carte/tashigi-op02-105-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP02-105.png" alt="Tashigi OP02-105" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP02-105.png" alt="Tashigi OP02-105" loading="lazy">
   <span class="rel-name">Tashigi</span>
   <span class="rel-code">OP02-105</span>
 </a>
 <a href="/carte/tashigi-op06-050-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP06-050.png" alt="Tashigi OP06-050" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP06-050.png" alt="Tashigi OP06-050" loading="lazy">
   <span class="rel-name">Tashigi</span>
   <span class="rel-code">OP06-050</span>
 </a>
 <a href="/carte/tashigi-op10-032-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP10-032.png" alt="Tashigi OP10-032" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP10-032.png" alt="Tashigi OP10-032" loading="lazy">
   <span class="rel-name">Tashigi</span>
   <span class="rel-code">OP10-032</span>
 </a>
 <a href="/carte/tashigi-op11-007-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP11-007.png" alt="Tashigi OP11-007" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP11-007.png" alt="Tashigi OP11-007" loading="lazy">
   <span class="rel-name">Tashigi</span>
   <span class="rel-code">OP11-007</span>
 </a>
 <a href="/carte/tashigi-op12-031-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP12-031.png" alt="Tashigi OP12-031" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP12-031.png" alt="Tashigi OP12-031" loading="lazy">
   <span class="rel-name">Tashigi</span>
   <span class="rel-code">OP12-031</span>
 </a>
@@ -398,7 +398,8 @@ function loadPrice(){
         drawChart([{ label: label, price: data.price }]);
       } else {
         pv.textContent = '—';
-        if(pn) pn.textContent = 'Voir le prix sur Cardmarket';
+        pv.classList.remove('loading');
+        if(pn) pn.innerHTML = '<a href="' + document.querySelector('.btn-cm').href + '" target="_blank" rel="noopener" style="color:var(--gold)">Voir le prix sur Cardmarket →</a>';
         var canvas = document.getElementById('price-chart');
         if(canvas) canvas.style.display = 'none';
       }

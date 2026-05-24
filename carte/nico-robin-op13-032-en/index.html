@@ -232,7 +232,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
           </div>
         </div>
 
-        <a href="/" class="btn-app">💀 Ouvrir Nakama Binder</a>
+        <a href="/?card=OP13-032" class="btn-app">💀 Ouvrir dans Nakama Binder</a>
       </div>
     </div>
   </div>
@@ -260,32 +260,32 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
     <section class="related-section">
   <h2>Autres cartes Nico Robin dans One Piece TCG</h2>
   <div class="related-grid"><a href="/carte/nico-robin-eb02-036-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FEB02-036.png" alt="Nico Robin EB02-036" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FEB02-036.png" alt="Nico Robin EB02-036" loading="lazy">
   <span class="rel-name">Nico Robin</span>
   <span class="rel-code">EB02-036</span>
 </a>
 <a href="/carte/nico-robin-eb03-054-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FEB03-054.png" alt="Nico Robin EB03-054" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FEB03-054.png" alt="Nico Robin EB03-054" loading="lazy">
   <span class="rel-name">Nico Robin</span>
   <span class="rel-code">EB03-054</span>
 </a>
 <a href="/carte/nico-robin-eb03-055-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FEB03-055.png" alt="Nico Robin EB03-055" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FEB03-055.png" alt="Nico Robin EB03-055" loading="lazy">
   <span class="rel-name">Nico Robin</span>
   <span class="rel-code">EB03-055</span>
 </a>
 <a href="/carte/nico-robin-op01-017-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP01-017.png" alt="Nico Robin OP01-017" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP01-017.png" alt="Nico Robin OP01-017" loading="lazy">
   <span class="rel-name">Nico Robin</span>
   <span class="rel-code">OP01-017</span>
 </a>
 <a href="/carte/nico-robin-op02-037-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP02-037.png" alt="Nico Robin OP02-037" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP02-037.png" alt="Nico Robin OP02-037" loading="lazy">
   <span class="rel-name">Nico Robin</span>
   <span class="rel-code">OP02-037</span>
 </a>
 <a href="/carte/nico-robin-op05-010-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP05-010.png" alt="Nico Robin OP05-010" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP05-010.png" alt="Nico Robin OP05-010" loading="lazy">
   <span class="rel-name">Nico Robin</span>
   <span class="rel-code">OP05-010</span>
 </a>
@@ -398,7 +398,8 @@ function loadPrice(){
         drawChart([{ label: label, price: data.price }]);
       } else {
         pv.textContent = '—';
-        if(pn) pn.textContent = 'Voir le prix sur Cardmarket';
+        pv.classList.remove('loading');
+        if(pn) pn.innerHTML = '<a href="' + document.querySelector('.btn-cm').href + '" target="_blank" rel="noopener" style="color:var(--gold)">Voir le prix sur Cardmarket →</a>';
         var canvas = document.getElementById('price-chart');
         if(canvas) canvas.style.display = 'none';
       }

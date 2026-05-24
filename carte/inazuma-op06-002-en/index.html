@@ -232,7 +232,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
           </div>
         </div>
 
-        <a href="/" class="btn-app">💀 Ouvrir Nakama Binder</a>
+        <a href="/?card=OP06-002" class="btn-app">💀 Ouvrir dans Nakama Binder</a>
       </div>
     </div>
   </div>
@@ -260,32 +260,32 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
     <section class="related-section">
   <h2>Autres cartes Inazuma dans One Piece TCG</h2>
   <div class="related-grid"><a href="/carte/inazuma-eb01-022-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FEB01-022.png" alt="Inazuma EB01-022" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FEB01-022.png" alt="Inazuma EB01-022" loading="lazy">
   <span class="rel-name">Inazuma</span>
   <span class="rel-code">EB01-022</span>
 </a>
 <a href="/carte/inazuma-op02-050-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP02-050.png" alt="Inazuma OP02-050" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP02-050.png" alt="Inazuma OP02-050" loading="lazy">
   <span class="rel-name">Inazuma</span>
   <span class="rel-code">OP02-050</span>
 </a>
 <a href="/carte/inazuma-op05-003-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP05-003.png" alt="Inazuma OP05-003" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP05-003.png" alt="Inazuma OP05-003" loading="lazy">
   <span class="rel-name">Inazuma</span>
   <span class="rel-code">OP05-003</span>
 </a>
 <a href="/carte/inazuma-op10-100-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP10-100.png" alt="Inazuma OP10-100" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP10-100.png" alt="Inazuma OP10-100" loading="lazy">
   <span class="rel-name">Inazuma</span>
   <span class="rel-code">OP10-100</span>
 </a>
 <a href="/carte/inazuma-op12-083-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP12-083.png" alt="Inazuma OP12-083" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP12-083.png" alt="Inazuma OP12-083" loading="lazy">
   <span class="rel-name">Inazuma</span>
   <span class="rel-code">OP12-083</span>
 </a>
 <a href="/carte/inazuma-op13-005-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP13-005.png" alt="Inazuma OP13-005" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP13-005.png" alt="Inazuma OP13-005" loading="lazy">
   <span class="rel-name">Inazuma</span>
   <span class="rel-code">OP13-005</span>
 </a>
@@ -398,7 +398,8 @@ function loadPrice(){
         drawChart([{ label: label, price: data.price }]);
       } else {
         pv.textContent = '—';
-        if(pn) pn.textContent = 'Voir le prix sur Cardmarket';
+        pv.classList.remove('loading');
+        if(pn) pn.innerHTML = '<a href="' + document.querySelector('.btn-cm').href + '" target="_blank" rel="noopener" style="color:var(--gold)">Voir le prix sur Cardmarket →</a>';
         var canvas = document.getElementById('price-chart');
         if(canvas) canvas.style.display = 'none';
       }

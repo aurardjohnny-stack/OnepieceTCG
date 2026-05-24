@@ -232,7 +232,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
           </div>
         </div>
 
-        <a href="/" class="btn-app">💀 Ouvrir Nakama Binder</a>
+        <a href="/?card=OP11-089" class="btn-app">💀 Ouvrir dans Nakama Binder</a>
       </div>
     </div>
   </div>
@@ -260,27 +260,27 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
     <section class="related-section">
   <h2>Autres cartes Black Maria dans One Piece TCG</h2>
   <div class="related-grid"><a href="/carte/black-maria-eb03-044-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FEB03-044.png" alt="Black Maria EB03-044" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FEB03-044.png" alt="Black Maria EB03-044" loading="lazy">
   <span class="rel-name">Black Maria</span>
   <span class="rel-code">EB03-044</span>
 </a>
 <a href="/carte/black-maria-op01-111-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP01-111.png" alt="Black Maria OP01-111" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP01-111.png" alt="Black Maria OP01-111" loading="lazy">
   <span class="rel-name">Black Maria</span>
   <span class="rel-code">OP01-111</span>
 </a>
 <a href="/carte/black-maria-op04-052-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP04-052.png" alt="Black Maria OP04-052" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP04-052.png" alt="Black Maria OP04-052" loading="lazy">
   <span class="rel-name">Black Maria</span>
   <span class="rel-code">OP04-052</span>
 </a>
 <a href="/carte/black-maria-op08-074-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP08-074.png" alt="Black Maria OP08-074" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP08-074.png" alt="Black Maria OP08-074" loading="lazy">
   <span class="rel-name">Black Maria</span>
   <span class="rel-code">OP08-074</span>
 </a>
 <a href="/carte/black-maria-st04-011-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FST04-011.png" alt="Black Maria ST04-011" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FST04-011.png" alt="Black Maria ST04-011" loading="lazy">
   <span class="rel-name">Black Maria</span>
   <span class="rel-code">ST04-011</span>
 </a>
@@ -393,7 +393,8 @@ function loadPrice(){
         drawChart([{ label: label, price: data.price }]);
       } else {
         pv.textContent = '—';
-        if(pn) pn.textContent = 'Voir le prix sur Cardmarket';
+        pv.classList.remove('loading');
+        if(pn) pn.innerHTML = '<a href="' + document.querySelector('.btn-cm').href + '" target="_blank" rel="noopener" style="color:var(--gold)">Voir le prix sur Cardmarket →</a>';
         var canvas = document.getElementById('price-chart');
         if(canvas) canvas.style.display = 'none';
       }

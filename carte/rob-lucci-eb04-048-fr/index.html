@@ -199,7 +199,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
     <div class="var-section">
       <div class="var-lbl">2 variantes</div>
       <div class="var-grid">
-        <button class="var-btn active" onclick="switchCard(this,'https://fr.onepiece-cardgame.com/images/cardlist/card/EB04-048.png')" title="base"><img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FEB04-048.png" alt="base" loading="lazy"></button><button class="var-btn" onclick="switchCard(this,'https://fr.onepiece-cardgame.com/images/cardlist/card/EB04-048_p1.png')" title="p1"><img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FEB04-048_p1.png" alt="p1" loading="lazy"></button>
+        <button class="var-btn active" onclick="switchCard(this,'/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FEB04-048.png')" title="base"><img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FEB04-048.png" alt="base" loading="lazy"></button><button class="var-btn" onclick="switchCard(this,'/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FEB04-048_p1.png')" title="p1"><img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FEB04-048_p1.png" alt="p1" loading="lazy"></button>
       </div>
     </div>
       </div>
@@ -238,7 +238,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
           </div>
         </div>
 
-        <a href="/" class="btn-app">💀 Ouvrir Nakama Binder</a>
+        <a href="/?card=EB04-048" class="btn-app">💀 Ouvrir dans Nakama Binder</a>
       </div>
     </div>
   </div>
@@ -266,12 +266,12 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
     <section class="related-section">
   <h2>Autres cartes Rob Lucci dans One Piece TCG</h2>
   <div class="related-grid"><a href="/carte/rob-lucci-op09-038-fr/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP09-038.png" alt="Rob Lucci OP09-038" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP09-038.png" alt="Rob Lucci OP09-038" loading="lazy">
   <span class="rel-name">Rob Lucci</span>
   <span class="rel-code">OP09-038</span>
 </a>
 <a href="/carte/rob-lucci-st29-013-fr/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FST29-013.png" alt="Rob Lucci ST29-013" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FST29-013.png" alt="Rob Lucci ST29-013" loading="lazy">
   <span class="rel-name">Rob Lucci</span>
   <span class="rel-code">ST29-013</span>
 </a>
@@ -384,7 +384,8 @@ function loadPrice(){
         drawChart([{ label: label, price: data.price }]);
       } else {
         pv.textContent = '—';
-        if(pn) pn.textContent = 'Voir le prix sur Cardmarket';
+        pv.classList.remove('loading');
+        if(pn) pn.innerHTML = '<a href="' + document.querySelector('.btn-cm').href + '" target="_blank" rel="noopener" style="color:var(--gold)">Voir le prix sur Cardmarket →</a>';
         var canvas = document.getElementById('price-chart');
         if(canvas) canvas.style.display = 'none';
       }

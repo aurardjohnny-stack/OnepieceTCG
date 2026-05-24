@@ -232,7 +232,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
           </div>
         </div>
 
-        <a href="/" class="btn-app">💀 Ouvrir Nakama Binder</a>
+        <a href="/?card=OP11-048" class="btn-app">💀 Ouvrir dans Nakama Binder</a>
       </div>
     </div>
   </div>
@@ -260,32 +260,32 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
     <section class="related-section">
   <h2>Autres cartes Capone"Gang"Bege dans One Piece TCG</h2>
   <div class="related-grid"><a href="/carte/caponegangbege-op04-100-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP04-100.png" alt="Capone" gang"bege="" op04-100"="" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP04-100.png" alt="Capone" gang"bege="" op04-100"="" loading="lazy">
   <span class="rel-name">Capone"Gang"Bege</span>
   <span class="rel-code">OP04-100</span>
 </a>
 <a href="/carte/caponegangbege-op10-103-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP10-103.png" alt="Capone" gang"bege="" op10-103"="" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP10-103.png" alt="Capone" gang"bege="" op10-103"="" loading="lazy">
   <span class="rel-name">Capone"Gang"Bege</span>
   <span class="rel-code">OP10-103</span>
 </a>
 <a href="/carte/caponegangbege-op11-101-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP11-101.png" alt="Capone" gang"bege="" op11-101"="" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP11-101.png" alt="Capone" gang"bege="" op11-101"="" loading="lazy">
   <span class="rel-name">Capone"Gang"Bege</span>
   <span class="rel-code">OP11-101</span>
 </a>
 <a href="/carte/caponegangbege-op14-003-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP14-003.png" alt="Capone" gang"bege="" op14-003"="" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP14-003.png" alt="Capone" gang"bege="" op14-003"="" loading="lazy">
   <span class="rel-name">Capone"Gang"Bege</span>
   <span class="rel-code">OP14-003</span>
 </a>
 <a href="/carte/caponegangbege-st02-004-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FST02-004.png" alt="Capone" gang"bege="" st02-004"="" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FST02-004.png" alt="Capone" gang"bege="" st02-004"="" loading="lazy">
   <span class="rel-name">Capone"Gang"Bege</span>
   <span class="rel-code">ST02-004</span>
 </a>
 <a href="/carte/caponegangbege-st24-001-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FST24-001.png" alt="Capone" gang"bege="" st24-001"="" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FST24-001.png" alt="Capone" gang"bege="" st24-001"="" loading="lazy">
   <span class="rel-name">Capone"Gang"Bege</span>
   <span class="rel-code">ST24-001</span>
 </a>
@@ -398,7 +398,8 @@ function loadPrice(){
         drawChart([{ label: label, price: data.price }]);
       } else {
         pv.textContent = '—';
-        if(pn) pn.textContent = 'Voir le prix sur Cardmarket';
+        pv.classList.remove('loading');
+        if(pn) pn.innerHTML = '<a href="' + document.querySelector('.btn-cm').href + '" target="_blank" rel="noopener" style="color:var(--gold)">Voir le prix sur Cardmarket →</a>';
         var canvas = document.getElementById('price-chart');
         if(canvas) canvas.style.display = 'none';
       }

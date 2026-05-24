@@ -232,7 +232,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
           </div>
         </div>
 
-        <a href="/" class="btn-app">💀 Ouvrir Nakama Binder</a>
+        <a href="/?card=OP09-105" class="btn-app">💀 Ouvrir dans Nakama Binder</a>
       </div>
     </div>
   </div>
@@ -260,32 +260,32 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
     <section class="related-section">
   <h2>Autres cartes Sanji dans One Piece TCG</h2>
   <div class="related-grid"><a href="/carte/sanji-p-034-fr/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FP034.png" alt="Sanji P-034" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FP034.png" alt="Sanji P-034" loading="lazy">
   <span class="rel-name">Sanji</span>
   <span class="rel-code">P-034</span>
 </a>
 <a href="/carte/sanji-p-068-r1-fr/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FP068_r1.png" alt="Sanji P-068_r1" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FP068_r1.png" alt="Sanji P-068_r1" loading="lazy">
   <span class="rel-name">Sanji</span>
   <span class="rel-code">P-068_r1</span>
 </a>
 <a href="/carte/sanji-eb02-054-fr/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FEB02-054.png" alt="Sanji EB02-054" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FEB02-054.png" alt="Sanji EB02-054" loading="lazy">
   <span class="rel-name">Sanji</span>
   <span class="rel-code">EB02-054</span>
 </a>
 <a href="/carte/sanji-eb04-052-fr/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FEB04-052.png" alt="Sanji EB04-052" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FEB04-052.png" alt="Sanji EB04-052" loading="lazy">
   <span class="rel-name">Sanji</span>
   <span class="rel-code">EB04-052</span>
 </a>
 <a href="/carte/sanji-op06-119-fr/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP06-119.png" alt="Sanji OP06-119" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP06-119.png" alt="Sanji OP06-119" loading="lazy">
   <span class="rel-name">Sanji</span>
   <span class="rel-code">OP06-119</span>
 </a>
 <a href="/carte/sanji-op07-064-fr/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP07-064.png" alt="Sanji OP07-064" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP07-064.png" alt="Sanji OP07-064" loading="lazy">
   <span class="rel-name">Sanji</span>
   <span class="rel-code">OP07-064</span>
 </a>
@@ -398,7 +398,8 @@ function loadPrice(){
         drawChart([{ label: label, price: data.price }]);
       } else {
         pv.textContent = '—';
-        if(pn) pn.textContent = 'Voir le prix sur Cardmarket';
+        pv.classList.remove('loading');
+        if(pn) pn.innerHTML = '<a href="' + document.querySelector('.btn-cm').href + '" target="_blank" rel="noopener" style="color:var(--gold)">Voir le prix sur Cardmarket →</a>';
         var canvas = document.getElementById('price-chart');
         if(canvas) canvas.style.display = 'none';
       }

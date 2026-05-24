@@ -232,7 +232,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
           </div>
         </div>
 
-        <a href="/" class="btn-app">💀 Ouvrir Nakama Binder</a>
+        <a href="/?card=ST28-004" class="btn-app">💀 Ouvrir dans Nakama Binder</a>
       </div>
     </div>
   </div>
@@ -260,32 +260,32 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
     <section class="related-section">
   <h2>Autres cartes Kouzuki Momonosuke dans One Piece TCG</h2>
   <div class="related-grid"><a href="/carte/kouzuki-momonosuke-op01-041-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP01-041.png" alt="Kouzuki Momonosuke OP01-041" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP01-041.png" alt="Kouzuki Momonosuke OP01-041" loading="lazy">
   <span class="rel-name">Kouzuki Momonosuke</span>
   <span class="rel-code">OP01-041</span>
 </a>
 <a href="/carte/kouzuki-momonosuke-op06-107-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP06-107.png" alt="Kouzuki Momonosuke OP06-107" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP06-107.png" alt="Kouzuki Momonosuke OP06-107" loading="lazy">
   <span class="rel-name">Kouzuki Momonosuke</span>
   <span class="rel-code">OP06-107</span>
 </a>
 <a href="/carte/kouzuki-momonosuke-op10-028-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP10-028.png" alt="Kouzuki Momonosuke OP10-028" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP10-028.png" alt="Kouzuki Momonosuke OP10-028" loading="lazy">
   <span class="rel-name">Kouzuki Momonosuke</span>
   <span class="rel-code">OP10-028</span>
 </a>
 <a href="/carte/kouzuki-momonosuke-op10-083-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP10-083.png" alt="Kouzuki Momonosuke OP10-083" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP10-083.png" alt="Kouzuki Momonosuke OP10-083" loading="lazy">
   <span class="rel-name">Kouzuki Momonosuke</span>
   <span class="rel-code">OP10-083</span>
 </a>
 <a href="/carte/kouzuki-momonosuke-op13-105-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP13-105.png" alt="Kouzuki Momonosuke OP13-105" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP13-105.png" alt="Kouzuki Momonosuke OP13-105" loading="lazy">
   <span class="rel-name">Kouzuki Momonosuke</span>
   <span class="rel-code">OP13-105</span>
 </a>
 <a href="/carte/kouzuki-momonosuke-st09-006-en/" class="rel-card">
-  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FST09-006.png" alt="Kouzuki Momonosuke ST09-006" loading="lazy">
+  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FST09-006.png" alt="Kouzuki Momonosuke ST09-006" loading="lazy">
   <span class="rel-name">Kouzuki Momonosuke</span>
   <span class="rel-code">ST09-006</span>
 </a>
@@ -398,7 +398,8 @@ function loadPrice(){
         drawChart([{ label: label, price: data.price }]);
       } else {
         pv.textContent = '—';
-        if(pn) pn.textContent = 'Voir le prix sur Cardmarket';
+        pv.classList.remove('loading');
+        if(pn) pn.innerHTML = '<a href="' + document.querySelector('.btn-cm').href + '" target="_blank" rel="noopener" style="color:var(--gold)">Voir le prix sur Cardmarket →</a>';
         var canvas = document.getElementById('price-chart');
         if(canvas) canvas.style.display = 'none';
       }
