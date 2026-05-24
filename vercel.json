@@ -1,4 +1,9 @@
 {
+  "functions": {
+    "api/*.js": {
+      "maxDuration": 10
+    }
+  },
   "headers": [
     {
       "source": "/cards.json",
@@ -10,7 +15,7 @@
       ]
     },
     {
-      "source": "/(.*)\\.(webp|png|jpg|jpeg|gif|svg|ico|css|js)",
+      "source": "/(.*)\\.(?:webp|png|jpg|jpeg|gif|svg|ico|css)",
       "headers": [
         {
           "key": "Cache-Control",
