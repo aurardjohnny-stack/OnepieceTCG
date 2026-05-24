@@ -6,6 +6,7 @@ import * as cheerio from 'cheerio';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const CARTE_DIR = path.join(__dirname, 'carte');
 
+function proxyImg(url){ return "/api/img?url=" + encodeURIComponent(url||""); }
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 function buildPage(d) {
@@ -15,7 +16,7 @@ function buildPage(d) {
     <div class="var-section">
       <div class="var-lbl">${d.variants.length} variantes</div>
       <div class="var-grid">
-        ${d.variants.map((v,i) => `<button class="var-btn${i===0?' active':''}" onclick="switchCard(this,'${esc(v.src)}')" title="${esc(v.label)}"><img src="${esc(v.src)}" alt="${esc(v.label)}" loading="lazy"></button>`).join('')}
+        ${d.variants.map((v,i) => `<button class="var-btn${i===0?' active':''}" onclick="switchCard(this,'${esc(v.src)}')" title="${esc(v.label)}"><img src="${proxyImg(v.src)}" alt="${esc(v.label)}" loading="lazy"></button>`).join('')}
       </div>
     </div>` : '';
 
@@ -73,7 +74,7 @@ a{color:var(--gold);text-decoration:none}a:hover{color:var(--gold2)}
 
 /* HERO BG */
 .hero-wrap{position:relative;overflow:hidden;padding-bottom:60px}
-.hero-bg{position:absolute;inset:-60px;z-index:0;background-image:url('${esc(d.image)}');background-size:cover;background-position:center;filter:blur(70px) saturate(.35) brightness(.15);transform:scale(1.15)}
+.hero-bg{position:absolute;inset:-60px;z-index:0;background-image:url('${proxyImg(d.image)}');background-size:cover;background-position:center;filter:blur(70px) saturate(.35) brightness(.15);transform:scale(1.15)}
 .hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(6,9,13,.3) 0%,var(--bg) 85%)}
 
 /* BREADCRUMB */
@@ -221,7 +222,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
       <!-- CARTE -->
       <div class="card-col">
         <div class="card-wrap" onclick="openZoom()" title="Cliquer pour zoomer">
-          <img id="main-img" src="${esc(d.image)}" alt="${esc(d.name)} ${esc(d.code)}" width="260" height="363" loading="eager" fetchpriority="high" referrerpolicy="no-referrer">
+          <img id="main-img" src="${proxyImg(d.image)}" alt="${esc(d.name)} ${esc(d.code)}" width="260" height="363" loading="eager" fetchpriority="high" referrerpolicy="no-referrer">
         </div>
         <div class="zoom-pill" onclick="openZoom()" style="cursor:zoom-in">
           🔍 Cliquer pour zoomer
@@ -396,6 +397,17 @@ loadPrice();
 </html>`;
 }
 
+
+function proxyImgsInHtml($, selector) {
+  if(!$(selector).length) return '';
+  $(selector).find('img').each(function(_, el) {
+    const src = $(el).attr('src') || '';
+    if(src && src.includes('onepiece-cardgame.com')) {
+      $(el).attr('src', '/api/img?url=' + encodeURIComponent(src));
+    }
+  });
+  return $.html(selector);
+}
 function extract(html, $){
   const d = {};
   d.lang        = $('html').attr('lang') || 'fr';
@@ -466,9 +478,9 @@ function extract(html, $){
   });
   d.breadcrumb = bc.join('');
 
-  d.seoHtml     = $('.seo-section').length  ? $.html('.seo-section')  : '';
-  d.faqHtml     = $('.faq-section').length  ? $.html('.faq-section')  : '';
-  d.relatedHtml = $('.related-section').length ? $.html('.related-section') : '';
+  d.seoHtml     = proxyImgsInHtml($, '.seo-section');
+  d.faqHtml     = proxyImgsInHtml($, '.faq-section');
+  d.relatedHtml = proxyImgsInHtml($, '.related-section');
 
   return d;
 }
