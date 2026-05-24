@@ -1,0 +1,23 @@
+# .github/workflows/patch-pages.yml
+name: Patch carte pages
+
+on:
+  workflow_dispatch:
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run patch
+        run: node patch-pages.mjs
+      - name: Commit & push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add carte/
+          git diff --cached --quiet || git commit -m "feat: zoom + prix live + schema offers sur toutes les pages cartes"
+          git push
