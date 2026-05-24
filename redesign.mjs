@@ -1,0 +1,529 @@
+import fs from 'fs/promises';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import * as cheerio from 'cheerio';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const CARTE_DIR = path.join(__dirname, 'carte');
+
+// ─────────────────────────────────────────────────────────────────
+// TEMPLATE : page carte premium complète
+// ─────────────────────────────────────────────────────────────────
+function buildPage(d) {
+  return `<!DOCTYPE html>
+<html lang="${d.lang}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${d.title}</title>
+<meta name="description" content="${d.description}">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="${d.canonical}">
+<meta property="og:type" content="product">
+<meta property="og:title" content="${d.ogTitle}">
+<meta property="og:description" content="${d.ogDesc}">
+<meta property="og:image" content="${d.image}">
+<meta property="og:url" content="${d.canonical}">
+<meta property="og:site_name" content="Nakama Binder">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${d.ogTitle}">
+<meta name="twitter:image" content="${d.image}">
+${d.jsonLds.map(j => `<script type="application/ld+json">${j}</script>`).join('\n')}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#06090d;--surf:#0b1219;--surf2:#111d28;--surf3:#16232f;
+  --gold:#c9a843;--gold2:#f0d060;--red:#c0392b;--red2:#e74c3c;
+  --text:#eef2f7;--muted:#6a7d90;--muted2:#3a4d5c;
+  --border:rgba(255,255,255,.07);--border2:rgba(201,168,67,.22);
+  --font-d:'Cinzel',serif;--font-b:'DM Sans',sans-serif;
+}
+html,body{background:var(--bg);color:var(--text);font-family:var(--font-b);min-height:100vh;overflow-x:hidden}
+a{color:var(--gold);text-decoration:none}
+a:hover{color:var(--gold2)}
+.wrap{max-width:1060px;margin:0 auto;padding:0 20px}
+
+/* ── NAV ───────────────────────────────────────────────────── */
+.topnav{position:sticky;top:0;z-index:50;background:rgba(6,9,13,.95);
+  border-bottom:1px solid var(--border);backdrop-filter:blur(16px)}
+.topnav-inner{display:flex;align-items:center;gap:16px;max-width:1060px;margin:0 auto;padding:13px 20px}
+.logo{font-family:var(--font-d);font-size:15px;font-weight:900;letter-spacing:1.5px;
+  background:linear-gradient(135deg,#fff,var(--gold2));-webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;background-clip:text}
+.nav-links{display:flex;gap:20px;margin-left:auto;font-size:12px}
+.nav-links a{color:var(--muted);letter-spacing:.03em;transition:color .15s}
+.nav-links a:hover{color:var(--text)}
+
+/* ── HERO WRAPPER ───────────────────────────────────────────── */
+.hero-wrap{position:relative;overflow:hidden;padding-bottom:56px}
+.hero-bg{
+  position:absolute;inset:-40px;z-index:0;
+  background-image:url('${d.image}');
+  background-size:cover;background-position:center;
+  filter:blur(60px) saturate(.4) brightness(.18);
+  transform:scale(1.1);
+}
+.hero-bg::after{content:'';position:absolute;inset:0;
+  background:linear-gradient(to bottom,transparent 30%,var(--bg) 100%)}
+
+/* ── BREADCRUMB ─────────────────────────────────────────────── */
+.bc{position:relative;z-index:1;padding:14px 0 8px;font-size:11px;
+  color:var(--muted);display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.bc a{color:var(--muted);transition:color .15s}
+.bc a:hover{color:var(--gold)}
+.bc-sep{opacity:.35}
+
+/* ── HERO GRID ──────────────────────────────────────────────── */
+.hero{position:relative;z-index:1;display:grid;
+  grid-template-columns:300px 1fr;gap:52px;align-items:start;padding-top:20px}
+
+/* ── CARD ───────────────────────────────────────────────────── */
+.card-col{position:sticky;top:80px}
+.card-frame{
+  border-radius:20px;overflow:hidden;cursor:zoom-in;
+  background:linear-gradient(145deg,var(--surf2),var(--surf3));
+  border:1px solid var(--border2);position:relative;
+  box-shadow:0 0 0 1px rgba(0,0,0,.4),0 40px 80px rgba(0,0,0,.7),0 0 80px rgba(201,168,67,.1);
+  transition:transform .3s,box-shadow .3s;
+}
+.card-frame:hover{
+  transform:translateY(-6px) scale(1.01);
+  box-shadow:0 0 0 1px rgba(201,168,67,.35),0 40px 80px rgba(0,0,0,.8),0 0 100px rgba(201,168,67,.18);
+}
+.card-frame img{width:100%;display:block;padding:10px;border-radius:16px;transition:transform .4s ease}
+.card-frame:hover img{transform:scale(1.04)}
+.zoom-pill{
+  position:absolute;bottom:14px;left:50%;transform:translateX(-50%);
+  background:rgba(0,0,0,.8);color:var(--gold);font-family:var(--font-d);
+  font-size:9px;letter-spacing:.12em;padding:5px 16px;border-radius:20px;
+  border:1px solid rgba(201,168,67,.25);white-space:nowrap;pointer-events:none;
+  opacity:0;transition:opacity .25s;
+}
+.card-frame:hover .zoom-pill{opacity:1}
+
+/* RARITY BADGE */
+.rar-wrap{padding:10px 12px 6px;display:flex;align-items:center;justify-content:space-between}
+.rar-badge{
+  font-family:var(--font-d);font-size:9px;font-weight:800;letter-spacing:.15em;
+  padding:4px 12px;border-radius:20px;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--bg);
+}
+.rar-lang{font-size:10px;color:var(--muted);font-family:monospace;letter-spacing:.04em}
+
+/* VARIANTS */
+.var-lbl{font-size:9px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;
+  padding:4px 12px 6px;font-family:var(--font-d)}
+.var-grid{display:flex;gap:6px;flex-wrap:wrap;padding:0 12px 14px}
+.var-btn{width:48px;height:67px;border-radius:8px;overflow:hidden;cursor:pointer;
+  border:2px solid transparent;background:var(--surf2);padding:0;outline:none;transition:.2s}
+.var-btn:hover{border-color:rgba(201,168,67,.4);transform:translateY(-3px)}
+.var-btn.active{border-color:var(--gold)}
+.var-btn img{width:100%;height:100%;object-fit:cover}
+
+/* ── INFO ───────────────────────────────────────────────────── */
+.eyebrow{font-family:var(--font-d);font-size:10px;color:var(--gold);letter-spacing:.2em;margin-bottom:12px}
+h1{font-family:var(--font-d);font-size:2.4rem;font-weight:900;line-height:1.05;margin-bottom:16px;
+  background:linear-gradient(135deg,#fff 40%,var(--gold2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+.badge{font-family:var(--font-d);font-size:10px;letter-spacing:.06em;padding:5px 14px;border-radius:20px}
+.badge-code{background:rgba(201,168,67,.12);color:var(--gold);border:1px solid var(--border2)}
+.badge-rar{background:rgba(255,255,255,.06);color:rgba(255,255,255,.6);border:1px solid var(--border)}
+.badge-set{background:rgba(192,57,43,.12);color:#e06050;border:1px solid rgba(192,57,43,.2)}
+
+/* EFFECT */
+.effect-box{
+  background:var(--surf);border-left:2px solid var(--gold);
+  border-radius:0 14px 14px 0;padding:16px 20px;margin-bottom:22px;
+  font-size:.88rem;line-height:1.9;color:#b8c8d8;
+}
+.effect-lbl{font-family:var(--font-d);font-size:9px;letter-spacing:.15em;color:var(--muted);
+  text-transform:uppercase;display:block;margin-bottom:8px}
+.kw{color:var(--red2);font-weight:600}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:22px}
+.stat{background:var(--surf);border:1px solid var(--border);border-radius:10px;
+  padding:12px 14px;text-align:center;transition:border-color .2s}
+.stat:hover{border-color:var(--border2)}
+.stat-lbl{font-family:var(--font-d);font-size:9px;color:var(--muted);text-transform:uppercase;
+  letter-spacing:.12em;display:block;margin-bottom:5px}
+.stat-val{font-family:var(--font-d);font-size:.9rem;font-weight:700;color:var(--gold2)}
+
+/* LANGUAGES */
+.langs{margin-bottom:24px}
+.langs-lbl{font-family:var(--font-d);font-size:9px;color:var(--muted);text-transform:uppercase;
+  letter-spacing:.12em;margin-bottom:10px}
+.lang-pills{display:flex;gap:6px;flex-wrap:wrap}
+.lang-pill{font-family:var(--font-d);font-size:10px;padding:5px 12px;border-radius:20px;
+  border:1px solid var(--border);color:rgba(255,255,255,.4);transition:.15s}
+.lang-pill:hover{border-color:var(--border2);color:rgba(255,255,255,.7)}
+.lang-pill.cur{background:rgba(201,168,67,.12);color:var(--gold);border-color:var(--border2)}
+
+/* PRICE CARD */
+.price-card{
+  background:var(--surf);border:1px solid var(--border2);border-radius:16px;
+  padding:20px 24px;margin-bottom:20px;
+  box-shadow:0 8px 40px rgba(0,0,0,.35),inset 0 1px 0 rgba(201,168,67,.08);
+}
+.price-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
+.price-lbl{font-family:var(--font-d);font-size:9px;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.15em;margin-bottom:8px}
+.price-val{font-family:var(--font-d);font-size:2rem;font-weight:800;color:var(--gold2);line-height:1}
+.price-note{font-size:10px;color:var(--muted);margin-top:4px}
+@keyframes pulse{0%,100%{opacity:.3}50%{opacity:.8}}
+.price-loading{animation:pulse 1.2s ease-in-out infinite;font-size:1.4rem;color:var(--muted)}
+.btn-cm{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(201,168,67,.1);color:var(--gold);
+  border:1px solid var(--border2);border-radius:10px;
+  padding:10px 18px;font-family:var(--font-d);font-size:10px;
+  font-weight:700;letter-spacing:.08em;cursor:pointer;
+  transition:.2s;white-space:nowrap;
+}
+.btn-cm:hover{background:rgba(201,168,67,.2);border-color:var(--gold);color:var(--gold2)}
+
+.btn-app{
+  display:flex;align-items:center;justify-content:center;gap:10px;width:100%;
+  background:linear-gradient(135deg,#a82020,var(--red),var(--red2));
+  color:#fff;padding:15px 28px;border-radius:14px;
+  font-family:var(--font-d);font-weight:800;font-size:14px;letter-spacing:.08em;
+  box-shadow:0 4px 30px rgba(192,57,43,.45),0 0 60px rgba(192,57,43,.12);
+  transition:transform .2s,box-shadow .2s;
+}
+.btn-app:hover{transform:translateY(-2px);box-shadow:0 8px 40px rgba(192,57,43,.55);color:#fff}
+
+/* ── ZOOM ───────────────────────────────────────────────────── */
+.zoom-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.95);
+  z-index:9999;align-items:center;justify-content:center;cursor:zoom-out}
+.zoom-ov.open{display:flex}
+.zoom-ov img{max-width:88vw;max-height:88vh;object-fit:contain;border-radius:18px;
+  border:1px solid rgba(201,168,67,.3);box-shadow:0 0 120px rgba(0,0,0,.9)}
+
+/* ── SEO + FAQ ──────────────────────────────────────────────── */
+.content-sections{position:relative;z-index:1;background:var(--bg)}
+.seo-section,.faq-section,.related-section{
+  border-top:1px solid var(--border);padding:40px 0 48px}
+.seo-section h2,.faq-section h2,.related-section h2{
+  font-family:var(--font-d);font-size:1.15rem;font-weight:700;
+  margin-bottom:18px;color:var(--gold2)}
+.seo-section h3{font-family:var(--font-d);font-size:.9rem;color:var(--gold);margin:22px 0 8px}
+.seo-section p{font-size:.88rem;color:#7a8d9e;margin-bottom:12px;line-height:1.8}
+details{border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden;transition:.2s}
+details:hover,details[open]{border-color:var(--border2)}
+summary{padding:14px 18px;cursor:pointer;font-weight:500;font-size:.87rem;
+  background:var(--surf);list-style:none;display:flex;
+  justify-content:space-between;align-items:center}
+summary::-webkit-details-marker{display:none}
+summary::after{content:'+';color:var(--gold);font-size:1.2rem;font-weight:300}
+details[open] summary::after{content:'−'}
+details p{padding:14px 18px;font-size:.87rem;color:#7a8d9e;background:var(--bg);line-height:1.75}
+.related-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:12px}
+.rel-card{display:block;color:inherit;transition:.2s}
+.rel-card:hover{transform:translateY(-4px)}
+.rel-card img{width:100%;border-radius:10px;display:block;margin-bottom:7px;
+  border:1px solid var(--border);transition:.2s}
+.rel-card:hover img{border-color:var(--border2)}
+.rel-name{font-size:.75rem;font-weight:600}
+.rel-code{font-size:.7rem;color:var(--muted);font-family:monospace}
+
+/* ── FOOTER ─────────────────────────────────────────────────── */
+footer{background:var(--surf);border-top:1px solid var(--border);
+  padding:26px 0;text-align:center;font-size:.75rem;color:var(--muted)}
+footer a{color:var(--muted)}
+footer a:hover{color:var(--gold)}
+
+/* ── RESPONSIVE ─────────────────────────────────────────────── */
+@media(max-width:700px){
+  .hero{grid-template-columns:1fr;gap:28px}
+  .card-col{position:static;max-width:220px;margin:0 auto}
+  h1{font-size:1.7rem}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .nav-links{display:none}
+  .price-top{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a href="/" class="logo">Nakama Binder</a>
+    <div class="nav-links">
+      <a href="/cartes/">Cartes</a>
+      <a href="/sets/">Sets</a>
+      <a href="/personnages/">Personnages</a>
+    </div>
+  </div>
+</nav>
+
+<div class="hero-wrap">
+  <div class="hero-bg"></div>
+  <div class="wrap">
+    <nav class="bc" aria-label="Fil d'Ariane">
+      ${d.breadcrumb}
+    </nav>
+
+    <div class="hero">
+      <!-- Carte -->
+      <div class="card-col">
+        <div class="card-frame" id="cf">
+          <img id="main-img" src="${d.image}" alt="${d.name} ${d.code}" width="260" height="363" loading="eager" fetchpriority="high" referrerpolicy="no-referrer">
+          <div class="zoom-pill">🔍 Cliquer pour zoomer</div>
+        </div>
+        ${d.rarity ? `<div class="rar-wrap"><span class="rar-badge">${d.rarity.toUpperCase()}</span><span class="rar-lang">${d.currentLang}</span></div>` : ''}
+        ${d.variants.length > 1 ? `
+        <div class="var-lbl">${d.variants.length} variante(s)</div>
+        <div class="var-grid">${d.variants.map((v,i) => `<button class="var-btn${i===0?' active':''}" onclick="sw(this,'${v.src}')" title="${v.label}"><img src="${v.src}" alt="${v.label}" loading="lazy"></button>`).join('')}</div>` : ''}
+      </div>
+
+      <!-- Infos -->
+      <div class="info-col">
+        <p class="eyebrow">One Piece Card Game</p>
+        <h1>${d.name}</h1>
+
+        <div class="badges">
+          ${d.code ? `<span class="badge badge-code">${d.code}</span>` : ''}
+          ${d.rarity ? `<span class="badge badge-rar">${d.rarity}</span>` : ''}
+          ${d.set ? `<span class="badge badge-set">${d.set}</span>` : ''}
+        </div>
+
+        ${d.effect ? `
+        <div class="effect-box">
+          <span class="effect-lbl">Effet</span>
+          ${d.effect}
+        </div>` : ''}
+
+        <div class="stats">
+          ${d.rarity ? `<div class="stat"><span class="stat-lbl">Rareté</span><span class="stat-val">${d.rarity}</span></div>` : ''}
+          ${d.set ? `<div class="stat"><span class="stat-lbl">Set</span><span class="stat-val">${d.set}</span></div>` : ''}
+          ${d.variants.length ? `<div class="stat"><span class="stat-lbl">Variantes</span><span class="stat-val">${d.variants.length}</span></div>` : ''}
+        </div>
+
+        ${d.languages.length ? `
+        <div class="langs">
+          <p class="langs-lbl">Versions disponibles</p>
+          <div class="lang-pills">${d.languages.map(l => `<span class="lang-pill${l.cur?' cur':''}">${l.label}</span>`).join('')}</div>
+        </div>` : ''}
+
+        <div class="price-card">
+          <div class="price-top">
+            <div>
+              <div class="price-lbl">Prix Cardmarket</div>
+              <div class="price-val price-loading" id="pv">...</div>
+              <div class="price-note" id="pn">Chargement...</div>
+            </div>
+            <a href="https://www.cardmarket.com/fr/OnePiece/Products/Search?searchString=${encodeURIComponent(d.code||d.name)}" class="btn-cm" target="_blank" rel="noopener">Voir sur<br>Cardmarket →</a>
+          </div>
+        </div>
+
+        <a href="/" class="btn-app">💀 Ouvrir Nakama Binder</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="content-sections">
+  <div class="wrap">
+    ${d.seoHtml}
+    ${d.faqHtml}
+    ${d.relatedHtml}
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <p>© 2026 Nakama Binder · <a href="/mentions-legales/">Mentions légales</a> · <a href="/sitemap.xml">Sitemap</a></p>
+    <p style="margin-top:6px;opacity:.6">One Piece Card Game est une marque déposée de Bandai Co., Ltd. Ce site n'est pas affilié à Bandai.</p>
+  </div>
+</footer>
+
+<!-- Zoom overlay -->
+<div class="zoom-ov" id="zo" onclick="this.classList.remove('open')">
+  <img id="zi" src="" alt="Zoom">
+</div>
+
+<script>
+function sw(btn,url){
+  document.getElementById('main-img').src=url;
+  document.getElementById('zi').src=url;
+  document.querySelectorAll('.var-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+(function(){
+  var cf=document.getElementById('cf');
+  var zo=document.getElementById('zo');
+  if(cf&&zo){
+    cf.addEventListener('click',function(){
+      document.getElementById('zi').src=document.getElementById('main-img').src;
+      zo.classList.add('open');
+    });
+    document.addEventListener('keydown',function(e){if(e.key==='Escape')zo.classList.remove('open')});
+  }
+  var pv=document.getElementById('pv');
+  var pn=document.getElementById('pn');
+  if(!pv)return;
+  var code='${d.code||''}';
+  if(!code)return;
+  fetch('/api/prices?name='+encodeURIComponent(code))
+    .then(function(r){return r.json()})
+    .then(function(data){
+      if(data.success&&data.price){
+        pv.textContent=data.price.toFixed(2).replace('.',',')+' \u20ac';
+        pv.className='price-val';
+        pn.textContent='Prix indicatif Cardmarket';
+      }else{
+        pv.textContent='—';
+        pv.className='price-val';
+        pn.textContent='Voir sur Cardmarket';
+      }
+    })
+    .catch(function(){pv.textContent='—';pv.className='price-val';pn.textContent='';});
+})();
+</script>
+</body>
+</html>`;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// EXTRACTION des données depuis l'ancien HTML
+// ─────────────────────────────────────────────────────────────────
+function extract(html, $) {
+  const d = {};
+
+  d.lang = $('html').attr('lang') || 'fr';
+  d.title = $('title').text().trim();
+  d.description = $('meta[name="description"]').attr('content') || '';
+  d.canonical = $('link[rel="canonical"]').attr('href') || '';
+  d.ogTitle = $('meta[property="og:title"]').attr('content') || d.title;
+  d.ogDesc = $('meta[property="og:description"]').attr('content') || d.description;
+  d.image = $('#main-img').attr('src') || $('meta[property="og:image"]').attr('content') || '';
+
+  // JSON-LD
+  d.jsonLds = [];
+  $('script[type="application/ld+json"]').each((_, el) => {
+    const raw = $(el).html() || '';
+    try {
+      const schema = JSON.parse(raw);
+      if (schema['@type'] === 'Product') {
+        if (!schema.offers) {
+          schema.offers = { '@type': 'Offer', url: d.canonical,
+            availability: 'https://schema.org/InStock', priceCurrency: 'EUR' };
+        }
+        d.jsonLds.push(JSON.stringify(schema));
+      } else {
+        d.jsonLds.push(raw.trim());
+      }
+    } catch(e) { d.jsonLds.push(raw.trim()); }
+  });
+
+  // Carte info
+  d.name = $('h1').first().text().trim();
+  d.code = $('.code-tag').first().text().trim();
+  d.rarity = '';
+  d.set = '';
+  $('.stat').each((_, el) => {
+    const lbl = $(el).find('.stat-lbl').text().trim().toLowerCase();
+    const val = $(el).find('.stat-val').text().trim();
+    if (lbl.includes('raret') || lbl === 'rarity') d.rarity = val;
+    if (lbl === 'set') d.set = val;
+  });
+  // fallback depuis JSON-LD
+  if (!d.rarity || !d.set || !d.code) {
+    try {
+      const ld = JSON.parse(($('script[type="application/ld+json"]').first().html()||'').trim());
+      if (!d.code && ld.sku) d.code = ld.sku;
+      (ld.additionalProperty || []).forEach(p => {
+        if ((p.name||'').toLowerCase().includes('raret') && !d.rarity) d.rarity = p.value;
+        if (p.name === 'Set' && !d.set) d.set = p.value;
+        if (p.name === 'Code' && !d.code) d.code = p.value;
+      });
+    } catch(e) {}
+  }
+
+  // Effect
+  const eb = $('.effect-box');
+  eb.find('.lbl').remove();
+  d.effect = eb.html() ? eb.html().trim() : '';
+
+  // Variants
+  d.variants = [];
+  $('.var-thumb,.var-btn').each((_, el) => {
+    const img = $(el).find('img');
+    const src = img.attr('src') || '';
+    const label = $(el).attr('title') || img.attr('alt') || '';
+    if (src) d.variants.push({ src, label });
+  });
+  if (d.variants.length === 0 && d.image) d.variants.push({ src: d.image, label: 'base' });
+
+  // Languages
+  d.currentLang = '';
+  d.languages = [];
+  $('.lang-pill').each((_, el) => {
+    const label = $(el).text().trim();
+    const cur = $(el).hasClass('cur');
+    d.languages.push({ label, cur });
+    if (cur) d.currentLang = label;
+  });
+
+  // Breadcrumb
+  const bcLinks = [];
+  $('.bc a').each((_, el) => {
+    bcLinks.push(`<a href="${$(el).attr('href')}">${$(el).text().trim()}</a>`);
+  });
+  const bcCurrent = $('[aria-current="page"]').text().trim();
+  d.breadcrumb = [...bcLinks, `<span class="bc-sep">›</span>`, ...bcLinks.slice(1).map(()=>''), bcLinks.map(l=>`${l}<span class="bc-sep">›</span>`).join(''), `<span aria-current="page">${bcCurrent}</span>`].join('');
+  // simplified breadcrumb rebuild
+  const bcParts = [];
+  $('.bc').first().children().each((_, el) => {
+    const tag = el.tagName;
+    if (tag === 'a') bcParts.push(`<a href="${$(el).attr('href')}">${$(el).text().trim()}</a>`);
+    else if ($(el).attr('aria-current')) bcParts.push(`<span aria-current="page">${$(el).text().trim()}</span>`);
+    else bcParts.push(`<span class="bc-sep">›</span>`);
+  });
+  d.breadcrumb = bcParts.join('');
+
+  // Sections à garder telles quelles
+  d.seoHtml = $('.seo-section').length ? $.html('.seo-section') : '';
+  d.faqHtml = $('.faq-section').length ? $.html('.faq-section') : '';
+  d.relatedHtml = $('.related-section').length ? $.html('.related-section') : '';
+
+  return d;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// TRAITEMENT fichier par fichier
+// ─────────────────────────────────────────────────────────────────
+async function processFile(filePath) {
+  const html = await fs.readFile(filePath, 'utf8');
+  const $ = cheerio.load(html);
+  const data = extract(html, $);
+  const newHtml = buildPage(data);
+  await fs.writeFile(filePath, newHtml, 'utf8');
+}
+
+async function main() {
+  console.log('Redesign premium de /carte/ ...');
+  const entries = await fs.readdir(CARTE_DIR, { withFileTypes: true });
+  const folders = entries.filter(e => e.isDirectory()).map(e => e.name);
+  console.log(folders.length + ' pages trouvees\n');
+
+  let done=0, errors=0;
+  for (const folder of folders) {
+    const fp = path.join(CARTE_DIR, folder, 'index.html');
+    try {
+      await fs.access(fp);
+      await processFile(fp);
+      done++;
+      if (done % 500 === 0) console.log('  ' + done + ' pages traitees...');
+    } catch(e) {
+      errors++;
+    }
+  }
+  console.log('\nTermine : ' + done + ' pages / ' + errors + ' erreurs');
+}
+
+main().catch(err => { console.error(err); process.exit(1); });
