@@ -14360,11 +14360,12 @@ window.enterAppSupabase = function(user) {
     if(!data || !data.success){
       box.innerHTML='<div class="nakama-price-cell"><b>Prix</b><span>—</span></div><div class="nakama-price-cell"><b>Tendance</b><span>—</span></div><div class="nakama-price-cell"><b>Bas</b><span>—</span></div>';
       state.textContent=(data && data.error) ? data.error : 'Prix non trouvé sur Cardmarket';
+      if(data && data.cardmarketUrl){ state.innerHTML += ` <a href="${esc(data.cardmarketUrl)}" target="_blank" rel="noopener">Vérifier</a>`; }
       state.className='nakama-price-state bad';
       return;
     }
     box.innerHTML=`<div class="nakama-price-cell"><b>Tendance</b><span>${esc(euro(data.trendPrice))}</span></div><div class="nakama-price-cell"><b>Moyen 7j</b><span>${esc(euro(data.avg7 || data.avg1 || data.avg30))}</span></div><div class="nakama-price-cell"><b>Prix bas</b><span>${esc(euro(data.lowPrice))}</span></div>`;
-    state.textContent=`Prix Cardmarket trouvé${data.matchedName?' : '+data.matchedName:''}`;
+    state.innerHTML=`Prix Cardmarket trouvé${data.matchedName?' : '+esc(data.matchedName):''}${data.cardmarketUrl?' · <a href="'+esc(data.cardmarketUrl)+'" target="_blank" rel="noopener">Voir</a>':''}`;
     state.className='nakama-price-state ok';
   }
   function renderCardPage(card){
