@@ -16,7 +16,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Vinsmoke Reiju OP06-069 — One Piece TCG">
 <meta name="twitter:image" content="https://en.onepiece-cardgame.com/images/cardlist/card/OP06-069.png">
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Product", "name": "Vinsmoke Reiju — OP06-069", "description": "Carte Super Rare du set Wings of the Captain. [On Play] If the number of DON!! cards on your field is equal to or less than the number on your opponent's field and you have 5 or less cards in your", "image": "https://en.onepiece-cardgame.com/images/cardlist/card/OP06-069.png", "sku": "OP06-069", "brand": {"@type": "Brand", "name": "One Piece Card Game"}, "category": "Jeu de cartes à collectionner", "url": "https://nakamabinder.com/carte/vinsmoke-reiju-op06-069-en/", "additionalProperty": [{"@type": "PropertyValue", "name": "Code", "value": "OP06-069"}, {"@type": "PropertyValue", "name": "Set", "value": "Wings of the Captain"}, {"@type": "PropertyValue", "name": "Rareté", "value": "Super Rare"}, {"@type": "PropertyValue", "name": "Variantes", "value": "4"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Product","name":"Vinsmoke Reiju — OP06-069","description":"Carte Super Rare du set Wings of the Captain. [On Play] If the number of DON!! cards on your field is equal to or less than the number on your opponent's field and you have 5 or less cards in your","image":"https://en.onepiece-cardgame.com/images/cardlist/card/OP06-069.png","sku":"OP06-069","brand":{"@type":"Brand","name":"One Piece Card Game"},"category":"Jeu de cartes à collectionner","url":"https://nakamabinder.com/carte/vinsmoke-reiju-op06-069-en/","additionalProperty":[{"@type":"PropertyValue","name":"Code","value":"OP06-069"},{"@type":"PropertyValue","name":"Set","value":"Wings of the Captain"},{"@type":"PropertyValue","name":"Rareté","value":"Super Rare"},{"@type":"PropertyValue","name":"Variantes","value":"4"}],"offers":{"@type":"Offer","url":"https://nakamabinder.com/carte/vinsmoke-reiju-op06-069-en/","availability":"https://schema.org/InStock","priceCurrency":"EUR"}}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Accueil", "item": "https://nakamabinder.com/"}, {"@type": "ListItem", "position": 2, "name": "Cartes", "item": "https://nakamabinder.com/cartes/"}, {"@type": "ListItem", "position": 3, "name": "Wings of the Captain", "item": "https://nakamabinder.com/set/op-06/"}, {"@type": "ListItem", "position": 4, "name": "Vinsmoke Reiju OP06-069", "item": "https://nakamabinder.com/carte/vinsmoke-reiju-op06-069-en/"}]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Quelle est la rareté de Vinsmoke Reiju OP06-069 ?", "acceptedAnswer": {"@type": "Answer", "text": "Vinsmoke Reiju (OP06-069) est une carte de rareté Super Rare du set Wings of the Captain."}}, {"@type": "Question", "name": "Dans quel set est Vinsmoke Reiju OP06-069 ?", "acceptedAnswer": {"@type": "Answer", "text": "Vinsmoke Reiju (OP06-069) fait partie du set Wings of the Captain du jeu One Piece TCG."}}, {"@type": "Question", "name": "Combien de variantes pour Vinsmoke Reiju OP06-069 ?", "acceptedAnswer": {"@type": "Answer", "text": "Il existe 4 variante(s) de Vinsmoke Reiju OP06-069."}}]}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -107,6 +107,14 @@ footer a{color:var(--muted)}
   .stats{grid-template-columns:repeat(2,1fr)}
   .nav-links{display:none}
 }
+
+.zoom-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:9999;align-items:center;justify-content:center;cursor:zoom-out}
+.zoom-overlay.open{display:flex}
+.zoom-overlay img{max-width:90vw;max-height:90vh;object-fit:contain;border-radius:14px;border:1px solid rgba(212,160,23,.35)}
+.card-frame{cursor:zoom-in;position:relative}
+.zoom-hint{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.7);color:#f0c040;font-size:10px;padding:3px 10px;border-radius:10px;pointer-events:none;white-space:nowrap}
+.price-loading{opacity:.5;font-size:.9rem}
+.price-live{color:#f0c040}
 </style>
 </head>
 <body>
@@ -253,5 +261,56 @@ footer a{color:var(--muted)}
     <p style="margin-top:6px">One Piece Card Game est une marque déposée de Bandai Co., Ltd. Ce site n'est pas affilié à Bandai.</p>
   </div>
 </footer>
+
+<div class="zoom-overlay" id="zoom-overlay" onclick="this.classList.remove('open')">
+  <img id="zoom-img" src="" alt="Zoom carte">
+</div>
+
+<script>
+(function(){
+  var frame=document.querySelector('.card-frame');
+  var overlay=document.getElementById('zoom-overlay');
+  var zoomImg=document.getElementById('zoom-img');
+  if(frame&&overlay){
+    var hint=document.createElement('div');
+    hint.className='zoom-hint';
+    hint.textContent='Cliquer pour zoomer';
+    frame.appendChild(hint);
+    frame.addEventListener('click',function(){
+      zoomImg.src=document.getElementById('main-img').src;
+      overlay.classList.add('open');
+    });
+    document.addEventListener('keydown',function(e){
+      if(e.key==='Escape')overlay.classList.remove('open');
+    });
+  }
+  var priceEl=document.querySelector('.price-val');
+  var noteEl=document.querySelector('.price-note');
+  if(!priceEl)return;
+  var ldScript=document.querySelector('script[type="application/ld+json"]');
+  var cardCode='';
+  try{
+    var data=JSON.parse(ldScript.textContent);
+    cardCode=data.sku||'';
+    if(!cardCode)(data.additionalProperty||[]).forEach(function(p){if(p.name==='Code')cardCode=p.value;});
+  }catch(e){}
+  if(!cardCode)return;
+  priceEl.textContent='...';
+  priceEl.className='price-val price-loading';
+  fetch('/api/prices?name='+encodeURIComponent(cardCode))
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.success&&d.price){
+        priceEl.textContent=d.price.toFixed(2).replace('.',',')+' EUR';
+        priceEl.className='price-val price-live';
+        if(noteEl)noteEl.textContent='Prix Cardmarket (indicatif)';
+      }else{
+        priceEl.textContent='Voir prix';
+        priceEl.className='price-val';
+      }
+    })
+    .catch(function(){priceEl.textContent='Voir prix';priceEl.className='price-val';});
+})();
+</script>
 </body></html>
 <script>function sw(btn,url){document.getElementById("main-img").src=url;document.querySelectorAll(".var-thumb").forEach(t=>t.classList.remove("active"));btn.classList.add("active")}</script>
