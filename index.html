@@ -5189,11 +5189,18 @@ function renderCards() {
             const safeName2 = card.name.replace(/'/g,"\\'");
             const dataIndex = ST.filtered.indexOf(card);
               const dataId = String(card.id || card.code || '').replace(/"/g,'&quot;');
-              return `<div class="card-item${isOwned?' owned':''}" data-index="${dataIndex}" data-card-id="${dataId}" onclick="openModal('${safeCode}','${safeUrl}','${safeName2}')" title="${safeName}">
+              const cardRarClass = (card.rarity||'').toLowerCase().replace(/\s+/g,'');
+              const cardPriceVal = ownedValue(info)>0 ? ownedValue(info).toFixed(2)+'€' : '';
+              return `<div class="card-item${isOwned?' owned':''} rl-${cardRarClass}" data-index="${dataIndex}" data-card-id="${dataId}" onclick="openModal('${safeCode}','${safeUrl}','${safeName2}')" title="${safeName}">
+              <div class="card-rl"></div>
               ${cardImgHtml(card, safeName)}
               ${isOwned?'<div class="owned-badge">✓</div>':''}
               ${qtyOwned>1?`<div class="qty-badge">x${qtyOwned}</div>`:''}
-              ${ownedValue(info)>0?`<div class="price-badge">${ownedValue(info).toFixed(2)}€</div>`:''}
+              <div class="card-hi">
+                <div class="card-hi-name">${safeName}</div>
+                <div class="card-hi-code">${card.id||card.code||''}</div>
+                ${cardPriceVal?`<div class="card-hi-price">${cardPriceVal}</div>`:''}
+              </div>
             </div>`;
           }).join('');
 
@@ -14239,24 +14246,31 @@ window.enterAppSupabase = function(user) {
 };
 </script>
 <style>
-/* === BROWSE TAB — VISUAL UPGRADE === */
+/* === BROWSE UPGRADE v2 === */
 #main-screen .cards-grid{grid-template-columns:repeat(auto-fill,minmax(165px,1fr))!important;gap:18px!important}
-#main-screen .card-item{border-radius:14px!important;border:1px solid rgba(255,255,255,0.08)!important;transition:transform 0.25s ease,box-shadow 0.25s ease,border-color 0.25s ease!important}
-#main-screen .card-item:hover{transform:translateY(-8px) scale(1.02)!important;border-color:rgba(212,160,23,0.55)!important;box-shadow:0 24px 48px rgba(0,0,0,0.5),0 0 0 1px rgba(212,160,23,0.12),0 0 28px rgba(212,160,23,0.08)!important;z-index:4!important}
-#main-screen .card-item.owned{border-color:rgba(29,158,117,0.3)!important}
-#main-screen .card-item.owned:hover{border-color:rgba(29,158,117,0.6)!important;box-shadow:0 24px 48px rgba(0,0,0,0.5),0 0 0 1px rgba(29,158,117,0.12)!important}
-#main-screen .card-item img{transition:transform 0.3s ease,opacity 0.3s!important}
+#main-screen .card-item{border-radius:14px!important;overflow:hidden!important;transition:transform 0.25s ease,box-shadow 0.25s ease,border-color 0.25s ease!important;border:1px solid rgba(255,255,255,0.08)!important}
+#main-screen .card-item:hover{transform:translateY(-8px) scale(1.02)!important;border-color:rgba(212,160,23,0.55)!important;box-shadow:0 24px 48px rgba(0,0,0,0.5),0 0 28px rgba(212,160,23,0.1)!important;z-index:4!important}
 #main-screen .card-item:hover img{transform:scale(1.06)!important}
-#main-screen .price-badge{padding:6px 8px!important;font-size:11px!important;font-weight:600!important;color:#f0c040!important;background:rgba(3,6,10,0.88)!important;backdrop-filter:blur(4px)!important}
-#main-screen .qty-badge{top:0!important;right:0!important;padding:6px 9px!important;font-size:12px!important;font-weight:700!important;border-radius:0 12px 0 10px!important;background:rgba(5,9,16,0.90)!important;backdrop-filter:blur(4px)!important;color:#f0c040!important}
-#main-screen .rarity-head{font-size:10px!important;letter-spacing:1.5px!important;font-weight:700!important;padding:6px 0 10px!important;border-bottom:0.5px solid rgba(255,255,255,0.05)!important;margin-bottom:14px!important}
-#main-screen .r-dot{width:7px!important;height:7px!important;border-radius:50%!important;flex-shrink:0!important}
-#main-screen .rarity-count{font-size:10px!important;color:rgba(255,255,255,0.2)!important;margin-left:auto!important}
-#main-screen .set-label{font-size:20px!important;font-weight:900!important;color:#f0ece0!important;margin-bottom:4px!important}
+/* Ligne rareté */
+.card-rl{position:absolute;top:0;left:0;right:0;height:3px;z-index:3;pointer-events:none}
+.rl-leader .card-rl{background:#c03030}
+.rl-superrare .card-rl{background:#d4a017}
+.rl-rare .card-rl{background:#4a80c0}
+.rl-uncommon .card-rl{background:#3a7a50}
+.rl-common .card-rl{background:#2a3a4a}
+.rl-promo .card-rl,.rl-secret .card-rl{background:#8040c0}
+/* Hover overlay */
+.card-hi{position:absolute;bottom:0;left:0;right:0;padding:28px 10px 10px;background:linear-gradient(to top,rgba(4,7,12,0.97) 0%,rgba(4,7,12,0.8) 50%,transparent 100%);transform:translateY(103%);transition:transform 0.22s ease;z-index:2;pointer-events:none}
+.card-item:hover .card-hi{transform:translateY(0)}
+.card-hi-name{font-size:11px;font-weight:600;color:#e8edf2;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-hi-code{font-size:9px;color:#4a5a6a;margin-bottom:6px}
+.card-hi-price{font-size:11px;color:#d4a017;font-weight:700}
+/* Price badge caché (remplacé par overlay) */
+#main-screen .price-badge{display:none!important}
+/* Set label */
+#main-screen .set-label{font-size:20px!important;font-weight:900!important;color:#f0ece0!important}
 #main-screen .rarity-block{margin-bottom:28px!important}
-.filters-final-clean{gap:10px!important;padding:14px 20px!important;background:rgba(6,9,14,0.97)!important;border-bottom:0.5px solid rgba(255,255,255,0.05)!important}
-.filters-final-clean input,.filters-final-clean select{border-radius:10px!important;border:0.5px solid rgba(255,255,255,0.1)!important;background:rgba(255,255,255,0.05)!important;transition:border-color 0.2s!important}
-.filters-final-clean input:focus{border-color:rgba(212,160,23,0.4)!important;outline:none!important}
+#main-screen .rarity-head{font-size:10px!important;letter-spacing:1.5px!important;padding:6px 0 10px!important;border-bottom:0.5px solid rgba(255,255,255,0.05)!important;margin-bottom:14px!important}
 </style>
 </body>
 </html>
