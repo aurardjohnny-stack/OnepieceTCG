@@ -1,0 +1,37 @@
+# .github/workflows/update-prices.yml
+# Lance update-prices.mjs chaque lundi à 6h00,
+# commit les changements et pousse → Netlify redéploie automatiquement.
+
+name: Update card prices
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'   # chaque lundi à 6h00 UTC
+  workflow_dispatch:        # permet de lancer manuellement depuis GitHub
+
+jobs:
+  update-prices:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install node-fetch cheerio
+
+      - name: Run price update script
+        run: node update-prices.mjs
+
+      - name: Commit & push if changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add seo-cards.json
+          git diff --cached --quiet || git commit -m "chore: mise à jour des prix Cardmarket [skip ci]"
+          git push
