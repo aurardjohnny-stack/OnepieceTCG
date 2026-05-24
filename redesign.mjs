@@ -8,16 +8,15 @@ const CARTE_DIR = path.join(__dirname, 'carte');
 
 function proxyImg(url){
   if(!url) return '';
-  // Décode les vieilles URLs proxy
   if(url.startsWith('/api/img?url=')) {
     try { url = decodeURIComponent(url.replace('/api/img?url=','')); } catch(e){}
   }
-  // Utilise wsrv.nl comme proxy CDN gratuit
   if(url.includes('onepiece-cardgame.com')) {
     const clean = url.replace('https://','').replace('http://','');
     return 'https://images.weserv.nl/?url=' + clean + '&maxage=7d';
   }
   return url;
+}
 }
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
