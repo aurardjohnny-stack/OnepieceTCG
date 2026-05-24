@@ -3959,37 +3959,6 @@ body.visitor-mode #visitor-signup-banner{
 }
 </style>
 
-
-<style id="nakama-safe-price-css">
-/* PRICE CARD - clean premium block, no flicker */
-.nakama-price-box{
-  margin:14px 0 12px;
-  padding:14px;
-  border-radius:16px;
-  border:1px solid rgba(242,182,62,.28);
-  background:
-    radial-gradient(circle at top left,rgba(242,182,62,.16),transparent 42%),
-    linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.022));
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 10px 28px rgba(0,0,0,.22);
-  overflow:hidden;
-}
-.nakama-price-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
-.nakama-price-title{font-size:10px;font-weight:950;color:var(--gold2);letter-spacing:1px;text-transform:uppercase}
-.nakama-price-badge{font-size:9px;font-weight:900;letter-spacing:.7px;text-transform:uppercase;padding:4px 7px;border-radius:999px;border:1px solid rgba(242,182,62,.28);background:rgba(242,182,62,.10);color:var(--gold2)}
-.nakama-price-main{font-family:var(--font-display);font-size:26px;font-weight:900;color:#fff;line-height:1;text-shadow:0 0 22px rgba(242,182,62,.14)}
-.nakama-price-main.loading{font-family:var(--font-body);font-size:14px;color:var(--muted);font-weight:800;text-shadow:none}
-.nakama-price-main.missing{font-family:var(--font-body);font-size:14px;color:var(--muted);font-weight:800;text-shadow:none}
-.nakama-price-sub{font-size:11px;color:var(--muted);margin-top:8px;line-height:1.45}
-.nakama-price-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:11px}
-.nakama-price-mini{padding:8px;border-radius:10px;background:rgba(8,12,16,.40);border:1px solid rgba(255,255,255,.08)}
-.nakama-price-mini span{display:block;font-size:8px;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:.7px;margin-bottom:3px}
-.nakama-price-mini strong{display:block;font-size:12px;color:var(--text);font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.nakama-price-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:11px}
-.nakama-price-link{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 11px;border-radius:10px;border:1px solid rgba(242,182,62,.32);background:linear-gradient(180deg,rgba(242,182,62,.14),rgba(242,182,62,.06));color:var(--gold2);font-size:11px;font-weight:900;text-decoration:none;transition:all .15s}
-.nakama-price-link:hover{border-color:var(--gold);color:#fff;transform:translateY(-1px)}
-@media(max-width:420px){.nakama-price-grid{grid-template-columns:1fr}.nakama-price-main{font-size:23px}}
-</style>
-
 </head>
 <body>
 
@@ -4369,23 +4338,6 @@ body.visitor-mode #visitor-signup-banner{
       <a class="market-link" id="m-vinted" href="#" target="_blank" rel="noopener noreferrer">🧥 Vinted</a>
       <a class="market-link" id="m-leboncoin" href="#" target="_blank" rel="noopener noreferrer">📦 Leboncoin</a>
       <a class="market-link" id="m-ebay" href="#" target="_blank" rel="noopener noreferrer">💎 eBay</a>
-    </div>
-
-    <div class="nakama-price-box" id="m-price-box">
-      <div class="nakama-price-top">
-        <div class="nakama-price-title">Prix Cardmarket</div>
-        <div class="nakama-price-badge" id="m-price-badge">Europe</div>
-      </div>
-      <div class="nakama-price-main loading" id="m-market-price">Recherche du prix…</div>
-      <div class="nakama-price-sub" id="m-market-price-sub">Prix récupéré côté Vercel depuis les données publiques Cardmarket.</div>
-      <div class="nakama-price-grid" id="m-price-grid" style="display:none">
-        <div class="nakama-price-mini"><span>Bas</span><strong id="m-price-low">—</strong></div>
-        <div class="nakama-price-mini"><span>Moyen</span><strong id="m-price-avg">—</strong></div>
-        <div class="nakama-price-mini"><span>Trend</span><strong id="m-price-trend">—</strong></div>
-      </div>
-      <div class="nakama-price-actions">
-        <a class="nakama-price-link" id="m-price-cardmarket-link" href="#" target="_blank" rel="noopener noreferrer">Ouvrir Cardmarket</a>
-      </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px"><button class="btn-action btn-add-col" id="m-btn" onclick="toggleCard()">✓ Ajouter au classeur</button><button class="btn-action" id="wishlist-btn" onclick="toggleWishlist()" style="background:rgba(212,160,23,.12);border:1px solid rgba(212,160,23,.25);color:var(--gold2)">Wishlist</button></div>
   </div>
@@ -5435,68 +5387,6 @@ function nbResetCardUrl() {
   }
 }
 
-
-// Prix Cardmarket SAFE : ne touche pas aux images, au zoom, ni aux modals.
-let NB_PRICE_REQ_ID = 0;
-function nbCleanCardCode(raw) {
-  const s = String(raw || '').toUpperCase();
-  const m = s.match(/[A-Z]{1,4}\d{1,2}[\-–—]\d{3}/);
-  return m ? m[0].replace(/[–—]/g, '-') : s.replace(/[^A-Z0-9-]/g, '').slice(0, 24);
-}
-function nbEuro(v) {
-  if (v === null || v === undefined || v === '' || Number.isNaN(Number(String(v).replace(',', '.')))) return '—';
-  const n = Number(String(v).replace(',', '.'));
-  return n.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
-}
-function nbSetModalMarketPrice(state) {
-  const priceEl = document.getElementById('m-market-price');
-  const subEl = document.getElementById('m-market-price-sub');
-  const linkEl = document.getElementById('m-price-cardmarket-link');
-  const badgeEl = document.getElementById('m-price-badge');
-  const gridEl = document.getElementById('m-price-grid');
-  const lowEl = document.getElementById('m-price-low');
-  const avgEl = document.getElementById('m-price-avg');
-  const trendEl = document.getElementById('m-price-trend');
-  const s = state || {};
-  if (priceEl) {
-    priceEl.textContent = s.main || 'Prix indisponible';
-    priceEl.classList.toggle('loading', s.kind === 'loading');
-    priceEl.classList.toggle('missing', s.kind === 'missing' || s.kind === 'error');
-  }
-  if (subEl) subEl.textContent = s.sub || '';
-  if (badgeEl) badgeEl.textContent = s.badge || 'Europe';
-  if (linkEl && s.url) linkEl.href = s.url;
-  const hasGrid = !!s.grid;
-  if (gridEl) gridEl.style.display = hasGrid ? 'grid' : 'none';
-  if (hasGrid) {
-    if (lowEl) lowEl.textContent = nbEuro(s.grid.low);
-    if (avgEl) avgEl.textContent = nbEuro(s.grid.avg);
-    if (trendEl) trendEl.textContent = nbEuro(s.grid.trend);
-  }
-}
-async function nbLoadMarketPrice
-async function nbLoadMarketPrice(card) {
-  const reqId = ++NB_PRICE_REQ_ID;
-  const code = nbCleanCardCode((card && (card.code || card.id)) || ST.selCode || '');
-  const name = (card && card.name) || document.getElementById('m-name')?.textContent || '';
-  const fallbackUrl = typeof cardmarketSearchUrl === 'function' ? cardmarketSearchUrl(card, name, code) : `https://www.cardmarket.com/fr/OnePiece/Products/Search?searchString=${encodeURIComponent(code || name)}`;
-  nbSetModalMarketPrice({ kind:'loading', main:'Recherche du prix…', sub: code ? `Recherche Cardmarket pour ${code}` : 'Recherche Cardmarket', badge:'Live', url:fallbackUrl });
-  try {
-    const r = await fetch(`/api/prices?code=${encodeURIComponent(code)}&name=${encodeURIComponent(name)}`, { cache: 'no-store' });
-    const data = await r.json();
-    if (reqId !== NB_PRICE_REQ_ID) return;
-    const finalUrl = data.url || data.searchUrl || fallbackUrl;
-    if (data.success && data.price) {
-      nbSetModalMarketPrice({ kind:'ok', main: nbEuro(data.price), sub: data.label || 'Prix trouvé via les données publiques Cardmarket', badge:'Trouvé', url:finalUrl, grid:{ low:data.lowPrice, avg:data.avgSellPrice, trend:data.trendPrice || data.price } });
-    } else {
-      nbSetModalMarketPrice({ kind:'missing', main:'Prix non trouvé', sub:'Aucun match fiable dans les données Cardmarket. Le lien reste dispo pour vérifier.', badge:'À vérifier', url:finalUrl });
-    }
-  } catch (e) {
-    if (reqId !== NB_PRICE_REQ_ID) return;
-    nbSetModalMarketPrice({ kind:'error', main:'Prix indisponible', sub:'Le proxy Vercel ne répond pas pour l’instant. La carte reste intacte.', badge:'Hors ligne', url:fallbackUrl });
-  }
-}
-
 function openModal(id, img, name) {
   ST.selCode = id;
   ST.selImg = img;
@@ -5532,9 +5422,6 @@ function openModal(id, img, name) {
   if (viBtn) viBtn.href = vintedSearchUrl(card, name, id);
   if (lbBtn) lbBtn.href = leboncoinSearchUrl(card, name, id);
   if (ebBtn) ebBtn.href = ebaySearchUrl(card, name, id);
-
-  // Charge le prix sans modifier la preview, le zoom ou la modal.
-  nbLoadMarketPrice(card || ST.selCard);
 
   if (card && card.effect) {
     document.getElementById('m-effect').innerHTML = card.effect.replace(/<br>/gi,'<br>');
