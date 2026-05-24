@@ -1,0 +1,24 @@
+name: Redesign premium pages cartes
+
+on:
+  workflow_dispatch:
+
+jobs:
+  redesign:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install cheerio
+        run: npm install cheerio
+      - name: Run redesign
+        run: node redesign.mjs
+      - name: Commit & push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add carte/
+          git diff --cached --quiet || git commit -m "feat: redesign premium complet pages cartes"
+          git push
