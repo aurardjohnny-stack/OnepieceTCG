@@ -8,8 +8,11 @@ const CARTE_DIR = path.join(__dirname, 'carte');
 
 function proxyImg(url){
   if(!url) return '';
-  if(url.startsWith('/api/img')) return url; // déjà proxifié
-  return '/api/img?url=' + encodeURIComponent(url);
+  // Si l'URL est encore un vieux proxy, on décode l'originale
+  if(url.startsWith('/api/img?url=')) {
+    try { return decodeURIComponent(url.replace('/api/img?url=','')); } catch(e){}
+  }
+  return url;
 }
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
@@ -20,7 +23,7 @@ function buildPage(d) {
     <div class="var-section">
       <div class="var-lbl">${d.variants.length} variantes</div>
       <div class="var-grid">
-        ${d.variants.map((v,i) => `<button class="var-btn${i===0?' active':''}" onclick="switchCard(this,'${proxyImg(v.src)}')" title="${esc(v.label)}"><img src="${proxyImg(v.src)}" alt="${esc(v.label)}" loading="lazy"></button>`).join('')}
+        ${d.variants.map((v,i) => `<button class="var-btn${i===0?' active':''}" onclick="switchCard(this,'${proxyImg(v.src)}')" title="${esc(v.label)}"><img src="${proxyImg(v.src)}" alt="${esc(v.label)}" loading="lazy" referrerpolicy="no-referrer"></button>`).join('')}
       </div>
     </div>` : '';
 
@@ -78,7 +81,8 @@ a{color:var(--gold);text-decoration:none}a:hover{color:var(--gold2)}
 
 /* HERO BG */
 .hero-wrap{position:relative;overflow:hidden;padding-bottom:60px}
-.hero-bg{position:absolute;inset:-60px;z-index:0;background-image:url('${proxyImg(d.image)}');background-size:cover;background-position:center;filter:blur(70px) saturate(.35) brightness(.15);transform:scale(1.15)}
+.hero-bg{position:absolute;inset:-60px;z-index:0;overflow:hidden}
+.hero-bg img{width:100%;height:100%;object-fit:cover;filter:blur(70px) saturate(.35) brightness(.15);transform:scale(1.15)}
 .hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(6,9,13,.3) 0%,var(--bg) 85%)}
 
 /* BREADCRUMB */
@@ -218,7 +222,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
 </nav>
 
 <div class="hero-wrap">
-  <div class="hero-bg"></div>
+  <div class="hero-bg"><img src="${esc(d.image)}" alt="" referrerpolicy="no-referrer" aria-hidden="true" fetchpriority="low"></div>
   <div class="wrap">
     <nav class="bc" aria-label="Fil d'Ariane">${d.breadcrumb}</nav>
     <div class="hero">
@@ -406,10 +410,12 @@ loadPrice();
 function proxyImgsInHtml($, selector) {
   if(!$(selector).length) return '';
   $(selector).find('img').each(function(_, el) {
-    const src = $(el).attr('src') || '';
-    if(src && src.includes('onepiece-cardgame.com')) {
-      $(el).attr('src', '/api/img?url=' + encodeURIComponent(src));
+    // Décode les anciennes URLs proxy si besoin
+    let src = $(el).attr('src') || '';
+    if(src.startsWith('/api/img?url=')) {
+      try { src = decodeURIComponent(src.replace('/api/img?url=','')); $(el).attr('src', src); } catch(e){}
     }
+    $(el).attr('referrerpolicy', 'no-referrer');
   });
   return $.html(selector);
 }
