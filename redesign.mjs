@@ -8,9 +8,14 @@ const CARTE_DIR = path.join(__dirname, 'carte');
 
 function proxyImg(url){
   if(!url) return '';
-  // Si l'URL est encore un vieux proxy, on décode l'originale
+  // Décode les vieilles URLs proxy
   if(url.startsWith('/api/img?url=')) {
-    try { return decodeURIComponent(url.replace('/api/img?url=','')); } catch(e){}
+    try { url = decodeURIComponent(url.replace('/api/img?url=','')); } catch(e){}
+  }
+  // Utilise wsrv.nl comme proxy CDN gratuit
+  if(url.includes('onepiece-cardgame.com')) {
+    const clean = url.replace('https://','').replace('http://','');
+    return 'https://images.weserv.nl/?url=' + clean + '&maxage=7d';
   }
   return url;
 }
@@ -222,7 +227,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
 </nav>
 
 <div class="hero-wrap">
-  <div class="hero-bg"><img src="${esc(d.image)}" alt="" referrerpolicy="no-referrer" aria-hidden="true" fetchpriority="low"></div>
+  <div class="hero-bg"><img src="${proxyImg(d.image)}" alt="" referrerpolicy="no-referrer" aria-hidden="true" fetchpriority="low"></div>
   <div class="wrap">
     <nav class="bc" aria-label="Fil d'Ariane">${d.breadcrumb}</nav>
     <div class="hero">
