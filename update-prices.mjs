@@ -16,7 +16,7 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // ─── Config ──────────────────────────────────────────────────────
-const CARDS_FILE  = path.join(__dirname, 'seo-cards.json');
+const CARDS_FILE  = path.join(__dirname, 'cards.json');
 const DELAY_MS    = 1800;   // pause entre chaque requête (sois gentil avec Cardmarket)
 const MAX_RETRIES = 2;      // tentatives si erreur réseau
 const BASE_URL    = 'https://www.cardmarket.com/fr/OnePiece/Products/Search';
