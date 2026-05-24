@@ -42,7 +42,8 @@ a{color:var(--gold);text-decoration:none}a:hover{color:var(--gold2)}
 
 /* HERO BG */
 .hero-wrap{position:relative;overflow:hidden;padding-bottom:60px}
-.hero-bg{position:absolute;inset:-60px;z-index:0;background-image:url('/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP15-086.png');background-size:cover;background-position:center;filter:blur(70px) saturate(.35) brightness(.15);transform:scale(1.15)}
+.hero-bg{position:absolute;inset:-60px;z-index:0;overflow:hidden}
+.hero-bg img{width:100%;height:100%;object-fit:cover;filter:blur(70px) saturate(.35) brightness(.15);transform:scale(1.15)}
 .hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(6,9,13,.3) 0%,var(--bg) 85%)}
 
 /* BREADCRUMB */
@@ -182,7 +183,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
 </nav>
 
 <div class="hero-wrap">
-  <div class="hero-bg"></div>
+  <div class="hero-bg"><img src="https://en.onepiece-cardgame.com/images/cardlist/card/OP15-086.png" alt="" referrerpolicy="no-referrer" aria-hidden="true" fetchpriority="low"></div>
   <div class="wrap">
     <nav class="bc" aria-label="Fil d'Ariane"><a href="/">Accueil</a><span class="bc-sep">›</span><a href="/cartes/">Cartes</a><span class="bc-sep">›</span><a href="/set/op-15/">Hero of Justice</a><span class="bc-sep">›</span><span aria-current="page">Nami OP15-086</span></nav>
     <div class="hero">
@@ -190,7 +191,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
       <!-- CARTE -->
       <div class="card-col">
         <div class="card-wrap" onclick="openZoom()" title="Cliquer pour zoomer">
-          <img id="main-img" src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP15-086.png" alt="Nami — OP15-086 OP15-086" width="260" height="363" loading="eager" fetchpriority="high" referrerpolicy="no-referrer">
+          <img id="main-img" src="https://en.onepiece-cardgame.com/images/cardlist/card/OP15-086.png" alt="Nami — OP15-086 OP15-086" width="260" height="363" loading="eager" fetchpriority="high" referrerpolicy="no-referrer">
         </div>
         <div class="zoom-pill" onclick="openZoom()" style="cursor:zoom-in">
           🔍 Cliquer pour zoomer
@@ -199,7 +200,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
     <div class="var-section">
       <div class="var-lbl">2 variantes</div>
       <div class="var-grid">
-        <button class="var-btn active" onclick="switchCard(this,'/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP15-086.png')" title="base"><img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP15-086.png" alt="base" loading="lazy"></button><button class="var-btn" onclick="switchCard(this,'/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP15-086_p1.png')" title="p1"><img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP15-086_p1.png" alt="p1" loading="lazy"></button>
+        <button class="var-btn active" onclick="switchCard(this,'https://en.onepiece-cardgame.com/images/cardlist/card/OP15-086.png')" title="base"><img src="https://en.onepiece-cardgame.com/images/cardlist/card/OP15-086.png" alt="base" loading="lazy" referrerpolicy="no-referrer"></button><button class="var-btn" onclick="switchCard(this,'https://en.onepiece-cardgame.com/images/cardlist/card/OP15-086_p1.png')" title="p1"><img src="https://en.onepiece-cardgame.com/images/cardlist/card/OP15-086_p1.png" alt="p1" loading="lazy" referrerpolicy="no-referrer"></button>
       </div>
     </div>
       </div>
@@ -266,32 +267,32 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
     <section class="related-section">
   <h2>Autres cartes Nami dans One Piece TCG</h2>
   <div class="related-grid"><a href="/carte/nami-p-053-en/" class="rel-card">
-  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FP053.png" alt="Nami P-053" loading="lazy">
+  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FP053.png" alt="Nami P-053" loading="lazy" referrerpolicy="no-referrer">
   <span class="rel-name">Nami</span>
   <span class="rel-code">P-053</span>
 </a>
 <a href="/carte/nami-p-053-r1-en/" class="rel-card">
-  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FP053_r1.png" alt="Nami P-053_r1" loading="lazy">
+  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FP053_r1.png" alt="Nami P-053_r1" loading="lazy" referrerpolicy="no-referrer">
   <span class="rel-name">Nami</span>
   <span class="rel-code">P-053_r1</span>
 </a>
 <a href="/carte/nami-eb02-017-en/" class="rel-card">
-  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FEB02-017.png" alt="Nami EB02-017" loading="lazy">
+  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FEB02-017.png" alt="Nami EB02-017" loading="lazy" referrerpolicy="no-referrer">
   <span class="rel-name">Nami</span>
   <span class="rel-code">EB02-017</span>
 </a>
 <a href="/carte/nami-eb03-006-en/" class="rel-card">
-  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FEB03-006.png" alt="Nami EB03-006" loading="lazy">
+  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FEB03-006.png" alt="Nami EB03-006" loading="lazy" referrerpolicy="no-referrer">
   <span class="rel-name">Nami</span>
   <span class="rel-code">EB03-006</span>
 </a>
 <a href="/carte/nami-eb03-053-en/" class="rel-card">
-  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FEB03-053.png" alt="Nami EB03-053" loading="lazy">
+  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FEB03-053.png" alt="Nami EB03-053" loading="lazy" referrerpolicy="no-referrer">
   <span class="rel-name">Nami</span>
   <span class="rel-code">EB03-053</span>
 </a>
 <a href="/carte/nami-op01-016-en/" class="rel-card">
-  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP01-016.png" alt="Nami OP01-016" loading="lazy">
+  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP01-016.png" alt="Nami OP01-016" loading="lazy" referrerpolicy="no-referrer">
   <span class="rel-name">Nami</span>
   <span class="rel-code">OP01-016</span>
 </a>

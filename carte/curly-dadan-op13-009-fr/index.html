@@ -42,7 +42,8 @@ a{color:var(--gold);text-decoration:none}a:hover{color:var(--gold2)}
 
 /* HERO BG */
 .hero-wrap{position:relative;overflow:hidden;padding-bottom:60px}
-.hero-bg{position:absolute;inset:-60px;z-index:0;background-image:url('/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP13-009.png');background-size:cover;background-position:center;filter:blur(70px) saturate(.35) brightness(.15);transform:scale(1.15)}
+.hero-bg{position:absolute;inset:-60px;z-index:0;overflow:hidden}
+.hero-bg img{width:100%;height:100%;object-fit:cover;filter:blur(70px) saturate(.35) brightness(.15);transform:scale(1.15)}
 .hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(6,9,13,.3) 0%,var(--bg) 85%)}
 
 /* BREADCRUMB */
@@ -182,7 +183,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
 </nav>
 
 <div class="hero-wrap">
-  <div class="hero-bg"></div>
+  <div class="hero-bg"><img src="https://fr.onepiece-cardgame.com/images/cardlist/card/OP13-009.png" alt="" referrerpolicy="no-referrer" aria-hidden="true" fetchpriority="low"></div>
   <div class="wrap">
     <nav class="bc" aria-label="Fil d'Ariane"><a href="/">Accueil</a><span class="bc-sep">›</span><a href="/cartes/">Cartes</a><span class="bc-sep">›</span><a href="/set/op-13/">Ultra Deck</a><span class="bc-sep">›</span><span aria-current="page">Curly Dadan OP13-009</span></nav>
     <div class="hero">
@@ -190,7 +191,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
       <!-- CARTE -->
       <div class="card-col">
         <div class="card-wrap" onclick="openZoom()" title="Cliquer pour zoomer">
-          <img id="main-img" src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP13-009.png" alt="Curly Dadan — OP13-009 OP13-009" width="260" height="363" loading="eager" fetchpriority="high" referrerpolicy="no-referrer">
+          <img id="main-img" src="https://fr.onepiece-cardgame.com/images/cardlist/card/OP13-009.png" alt="Curly Dadan — OP13-009 OP13-009" width="260" height="363" loading="eager" fetchpriority="high" referrerpolicy="no-referrer">
         </div>
         <div class="zoom-pill" onclick="openZoom()" style="cursor:zoom-in">
           🔍 Cliquer pour zoomer
@@ -260,7 +261,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
     <section class="related-section">
   <h2>Autres cartes Curly Dadan dans One Piece TCG</h2>
   <div class="related-grid"><a href="/carte/curly-dadan-op02-005-fr/" class="rel-card">
-  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP02-005.png" alt="Curly Dadan OP02-005" loading="lazy">
+  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP02-005.png" alt="Curly Dadan OP02-005" loading="lazy" referrerpolicy="no-referrer">
   <span class="rel-name">Curly Dadan</span>
   <span class="rel-code">OP02-005</span>
 </a>

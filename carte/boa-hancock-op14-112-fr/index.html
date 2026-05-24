@@ -42,7 +42,8 @@ a{color:var(--gold);text-decoration:none}a:hover{color:var(--gold2)}
 
 /* HERO BG */
 .hero-wrap{position:relative;overflow:hidden;padding-bottom:60px}
-.hero-bg{position:absolute;inset:-60px;z-index:0;background-image:url('/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP14-112.png');background-size:cover;background-position:center;filter:blur(70px) saturate(.35) brightness(.15);transform:scale(1.15)}
+.hero-bg{position:absolute;inset:-60px;z-index:0;overflow:hidden}
+.hero-bg img{width:100%;height:100%;object-fit:cover;filter:blur(70px) saturate(.35) brightness(.15);transform:scale(1.15)}
 .hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(6,9,13,.3) 0%,var(--bg) 85%)}
 
 /* BREADCRUMB */
@@ -182,7 +183,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
 </nav>
 
 <div class="hero-wrap">
-  <div class="hero-bg"></div>
+  <div class="hero-bg"><img src="https://fr.onepiece-cardgame.com/images/cardlist/card/OP14-112.png" alt="" referrerpolicy="no-referrer" aria-hidden="true" fetchpriority="low"></div>
   <div class="wrap">
     <nav class="bc" aria-label="Fil d'Ariane"><a href="/">Accueil</a><span class="bc-sep">›</span><a href="/cartes/">Cartes</a><span class="bc-sep">›</span><a href="/set/op-14/">Emperors in the New World</a><span class="bc-sep">›</span><span aria-current="page">Boa Hancock OP14-112</span></nav>
     <div class="hero">
@@ -190,7 +191,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
       <!-- CARTE -->
       <div class="card-col">
         <div class="card-wrap" onclick="openZoom()" title="Cliquer pour zoomer">
-          <img id="main-img" src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP14-112.png" alt="Boa Hancock — OP14-112 OP14-112" width="260" height="363" loading="eager" fetchpriority="high" referrerpolicy="no-referrer">
+          <img id="main-img" src="https://fr.onepiece-cardgame.com/images/cardlist/card/OP14-112.png" alt="Boa Hancock — OP14-112 OP14-112" width="260" height="363" loading="eager" fetchpriority="high" referrerpolicy="no-referrer">
         </div>
         <div class="zoom-pill" onclick="openZoom()" style="cursor:zoom-in">
           🔍 Cliquer pour zoomer
@@ -199,7 +200,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
     <div class="var-section">
       <div class="var-lbl">3 variantes</div>
       <div class="var-grid">
-        <button class="var-btn active" onclick="switchCard(this,'/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP14-112.png')" title="base"><img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP14-112.png" alt="base" loading="lazy"></button><button class="var-btn" onclick="switchCard(this,'/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP14-112_p1.png')" title="p1"><img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP14-112_p1.png" alt="p1" loading="lazy"></button><button class="var-btn" onclick="switchCard(this,'/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP14-112_p2.png')" title="p2"><img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP14-112_p2.png" alt="p2" loading="lazy"></button>
+        <button class="var-btn active" onclick="switchCard(this,'https://fr.onepiece-cardgame.com/images/cardlist/card/OP14-112.png')" title="base"><img src="https://fr.onepiece-cardgame.com/images/cardlist/card/OP14-112.png" alt="base" loading="lazy" referrerpolicy="no-referrer"></button><button class="var-btn" onclick="switchCard(this,'https://fr.onepiece-cardgame.com/images/cardlist/card/OP14-112_p1.png')" title="p1"><img src="https://fr.onepiece-cardgame.com/images/cardlist/card/OP14-112_p1.png" alt="p1" loading="lazy" referrerpolicy="no-referrer"></button><button class="var-btn" onclick="switchCard(this,'https://fr.onepiece-cardgame.com/images/cardlist/card/OP14-112_p2.png')" title="p2"><img src="https://fr.onepiece-cardgame.com/images/cardlist/card/OP14-112_p2.png" alt="p2" loading="lazy" referrerpolicy="no-referrer"></button>
       </div>
     </div>
       </div>
@@ -266,32 +267,32 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
     <section class="related-section">
   <h2>Autres cartes Boa Hancock dans One Piece TCG</h2>
   <div class="related-grid"><a href="/carte/boa-hancock-eb03-026-fr/" class="rel-card">
-  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FEB03-026.png" alt="Boa Hancock EB03-026" loading="lazy">
+  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FEB03-026.png" alt="Boa Hancock EB03-026" loading="lazy" referrerpolicy="no-referrer">
   <span class="rel-name">Boa Hancock</span>
   <span class="rel-code">EB03-026</span>
 </a>
 <a href="/carte/boa-hancock-eb04-027-fr/" class="rel-card">
-  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FEB04-027.png" alt="Boa Hancock EB04-027" loading="lazy">
+  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FEB04-027.png" alt="Boa Hancock EB04-027" loading="lazy" referrerpolicy="no-referrer">
   <span class="rel-name">Boa Hancock</span>
   <span class="rel-code">EB04-027</span>
 </a>
 <a href="/carte/boa-hancock-op12-014-fr/" class="rel-card">
-  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP12-014.png" alt="Boa Hancock OP12-014" loading="lazy">
+  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP12-014.png" alt="Boa Hancock OP12-014" loading="lazy" referrerpolicy="no-referrer">
   <span class="rel-name">Boa Hancock</span>
   <span class="rel-code">OP12-014</span>
 </a>
 <a href="/carte/boa-hancock-op13-051-fr/" class="rel-card">
-  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP13-051.png" alt="Boa Hancock OP13-051" loading="lazy">
+  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP13-051.png" alt="Boa Hancock OP13-051" loading="lazy" referrerpolicy="no-referrer">
   <span class="rel-name">Boa Hancock</span>
   <span class="rel-code">OP13-051</span>
 </a>
 <a href="/carte/boa-hancock-op14-041-fr/" class="rel-card">
-  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP14-041.png" alt="Boa Hancock OP14-041" loading="lazy">
+  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP14-041.png" alt="Boa Hancock OP14-041" loading="lazy" referrerpolicy="no-referrer">
   <span class="rel-name">Boa Hancock</span>
   <span class="rel-code">OP14-041</span>
 </a>
 <a href="/carte/boa-hancock-prb02-017-fr/" class="rel-card">
-  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Ffr.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FPRB02-017.png" alt="Boa Hancock PRB02-017" loading="lazy">
+  <img src="/api/img?url=https%3A%2F%2Ffr.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FPRB02-017.png" alt="Boa Hancock PRB02-017" loading="lazy" referrerpolicy="no-referrer">
   <span class="rel-name">Boa Hancock</span>
   <span class="rel-code">PRB02-017</span>
 </a>

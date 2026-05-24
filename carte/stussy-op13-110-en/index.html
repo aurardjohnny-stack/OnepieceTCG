@@ -42,7 +42,8 @@ a{color:var(--gold);text-decoration:none}a:hover{color:var(--gold2)}
 
 /* HERO BG */
 .hero-wrap{position:relative;overflow:hidden;padding-bottom:60px}
-.hero-bg{position:absolute;inset:-60px;z-index:0;background-image:url('/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP13-110.png');background-size:cover;background-position:center;filter:blur(70px) saturate(.35) brightness(.15);transform:scale(1.15)}
+.hero-bg{position:absolute;inset:-60px;z-index:0;overflow:hidden}
+.hero-bg img{width:100%;height:100%;object-fit:cover;filter:blur(70px) saturate(.35) brightness(.15);transform:scale(1.15)}
 .hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(6,9,13,.3) 0%,var(--bg) 85%)}
 
 /* BREADCRUMB */
@@ -182,7 +183,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
 </nav>
 
 <div class="hero-wrap">
-  <div class="hero-bg"></div>
+  <div class="hero-bg"><img src="https://en.onepiece-cardgame.com/images/cardlist/card/OP13-110.png" alt="" referrerpolicy="no-referrer" aria-hidden="true" fetchpriority="low"></div>
   <div class="wrap">
     <nav class="bc" aria-label="Fil d'Ariane"><a href="/">Accueil</a><span class="bc-sep">›</span><a href="/cartes/">Cartes</a><span class="bc-sep">›</span><a href="/set/op-13/">Ultra Deck</a><span class="bc-sep">›</span><span aria-current="page">Stussy OP13-110</span></nav>
     <div class="hero">
@@ -190,7 +191,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
       <!-- CARTE -->
       <div class="card-col">
         <div class="card-wrap" onclick="openZoom()" title="Cliquer pour zoomer">
-          <img id="main-img" src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP13-110.png" alt="Stussy — OP13-110 OP13-110" width="260" height="363" loading="eager" fetchpriority="high" referrerpolicy="no-referrer">
+          <img id="main-img" src="https://en.onepiece-cardgame.com/images/cardlist/card/OP13-110.png" alt="Stussy — OP13-110 OP13-110" width="260" height="363" loading="eager" fetchpriority="high" referrerpolicy="no-referrer">
         </div>
         <div class="zoom-pill" onclick="openZoom()" style="cursor:zoom-in">
           🔍 Cliquer pour zoomer
@@ -199,7 +200,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
     <div class="var-section">
       <div class="var-lbl">2 variantes</div>
       <div class="var-grid">
-        <button class="var-btn active" onclick="switchCard(this,'/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP13-110.png')" title="base"><img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP13-110.png" alt="base" loading="lazy"></button><button class="var-btn" onclick="switchCard(this,'/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP13-110_p1.png')" title="p1"><img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP13-110_p1.png" alt="p1" loading="lazy"></button>
+        <button class="var-btn active" onclick="switchCard(this,'https://en.onepiece-cardgame.com/images/cardlist/card/OP13-110.png')" title="base"><img src="https://en.onepiece-cardgame.com/images/cardlist/card/OP13-110.png" alt="base" loading="lazy" referrerpolicy="no-referrer"></button><button class="var-btn" onclick="switchCard(this,'https://en.onepiece-cardgame.com/images/cardlist/card/OP13-110_p1.png')" title="p1"><img src="https://en.onepiece-cardgame.com/images/cardlist/card/OP13-110_p1.png" alt="p1" loading="lazy" referrerpolicy="no-referrer"></button>
       </div>
     </div>
       </div>
@@ -266,27 +267,27 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
     <section class="related-section">
   <h2>Autres cartes Stussy dans One Piece TCG</h2>
   <div class="related-grid"><a href="/carte/stussy-eb03-043-en/" class="rel-card">
-  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FEB03-043.png" alt="Stussy EB03-043" loading="lazy">
+  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FEB03-043.png" alt="Stussy EB03-043" loading="lazy" referrerpolicy="no-referrer">
   <span class="rel-name">Stussy</span>
   <span class="rel-code">EB03-043</span>
 </a>
 <a href="/carte/stussy-op04-084-en/" class="rel-card">
-  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP04-084.png" alt="Stussy OP04-084" loading="lazy">
+  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP04-084.png" alt="Stussy OP04-084" loading="lazy" referrerpolicy="no-referrer">
   <span class="rel-name">Stussy</span>
   <span class="rel-code">OP04-084</span>
 </a>
 <a href="/carte/stussy-op07-085-en/" class="rel-card">
-  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP07-085.png" alt="Stussy OP07-085" loading="lazy">
+  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP07-085.png" alt="Stussy OP07-085" loading="lazy" referrerpolicy="no-referrer">
   <span class="rel-name">Stussy</span>
   <span class="rel-code">OP07-085</span>
 </a>
 <a href="/carte/stussy-st21-006-en/" class="rel-card">
-  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FST21-006.png" alt="Stussy ST21-006" loading="lazy">
+  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FST21-006.png" alt="Stussy ST21-006" loading="lazy" referrerpolicy="no-referrer">
   <span class="rel-name">Stussy</span>
   <span class="rel-code">ST21-006</span>
 </a>
 <a href="/carte/stussy-st29-006-en/" class="rel-card">
-  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FST29-006.png" alt="Stussy ST29-006" loading="lazy">
+  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FST29-006.png" alt="Stussy ST29-006" loading="lazy" referrerpolicy="no-referrer">
   <span class="rel-name">Stussy</span>
   <span class="rel-code">ST29-006</span>
 </a>

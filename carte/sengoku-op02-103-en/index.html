@@ -42,7 +42,8 @@ a{color:var(--gold);text-decoration:none}a:hover{color:var(--gold2)}
 
 /* HERO BG */
 .hero-wrap{position:relative;overflow:hidden;padding-bottom:60px}
-.hero-bg{position:absolute;inset:-60px;z-index:0;background-image:url('/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP02-103.png');background-size:cover;background-position:center;filter:blur(70px) saturate(.35) brightness(.15);transform:scale(1.15)}
+.hero-bg{position:absolute;inset:-60px;z-index:0;overflow:hidden}
+.hero-bg img{width:100%;height:100%;object-fit:cover;filter:blur(70px) saturate(.35) brightness(.15);transform:scale(1.15)}
 .hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(6,9,13,.3) 0%,var(--bg) 85%)}
 
 /* BREADCRUMB */
@@ -182,7 +183,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
 </nav>
 
 <div class="hero-wrap">
-  <div class="hero-bg"></div>
+  <div class="hero-bg"><img src="https://en.onepiece-cardgame.com/images/cardlist/card/OP02-103.png" alt="" referrerpolicy="no-referrer" aria-hidden="true" fetchpriority="low"></div>
   <div class="wrap">
     <nav class="bc" aria-label="Fil d'Ariane"><a href="/">Accueil</a><span class="bc-sep">›</span><a href="/cartes/">Cartes</a><span class="bc-sep">›</span><a href="/set/op-02/">Paramount War</a><span class="bc-sep">›</span><span aria-current="page">Sengoku OP02-103</span></nav>
     <div class="hero">
@@ -190,7 +191,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
       <!-- CARTE -->
       <div class="card-col">
         <div class="card-wrap" onclick="openZoom()" title="Cliquer pour zoomer">
-          <img id="main-img" src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP02-103.png" alt="Sengoku — OP02-103 OP02-103" width="260" height="363" loading="eager" fetchpriority="high" referrerpolicy="no-referrer">
+          <img id="main-img" src="https://en.onepiece-cardgame.com/images/cardlist/card/OP02-103.png" alt="Sengoku — OP02-103 OP02-103" width="260" height="363" loading="eager" fetchpriority="high" referrerpolicy="no-referrer">
         </div>
         <div class="zoom-pill" onclick="openZoom()" style="cursor:zoom-in">
           🔍 Cliquer pour zoomer
@@ -260,32 +261,32 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
     <section class="related-section">
   <h2>Autres cartes Sengoku dans One Piece TCG</h2>
   <div class="related-grid"><a href="/carte/sengoku-p-032-en/" class="rel-card">
-  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FP032.png" alt="Sengoku P-032" loading="lazy">
+  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FP032.png" alt="Sengoku P-032" loading="lazy" referrerpolicy="no-referrer">
   <span class="rel-name">Sengoku</span>
   <span class="rel-code">P-032</span>
 </a>
 <a href="/carte/sengoku-eb02-044-en/" class="rel-card">
-  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FEB02-044.png" alt="Sengoku EB02-044" loading="lazy">
+  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FEB02-044.png" alt="Sengoku EB02-044" loading="lazy" referrerpolicy="no-referrer">
   <span class="rel-name">Sengoku</span>
   <span class="rel-code">EB02-044</span>
 </a>
 <a href="/carte/sengoku-op06-049-en/" class="rel-card">
-  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP06-049.png" alt="Sengoku OP06-049" loading="lazy">
+  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP06-049.png" alt="Sengoku OP06-049" loading="lazy" referrerpolicy="no-referrer">
   <span class="rel-name">Sengoku</span>
   <span class="rel-code">OP06-049</span>
 </a>
 <a href="/carte/sengoku-op07-046-en/" class="rel-card">
-  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP07-046.png" alt="Sengoku OP07-046" loading="lazy">
+  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP07-046.png" alt="Sengoku OP07-046" loading="lazy" referrerpolicy="no-referrer">
   <span class="rel-name">Sengoku</span>
   <span class="rel-code">OP07-046</span>
 </a>
 <a href="/carte/sengoku-op10-031-en/" class="rel-card">
-  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP10-031.png" alt="Sengoku OP10-031" loading="lazy">
+  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP10-031.png" alt="Sengoku OP10-031" loading="lazy" referrerpolicy="no-referrer">
   <span class="rel-name">Sengoku</span>
   <span class="rel-code">OP10-031</span>
 </a>
 <a href="/carte/sengoku-op12-047-en/" class="rel-card">
-  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP12-047.png" alt="Sengoku OP12-047" loading="lazy">
+  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP12-047.png" alt="Sengoku OP12-047" loading="lazy" referrerpolicy="no-referrer">
   <span class="rel-name">Sengoku</span>
   <span class="rel-code">OP12-047</span>
 </a>

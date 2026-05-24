@@ -42,7 +42,8 @@ a{color:var(--gold);text-decoration:none}a:hover{color:var(--gold2)}
 
 /* HERO BG */
 .hero-wrap{position:relative;overflow:hidden;padding-bottom:60px}
-.hero-bg{position:absolute;inset:-60px;z-index:0;background-image:url('/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP05-119.png');background-size:cover;background-position:center;filter:blur(70px) saturate(.35) brightness(.15);transform:scale(1.15)}
+.hero-bg{position:absolute;inset:-60px;z-index:0;overflow:hidden}
+.hero-bg img{width:100%;height:100%;object-fit:cover;filter:blur(70px) saturate(.35) brightness(.15);transform:scale(1.15)}
 .hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(6,9,13,.3) 0%,var(--bg) 85%)}
 
 /* BREADCRUMB */
@@ -182,7 +183,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
 </nav>
 
 <div class="hero-wrap">
-  <div class="hero-bg"></div>
+  <div class="hero-bg"><img src="https://en.onepiece-cardgame.com/images/cardlist/card/OP05-119.png" alt="" referrerpolicy="no-referrer" aria-hidden="true" fetchpriority="low"></div>
   <div class="wrap">
     <nav class="bc" aria-label="Fil d'Ariane"><a href="/">Accueil</a><span class="bc-sep">›</span><a href="/cartes/">Cartes</a><span class="bc-sep">›</span><a href="/set/op-05/">Awakening of the New Era</a><span class="bc-sep">›</span><span aria-current="page">Monkey.D.Luffy OP05-119</span></nav>
     <div class="hero">
@@ -190,7 +191,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
       <!-- CARTE -->
       <div class="card-col">
         <div class="card-wrap" onclick="openZoom()" title="Cliquer pour zoomer">
-          <img id="main-img" src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP05-119.png" alt="Monkey.D.Luffy — OP05-119 OP05-119" width="260" height="363" loading="eager" fetchpriority="high" referrerpolicy="no-referrer">
+          <img id="main-img" src="https://en.onepiece-cardgame.com/images/cardlist/card/OP05-119.png" alt="Monkey.D.Luffy — OP05-119 OP05-119" width="260" height="363" loading="eager" fetchpriority="high" referrerpolicy="no-referrer">
         </div>
         <div class="zoom-pill" onclick="openZoom()" style="cursor:zoom-in">
           🔍 Cliquer pour zoomer
@@ -199,7 +200,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
     <div class="var-section">
       <div class="var-lbl">7 variantes</div>
       <div class="var-grid">
-        <button class="var-btn active" onclick="switchCard(this,'/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP05-119.png')" title="base"><img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP05-119.png" alt="base" loading="lazy"></button><button class="var-btn" onclick="switchCard(this,'/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP05-119_p1.png')" title="p1"><img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP05-119_p1.png" alt="p1" loading="lazy"></button><button class="var-btn" onclick="switchCard(this,'/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP05-119_p2.png')" title="p2"><img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP05-119_p2.png" alt="p2" loading="lazy"></button><button class="var-btn" onclick="switchCard(this,'/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP05-119_p4.png')" title="p4"><img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP05-119_p4.png" alt="p4" loading="lazy"></button><button class="var-btn" onclick="switchCard(this,'/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP05-119_p6.png')" title="p6"><img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP05-119_p6.png" alt="p6" loading="lazy"></button><button class="var-btn" onclick="switchCard(this,'/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP05-119_p7.png')" title="p7"><img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP05-119_p7.png" alt="p7" loading="lazy"></button><button class="var-btn" onclick="switchCard(this,'/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP05-119_p8.png')" title="p8"><img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP05-119_p8.png" alt="p8" loading="lazy"></button>
+        <button class="var-btn active" onclick="switchCard(this,'https://en.onepiece-cardgame.com/images/cardlist/card/OP05-119.png')" title="base"><img src="https://en.onepiece-cardgame.com/images/cardlist/card/OP05-119.png" alt="base" loading="lazy" referrerpolicy="no-referrer"></button><button class="var-btn" onclick="switchCard(this,'https://en.onepiece-cardgame.com/images/cardlist/card/OP05-119_p1.png')" title="p1"><img src="https://en.onepiece-cardgame.com/images/cardlist/card/OP05-119_p1.png" alt="p1" loading="lazy" referrerpolicy="no-referrer"></button><button class="var-btn" onclick="switchCard(this,'https://en.onepiece-cardgame.com/images/cardlist/card/OP05-119_p2.png')" title="p2"><img src="https://en.onepiece-cardgame.com/images/cardlist/card/OP05-119_p2.png" alt="p2" loading="lazy" referrerpolicy="no-referrer"></button><button class="var-btn" onclick="switchCard(this,'https://en.onepiece-cardgame.com/images/cardlist/card/OP05-119_p4.png')" title="p4"><img src="https://en.onepiece-cardgame.com/images/cardlist/card/OP05-119_p4.png" alt="p4" loading="lazy" referrerpolicy="no-referrer"></button><button class="var-btn" onclick="switchCard(this,'https://en.onepiece-cardgame.com/images/cardlist/card/OP05-119_p6.png')" title="p6"><img src="https://en.onepiece-cardgame.com/images/cardlist/card/OP05-119_p6.png" alt="p6" loading="lazy" referrerpolicy="no-referrer"></button><button class="var-btn" onclick="switchCard(this,'https://en.onepiece-cardgame.com/images/cardlist/card/OP05-119_p7.png')" title="p7"><img src="https://en.onepiece-cardgame.com/images/cardlist/card/OP05-119_p7.png" alt="p7" loading="lazy" referrerpolicy="no-referrer"></button><button class="var-btn" onclick="switchCard(this,'https://en.onepiece-cardgame.com/images/cardlist/card/OP05-119_p8.png')" title="p8"><img src="https://en.onepiece-cardgame.com/images/cardlist/card/OP05-119_p8.png" alt="p8" loading="lazy" referrerpolicy="no-referrer"></button>
       </div>
     </div>
       </div>
@@ -266,32 +267,32 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
     <section class="related-section">
   <h2>Autres cartes Monkey.D.Luffy dans One Piece TCG</h2>
   <div class="related-grid"><a href="/carte/monkeydluffy-p-001-en/" class="rel-card">
-  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FP001.png" alt="Monkey.D.Luffy P-001" loading="lazy">
+  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FP001.png" alt="Monkey.D.Luffy P-001" loading="lazy" referrerpolicy="no-referrer">
   <span class="rel-name">Monkey.D.Luffy</span>
   <span class="rel-code">P-001</span>
 </a>
 <a href="/carte/monkeydluffy-p-006-en/" class="rel-card">
-  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FP006.png" alt="Monkey.D.Luffy P-006" loading="lazy">
+  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FP006.png" alt="Monkey.D.Luffy P-006" loading="lazy" referrerpolicy="no-referrer">
   <span class="rel-name">Monkey.D.Luffy</span>
   <span class="rel-code">P-006</span>
 </a>
 <a href="/carte/monkeydluffy-p-007-en/" class="rel-card">
-  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FP007.png" alt="Monkey.D.Luffy P-007" loading="lazy">
+  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FP007.png" alt="Monkey.D.Luffy P-007" loading="lazy" referrerpolicy="no-referrer">
   <span class="rel-name">Monkey.D.Luffy</span>
   <span class="rel-code">P-007</span>
 </a>
 <a href="/carte/monkeydluffy-p-022-en/" class="rel-card">
-  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FP022.png" alt="Monkey.D.Luffy P-022" loading="lazy">
+  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FP022.png" alt="Monkey.D.Luffy P-022" loading="lazy" referrerpolicy="no-referrer">
   <span class="rel-name">Monkey.D.Luffy</span>
   <span class="rel-code">P-022</span>
 </a>
 <a href="/carte/monkeydluffy-p-033-en/" class="rel-card">
-  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FP033.png" alt="Monkey.D.Luffy P-033" loading="lazy">
+  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FP033.png" alt="Monkey.D.Luffy P-033" loading="lazy" referrerpolicy="no-referrer">
   <span class="rel-name">Monkey.D.Luffy</span>
   <span class="rel-code">P-033</span>
 </a>
 <a href="/carte/monkeydluffy-p-035-en/" class="rel-card">
-  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FP035.png" alt="Monkey.D.Luffy P-035" loading="lazy">
+  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FP035.png" alt="Monkey.D.Luffy P-035" loading="lazy" referrerpolicy="no-referrer">
   <span class="rel-name">Monkey.D.Luffy</span>
   <span class="rel-code">P-035</span>
 </a>

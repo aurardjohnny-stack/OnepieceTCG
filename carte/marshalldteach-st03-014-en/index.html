@@ -42,7 +42,8 @@ a{color:var(--gold);text-decoration:none}a:hover{color:var(--gold2)}
 
 /* HERO BG */
 .hero-wrap{position:relative;overflow:hidden;padding-bottom:60px}
-.hero-bg{position:absolute;inset:-60px;z-index:0;background-image:url('/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FST03-014.png');background-size:cover;background-position:center;filter:blur(70px) saturate(.35) brightness(.15);transform:scale(1.15)}
+.hero-bg{position:absolute;inset:-60px;z-index:0;overflow:hidden}
+.hero-bg img{width:100%;height:100%;object-fit:cover;filter:blur(70px) saturate(.35) brightness(.15);transform:scale(1.15)}
 .hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(6,9,13,.3) 0%,var(--bg) 85%)}
 
 /* BREADCRUMB */
@@ -182,7 +183,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
 </nav>
 
 <div class="hero-wrap">
-  <div class="hero-bg"></div>
+  <div class="hero-bg"><img src="https://en.onepiece-cardgame.com/images/cardlist/card/ST03-014.png" alt="" referrerpolicy="no-referrer" aria-hidden="true" fetchpriority="low"></div>
   <div class="wrap">
     <nav class="bc" aria-label="Fil d'Ariane"><a href="/">Accueil</a><span class="bc-sep">›</span><a href="/cartes/">Cartes</a><span class="bc-sep">›</span><a href="/set/st-03/">Starter Deck 3</a><span class="bc-sep">›</span><span aria-current="page">Marshall.D.Teach ST03-014</span></nav>
     <div class="hero">
@@ -190,7 +191,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
       <!-- CARTE -->
       <div class="card-col">
         <div class="card-wrap" onclick="openZoom()" title="Cliquer pour zoomer">
-          <img id="main-img" src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FST03-014.png" alt="Marshall.D.Teach — ST03-014 ST03-014" width="260" height="363" loading="eager" fetchpriority="high" referrerpolicy="no-referrer">
+          <img id="main-img" src="https://en.onepiece-cardgame.com/images/cardlist/card/ST03-014.png" alt="Marshall.D.Teach — ST03-014 ST03-014" width="260" height="363" loading="eager" fetchpriority="high" referrerpolicy="no-referrer">
         </div>
         <div class="zoom-pill" onclick="openZoom()" style="cursor:zoom-in">
           🔍 Cliquer pour zoomer
@@ -199,7 +200,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
     <div class="var-section">
       <div class="var-lbl">2 variantes</div>
       <div class="var-grid">
-        <button class="var-btn active" onclick="switchCard(this,'/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FST03-014.png')" title="base"><img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FST03-014.png" alt="base" loading="lazy"></button><button class="var-btn" onclick="switchCard(this,'/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FST03-014_p1.png')" title="p1"><img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FST03-014_p1.png" alt="p1" loading="lazy"></button>
+        <button class="var-btn active" onclick="switchCard(this,'https://en.onepiece-cardgame.com/images/cardlist/card/ST03-014.png')" title="base"><img src="https://en.onepiece-cardgame.com/images/cardlist/card/ST03-014.png" alt="base" loading="lazy" referrerpolicy="no-referrer"></button><button class="var-btn" onclick="switchCard(this,'https://en.onepiece-cardgame.com/images/cardlist/card/ST03-014_p1.png')" title="p1"><img src="https://en.onepiece-cardgame.com/images/cardlist/card/ST03-014_p1.png" alt="p1" loading="lazy" referrerpolicy="no-referrer"></button>
       </div>
     </div>
       </div>
@@ -266,32 +267,32 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
     <section class="related-section">
   <h2>Autres cartes Marshall.D.Teach dans One Piece TCG</h2>
   <div class="related-grid"><a href="/carte/marshalldteach-op03-012-en/" class="rel-card">
-  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP03-012.png" alt="Marshall.D.Teach OP03-012" loading="lazy">
+  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP03-012.png" alt="Marshall.D.Teach OP03-012" loading="lazy" referrerpolicy="no-referrer">
   <span class="rel-name">Marshall.D.Teach</span>
   <span class="rel-code">OP03-012</span>
 </a>
 <a href="/carte/marshalldteach-op09-081-en/" class="rel-card">
-  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP09-081.png" alt="Marshall.D.Teach OP09-081" loading="lazy">
+  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP09-081.png" alt="Marshall.D.Teach OP09-081" loading="lazy" referrerpolicy="no-referrer">
   <span class="rel-name">Marshall.D.Teach</span>
   <span class="rel-code">OP09-081</span>
 </a>
 <a href="/carte/marshalldteach-op09-092-en/" class="rel-card">
-  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP09-092.png" alt="Marshall.D.Teach OP09-092" loading="lazy">
+  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP09-092.png" alt="Marshall.D.Teach OP09-092" loading="lazy" referrerpolicy="no-referrer">
   <span class="rel-name">Marshall.D.Teach</span>
   <span class="rel-code">OP09-092</span>
 </a>
 <a href="/carte/marshalldteach-op09-093-en/" class="rel-card">
-  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP09-093.png" alt="Marshall.D.Teach OP09-093" loading="lazy">
+  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP09-093.png" alt="Marshall.D.Teach OP09-093" loading="lazy" referrerpolicy="no-referrer">
   <span class="rel-name">Marshall.D.Teach</span>
   <span class="rel-code">OP09-093</span>
 </a>
 <a href="/carte/marshalldteach-op12-054-en/" class="rel-card">
-  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP12-054.png" alt="Marshall.D.Teach OP12-054" loading="lazy">
+  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP12-054.png" alt="Marshall.D.Teach OP12-054" loading="lazy" referrerpolicy="no-referrer">
   <span class="rel-name">Marshall.D.Teach</span>
   <span class="rel-code">OP12-054</span>
 </a>
 <a href="/carte/marshalldteach-op13-053-en/" class="rel-card">
-  <img src="/api/img?url=%2Fapi%2Fimg%3Furl%3Dhttps%253A%252F%252Fen.onepiece-cardgame.com%252Fimages%252Fcardlist%252Fcard%252FOP13-053.png" alt="Marshall.D.Teach OP13-053" loading="lazy">
+  <img src="/api/img?url=https%3A%2F%2Fen.onepiece-cardgame.com%2Fimages%2Fcardlist%2Fcard%2FOP13-053.png" alt="Marshall.D.Teach OP13-053" loading="lazy" referrerpolicy="no-referrer">
   <span class="rel-name">Marshall.D.Teach</span>
   <span class="rel-code">OP13-053</span>
 </a>
