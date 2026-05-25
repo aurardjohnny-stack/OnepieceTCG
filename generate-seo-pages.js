@@ -70,9 +70,7 @@ function buildHtml(card, slug) {
   const color   = escHtml(card.color);
   const effect  = escHtml(stripHtml(card.effect));
   const lang    = langLabel(card.lang);
-  const imgFull = card.original_image
-    ? escHtml(card.original_image)
-    : `${SITE}${escHtml(card.image)}`;
+  const imgFull = `${SITE}${escHtml(card.image)}`;
   const url     = `${SITE}/carte/${slug}/`;
   const cmUrl   = cardmarketUrl(card);
   const uiLang  = card.lang === 'FR' ? 'fr' : 'en';
